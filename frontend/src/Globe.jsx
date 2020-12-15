@@ -7,17 +7,26 @@ import dataCoarse from "./GeoChart.world.geo.json";
 
 var data = [1, 2];
 
-var asdf =  [
-    {type: "LineString", coordinates: [[-123.1207, 49.2827], [114.1694, 22.3193]]},
-    {type: "LineString", coordinates: [[114.1694, 22.3193], [120.9842, 14.5995]]},
-    {type: "LineString", coordinates: [[120.9842, 14.5995], [144.9631, -37.8136]]},
-    {type: "LineString", coordinates: [[-123.1207, 49.2827], [-73.7781, 40.6413]]},
-    {type: "LineString", coordinates: [[120.9842, 14.5995], [103.9915, 1.3644]]},
-    {type: "LineString", coordinates: [[120.9842, 14.5995], [125.6455, 7.1304]]},
-    {type: "LineString", coordinates: [[120.9842, 14.5995], [140.3929, 35.7720]]},
-    {type: "LineString", coordinates: [[120.9842, 14.5995], [-123.1207, 49.2827]]},
-    {type: "LineString", coordinates: [[-123.1207, 49.2827], [-156.0407, 19.7367]]}
-]
+// var paths =  [
+//     {type: "LineString", coordinates: [[-123.1207, 49.2827], [114.1694, 22.3193]]},
+//     {type: "LineString", coordinates: [[114.1694, 22.3193], [120.9842, 14.5995]]},
+//     {type: "LineString", coordinates: [[120.9842, 14.5995], [144.9631, -37.8136]]},
+//     {type: "LineString", coordinates: [[-123.1207, 49.2827], [-73.7781, 40.6413]]},
+//     {type: "LineString", coordinates: [[120.9842, 14.5995], [103.9915, 1.3644]]},
+//     {type: "LineString", coordinates: [[120.9842, 14.5995], [125.6455, 7.1304]]},
+//     {type: "LineString", coordinates: [[120.9842, 14.5995], [140.3929, 35.7720]]},
+//     {type: "LineString", coordinates: [[120.9842, 14.5995], [-123.1207, 49.2827]]},
+//     {type: "LineString", coordinates: [[-123.1207, 49.2827], [-156.0407, 19.7367]]}
+// ]
+
+// var landmarks = [
+//     {
+//         id: "manila_ph",
+//         name: "Manila / Marikina",
+//         description: "First Hometown. Revisited 2011, 2013, 2017, 2018, and 2019.",
+//         coordinates: [120.9842, 14.5995]
+//     }
+// ];
 
 var cities = [
     ["1137347","Dubai","25.0657","55.17128","03","AE"]
@@ -46,7 +55,7 @@ var points = [{
 //     {type: "LineString", coordinates: [[-123.1207, 49.2827], [-156.0407, 19.7367]]}
 // ]
 
-function Globe({size, scale}) {
+function Globe({size, scale, paths, landmarks, landmarkHandler}) {
     const svgRef = useRef();
     var circle = d3.geoCircle();
     const projection = d3.geoOrthographic()
@@ -106,9 +115,12 @@ function Globe({size, scale}) {
 
     const onMouseUpHandler = (e) => {
         // console.log("mouse up", e);
+        if(newCoordinates){
+            setMouseCoordinates(null);
+            setOldCoordinates(newCoordinates);
+            setNewCoordinates(null);
+        }
         setMouseCoordinates(null);
-        setOldCoordinates(newCoordinates);
-        setNewCoordinates(null);
     };
 
     // const onScrollHandler = (e) => {
@@ -167,8 +179,10 @@ function Globe({size, scale}) {
         //     .data(countries)
         //     .join("path")
         //     .attr("class", "country")
-        //     .attr("fill", feature => "#edd")
-        //     .attr("stroke", feature => "#f99")
+        //     .attr("fill", feature => "#edd")//daytime
+        //     // .attr("fill", feature => "#114")//nighttime
+        //     .attr("stroke", feature => "#faa")//daytime
+        //     // .attr("stroke", feature => "#004")//nighttime
         //     .attr("d", feature => pathGenerator(feature));
         // });
 
@@ -230,10 +244,72 @@ function Globe({size, scale}) {
         //     .attr("d", cityElement => pathGenerator(circle.center(cityElement.geometry.coordinates).radius(getCityRadius(cityElement.fields.population))()));
     };
 
+    const drawLandmarks = (svg) => {
+        svg
+            .selectAll(".landmarks")
+            .data(landmarks)
+            .join("path")
+            .attr("class", "landmarks")
+            .attr("id", landmark => `${landmark.id}`)
+            // .attr("stroke", feature => "red")
+            // .attr("stroke-width", 1)
+            .style("fill", "black")
+            .attr("fill-opacity","0.5")
+            // .on("mouseover", landmark =>  d3.select(`#manila_ph`).style("fill", "red"))
+            .on("mouseover", (mouseEvent, item) => {
+                d3.select(`#${item.id}`).style("fill", "red")
+                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.7)()));
+                landmarkHandler(item);
+                // d3.select(`#label_${item.id}`)
+                // .style("display",function(d) {
+                //     return 'inline';
+                // })
+                // .attr("transform", function(landmark) {
+                //     // console.log(landmark);
+                //     var loc = projection([landmark.coordinates[0], landmark.coordinates[1]]),
+                //     x = loc[0],
+                //     y = loc[1];
+                //     // var offset = x < width/2 ? -5 : 5;
+                //     return "translate(" + (x) + "," + (y-15) + ")"
+                // })
+            } )
+            .on("mouseout", (mouseEvent, item) => {
+                d3.select(`#${item.id}`).style("fill", "black")
+                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.15)()));
+                landmarkHandler(null);
+            } )
+            .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.15)()));
+
+            // svg.append("g")
+            // .attr("class","labels")
+            // .selectAll("text")
+            // .data(landmarks)
+            // .enter()
+            // .append("text")
+            // .attr("class", "label")
+            // .text(function(d) { return d.name })
+            // svg.selectAll(".label")
+            // .attr("transform", function(landmark) {
+            // // console.log(landmark);
+            // var loc = projection([landmark.coordinates[0], landmark.coordinates[1]]),
+            //     x = loc[0],
+            //     y = loc[1];
+            //     // var offset = x < width/2 ? -5 : 5;
+            //     return "translate(" + (x) + "," + (y-15) + ")"
+            // })
+            // .style("display",function(d) {
+            //     // console.log("d", d);
+            //     var loc = projection([landmark.coordinates[0], landmark.coordinates[1]]),
+            //     x = loc[0],
+            //     y = loc[1];
+            //     return 'none';
+            // })
+    };
+
     const drawArcs = (svg) => {
         svg
             .selectAll(".arc")
-            .data(asdf)
+            .data(paths)
             .join("path")
             .attr("class", "arc")
             // .transition()
@@ -259,18 +335,31 @@ function Globe({size, scale}) {
         // drawLights(svg);
 
         drawArcs(svg);
+        drawLandmarks(svg);
+        // console.log(document.getElementById('globeGrid').offsetWidth);
     };
 
-    // useEffect(() => {
-    //     console.log("asdfasdf")
-    //     drawGlobe(oldCoordinates, scale);
-    // }, [])
     
     useEffect(() => {
-        // console.log("fffffff");
+        console.log("scale use effect")
         drawGlobe(oldCoordinates, scale);
     }, [scale])
 
+    // useEffect(() => {
+    //     console.log("general use effect")
+    //     drawGlobe(oldCoordinates, scale);
+        
+    //     const svg = d3.select(svgRef.current);
+    //     svg.append("g")
+    //         .attr("class","labels")
+    //         .selectAll("text")
+    //         .data(landmarks)
+    //         .enter()
+    //         .append("text")
+    //         .attr("class", "label")
+    //         .attr("id", `label_${landmarks.id}`)
+    //         .text(function(d) { return d.name })
+    // }, [])
     
     
     return (
