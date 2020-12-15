@@ -2,8 +2,10 @@ import React, { Component, useState, useRef, useEffect } from "react";
 import * as d3 from 'd3';
 import * as topojson from "topojson";
 import data50 from "./land-50m.json";
+import land110 from "./land-110m.json";
 import dataCoarse from "./GeoChart.world.geo.json";
 // import lightsFine from "./geonames-all-cities-with-a-population-1000.json";
+import { useIdleTimer } from 'react-idle-timer';
 
 var data = [1, 2];
 
@@ -69,6 +71,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
     const [mouseCoordinates, setMouseCoordinates] = useState(null);
     const [oldCoordinates, setOldCoordinates] = useState([90, -14.5995]);
     const [newCoordinates, setNewCoordinates] = useState(null);
+    // const [isCoarse, setIsCoarse] = useState(true);
 
     const onMouseDownHandler = (e) => {
         // console.log("mouse down", e);
@@ -99,6 +102,34 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
             return 0.7
     };
 
+    const handleOnIdle = event => {
+        console.log('user is idle', event)
+        console.log('last active', getLastActiveTime())
+        // setIsCoarse(false);
+        drawGlobe(oldCoordinates, scale, false);
+    }
+    
+    const handleOnActive = event => {
+        // if(event.type === "mousedown"){
+        //     console.log('user clicked down on the mouse by handleOnActive', event)
+        // }
+    }
+    
+    const handleOnAction = (e) => {
+        // if(e.type === "mousedown"){
+        //     console.log('user clicked down on the mouse by handleOnAction', e)
+        //     setIsCoarse(true);
+        // }
+    }
+     
+      const { getRemainingTime, getLastActiveTime } = useIdleTimer({
+        timeout: 1000 * 5,
+        onIdle: handleOnIdle,
+        onActive: handleOnActive,
+        onAction: handleOnAction,
+        debounce: 500
+      })
+
     const onMouseMoveHandler = (e) => {
         if(mouseCoordinates){
             // console.log("mouse move", e);
@@ -109,7 +140,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
                 movedCoordinates[1] > 90 ?  90 : movedCoordinates[1];
             // projection.rotate(movedCoordinates);
             setNewCoordinates(movedCoordinates);
-            drawGlobe(movedCoordinates, scale);
+            drawGlobe(movedCoordinates, scale, true);
         }
     };
 
@@ -152,12 +183,12 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
             .attr("d", feature => pathGenerator(feature));
     };
 
-    const drawLand = (svg) => {
+    const drawLand = (svg, isCoarse) => {
         //Using local json data that is of type Topology
         // console.log("data50", data50);
         // console.log("populationData", populationData);
-
-        const countries1 = topojson.feature(data50, data50.objects.land).features
+        // console.log("isCoarse?", isCoarse);
+        const countries1 = topojson.feature(isCoarse ? land110 : data50, isCoarse ? land110.objects.land : data50.objects.land).features;
         svg
         .selectAll(".country")
         .data(countries1)
@@ -320,7 +351,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
             .attr("d", feature =>pathGenerator(feature));
     };
     
-    const drawGlobe = (rotateParams, scaleParams) => {
+    const drawGlobe = (rotateParams, scaleParams, isCoarse) => {
         // console.log("data", data);
         // console.log("scale", scale);
         const svg = d3.select(svgRef.current);
@@ -330,7 +361,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
             
         drawGraticule(svg);
 
-        drawLand(svg);
+        drawLand(svg, isCoarse);
 
         // drawLights(svg);
 
@@ -342,7 +373,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
     
     useEffect(() => {
         console.log("scale use effect")
-        drawGlobe(oldCoordinates, scale);
+        drawGlobe(oldCoordinates, scale, true);
     }, [scale])
 
     // useEffect(() => {
