@@ -3,7 +3,6 @@ import './App.css';
 import Globe from './Globe';
 import * as d3 from 'd3';
 import * as topojson from "topojson";
-import data from "./GeoChart.world.geo.json";
 import Slider from '@material-ui/core/Slider';
 import React, { Component, useState, useRef, useEffect } from "react";
 import { Grid } from '@material-ui/core';
@@ -17,7 +16,6 @@ import Typography from '@material-ui/core/Typography';
 // });
 
 function App() {
-  const minEarthRadius = 450;
   // const classes = useStyles();
   const [scale, setScale] = React.useState(1);
   const [paths, setPaths] = React.useState([
@@ -35,10 +33,10 @@ function App() {
   
   const [landmarks, setLandmarks] = React.useState([
     {
-        id: "manila_ph",
-        name: "Manila / Marikina",
-        description: "First Hometown. Revisited 2011, 2013, 2017, 2018, and 2019.",
-        coordinates: [120.9842, 14.5995]
+      id: "manila_ph",
+      name: "Manila / Marikina",
+      description: "First Hometown. Revisited 2011, 2013, 2017, 2018, and 2019.",
+      coordinates: [120.9842, 14.5995]
     },{
       id: "kyoto_ja",
       name: "Kyoto, Japan",
@@ -110,7 +108,6 @@ function App() {
 
   const getLandmarkInfo = () => {
     if(currentLandmark){
-      // return (`${currentLandmark.name}\n${currentLandmark.description}`)
       return (
         <div>
           <Typography variant="h4">
@@ -122,15 +119,29 @@ function App() {
         </div>
       );
     }
+    else{
+      return (
+        <div>
+          <Typography variant="h4">
+            Select a Landmark
+          </Typography>
+        </div>
+      );
+    }
+  };
+
+  const getMinDimension = () => {
+    console.log("dimension calculated");
+    return window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth;
   };
 
   return (
     <div className="App">
-      <Grid container spacing={0} style={{ padding: 60 }}>
-        <Grid item xs={11} id="globeGrid">
-          <Globe scale={scale * minEarthRadius} paths={paths} landmarks={landmarks} landmarkHandler={setCurrentLandmark} size={minEarthRadius*2} />
-        </Grid>
+      <Grid container spacing={0}>
         <Grid item xs={1}>
+          <Typography id="vertical-slider" gutterBottom>
+            Zoom
+          </Typography>
           <Slider
             orientation="vertical" value={scale} onChange={handleChangeScale}
             aria-labelledby="vertical-slider" step={0.01}
@@ -139,7 +150,10 @@ function App() {
             valueLabelDisplay="on"
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={8} style={{ padding: 60 }}>
+          <Globe scale={scale * getMinDimension()*0.7/2} paths={paths} landmarks={landmarks} landmarkHandler={setCurrentLandmark} size={getMinDimension()*0.7} />
+        </Grid>
+        <Grid item xs={3}>
           {getLandmarkInfo()}
         </Grid>
       </Grid>
