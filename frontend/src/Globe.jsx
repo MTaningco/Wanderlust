@@ -15,7 +15,7 @@ import landCoarse from "./jsonData/land-110m.json";
 import lightsFine from "./jsonData/geonames-all-cities-with-a-population-1000.json";
 import lightsCoarse from "./jsonData/cities-200000.json";//TODO: use if performance is fixed
 
-function Globe({size, scale, paths, landmarks, landmarkHandler}) {
+function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLandmark}) {
     //States
     const [mouseCoordinates, setMouseCoordinates] = useState(null);         //state for initially pressing down the mouse button's position
     const [oldCoordinates, setOldCoordinates] = useState([90, -14.5995]);   //state for the position of the globe during inactivity (units in -longitude, -latitude)
@@ -92,7 +92,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
         if(mouseCoordinates){
             // console.log("mouse move", e);
             var currentMouseCoordinates = [event.screenX, event.screenY];
-            var scalingFactor = 6.0 * scale/200.0;
+            var scalingFactor = 3.0 * scale/200.0;
             var movedCoordinates = [oldCoordinates[0] + (currentMouseCoordinates[0] - mouseCoordinates[0])/scalingFactor, oldCoordinates[1] - (currentMouseCoordinates[1] - mouseCoordinates[1])/scalingFactor];
             movedCoordinates[1] = movedCoordinates[1] < -90 ? -90 :
                 movedCoordinates[1] > 90 ?  90 : movedCoordinates[1];
@@ -143,7 +143,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
             .join("path")
             .attr("class", "mesh")
             .attr("fill-opacity","0")
-            .attr("stroke", isDaylight ? "#ccf" : "#111")
+            .attr("stroke", isDaylight ? "#ccf" : "#222")
             .attr("stroke-width", isDaylight ? 1 : 0.5)
             .attr("d", feature => pathGenerator(feature));
     };
@@ -156,16 +156,16 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
      */
     const drawLand = (svg, isCoarse, isDaylight) => {
         //Using local json data that is of type Topology
-        const countries1 = topojson.feature(isCoarse ? landCoarse : landFine, isCoarse ? landCoarse.objects.land : landFine.objects.land).features;
-        console.log(countries1);
+        const land = topojson.feature(isCoarse ? landCoarse : landFine, isCoarse ? landCoarse.objects.land : landFine.objects.land).features;
+        // console.log(land);
         svg
         .selectAll(".country")
-        .data(countries1)
+        .data(land)
         .join("path")
         .attr("class", "country")
-        .attr("fill", isDaylight ? "#edd" : "#002")
-        .attr("stroke", isDaylight ? "#faa" : "#200")
-        .attr("stroke-width", isDaylight ? 1 : 0.5)
+        .attr("fill", isDaylight ? "#edd" : "#000")
+        .attr("stroke", isDaylight ? "#faa" : "#600")
+        .attr("stroke-width", 0.5)
         .attr("d", feature => pathGenerator(feature));
 
         //Using external json data that is of type Topology
@@ -230,13 +230,14 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
      * @param {boolean} isDaylight - the parameter used for night time styles
      */
     const drawLandmarks = (svg, isDaylight) => {
+        // console.log(landmarks);
         svg
             .selectAll(".landmarks")
             .data(landmarks)
             .join("path")
             .attr("class", "landmarks")
             .attr("id", landmark => `${landmark.id}`)
-            .style("fill", isDaylight ? "black" : "red")
+            .style("fill", isDaylight ? "black" : "gray")
             .attr("fill-opacity","0.5")
             .on("mouseover", (mouseEvent, item) => {
                 d3.select(`#${item.id}`).style("fill", "red")
@@ -245,7 +246,32 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
             } )
             .on("mouseout", (mouseEvent, item) => {
                 d3.select(`#${item.id}`)
-                .style("fill", isDaylight ? "black" : "red")
+                .style("fill", isDaylight ? "black" : "gray")
+                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.15)()));
+                landmarkHandler(null);
+            } )
+            .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.15)()));
+    };
+
+    const drawTempLandmark = (svg, isDaylight) => {
+        // console.log(landmarks);
+        svg
+            .selectAll(".tempLandmark")
+            .data(tempLandmark)
+            .join("path")
+            .attr("class", "tempLandmark")
+            .attr("id", landmark => `temp_${landmark.id}`)
+            .style("fill", "blue")
+            .attr("fill-opacity","0.5")
+            .attr("visibility", landmark => landmark.isVisible ? "visible" : "hidden")
+            .on("mouseover", (mouseEvent, item) => {
+                d3.select(`#temp_${item.id}`).style("fill", "red")
+                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.7)()));
+                landmarkHandler(item);
+            } )
+            .on("mouseout", (mouseEvent, item) => {
+                d3.select(`#temp_${item.id}`)
+                .style("fill", "blue")
                 .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.15)()));
                 landmarkHandler(null);
             } )
@@ -264,9 +290,25 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
             .join("path")
             .attr("class", "arc")
             // .transition()
-            .attr("fill-opacity","0")
+            .attr("fill-opacity", "0")
+            .attr("stroke-opacity", feature => feature.isAirPlane ? 0.1 : 1)
             .attr("stroke", feature => isDayTime ? "black" : "gray")
-            .attr("stroke-width", 1)
+            .attr("stroke-width", feature => feature.isAirPlane ? 2 : 0.5)
+            .attr("d", feature =>pathGenerator(feature));
+    };
+
+    const drawTempPath = (svg, isDayTime) => {
+        // console.log("this is the temp path from the globe: ", tempPath);
+        svg
+            .selectAll(".tempPath")
+            .data(tempPath)
+            .join("path")
+            .attr("class", "tempPath")
+            // .transition()
+            .attr("fill-opacity","0")
+            .attr("stroke", feature => isDayTime ? "red" : "blue")
+            .attr("stroke-opacity", feature => feature.isAirPlane ? 0.1 : 1)
+            .attr("stroke-width", feature => feature.isAirPlane ? 2 : 0.5)
             .attr("d", feature =>pathGenerator(feature));
     };
     
@@ -289,17 +331,22 @@ function Globe({size, scale, paths, landmarks, landmarkHandler}) {
         drawLand(svg, isCoarse, isDaylight);
 
         if(!isDaylight){
-            drawLights(svg, false);
+            // drawLights(svg, false);
         }
 
         drawArcs(svg, isDaylight);
+
         drawLandmarks(svg, isDaylight);
+
+        drawTempPath(svg, isDaylight);
+        
+        drawTempLandmark(svg, isDaylight);
     };
 
     //Use effect hook.
     useEffect(() => {
         drawGlobe(oldCoordinates, scale, true);
-    }, [scale])
+    }, [scale, landmarks, paths, tempPath, tempLandmark])
     
     return (
         <svg width={size} height={size} ref={svgRef} style={{border:1 }}
