@@ -6,6 +6,8 @@ import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
+const REACT_APP_BACKEND = process.env.REACT_APP_BACKEND || '';
+
 function LandmarkInfo({setLandmarks, value, index, userID, setTempLandmark}) {
 
   //NewLandmarkTab states
@@ -122,13 +124,30 @@ function LandmarkInfo({setLandmarks, value, index, userID, setTempLandmark}) {
    */
   const handleAddLandmark = () => {
     //TODO: do validation
-    //TODO: give the value to the backend
-    setLandmarks(prevArray => [...prevArray, {
-      id: landmarkName.toLowerCase().replaceAll(", ", "_").replaceAll(" ", "-"),
-      name: landmarkName,
-      description: landmarkDescription,
-      coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
-    }]);
+
+    const body = {
+      userUID: userID,
+      landmarkName: landmarkName,
+      landmarkDescription: landmarkDescription,
+      latitude: parseFloat(landmarkLatitude),
+      longitude: parseFloat(landmarkLongitude)
+    }
+
+    fetch(`${REACT_APP_BACKEND}/landmarks`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body)
+    })
+    .then(res => res.json())
+    .then(res => {
+      setLandmarks(prevArray => [...prevArray, {
+        id: `landmark_${res.landmark_uid}`,
+        path_uid: res.landmark_uid,
+        name: landmarkName,
+        description: landmarkDescription,
+        coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
+      }])
+    });
 
     setLandmarkName("");
     setLandmarkLatitude("");

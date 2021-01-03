@@ -16,83 +16,14 @@ import NewPathTab from './NewPathTab'
 //     padding: '30px',   
 //   },
 // });
+const REACT_APP_BACKEND = process.env.REACT_APP_BACKEND || '';
 
 function App() {
   // const classes = useStyles();
-  const [userID, setUserID] = React.useState("1");
+  const [userID, setUserID] = React.useState(2);
   const [scale, setScale] = React.useState(1);
-  const [paths, setPaths] = React.useState([
-    {type: "LineString", coordinates: [[-122.810850, 49.191663], [114.1694, 22.3193]], id:"userId_pathId0", isAirPlane: true},
-    {type: "LineString", coordinates: [[114.1694, 22.3193], [120.9842, 14.5995]], id:"userId_pathId1", isAirPlane: true},
-    {type: "LineString", coordinates: [[120.9842, 14.5995], [144.9631, -37.8136]], id:"userId_pathId2", isAirPlane: true},
-    {type: "LineString", coordinates: [[-122.810850, 49.191663], [-73.7781, 40.6413]], id:"userId_pathId3", isAirPlane: true},
-    {type: "LineString", coordinates: [[120.9842, 14.5995], [103.9915, 1.3644]], id:"userId_pathId4", isAirPlane: true},
-    {type: "LineString", coordinates: [[120.9842, 14.5995], [125.6455, 7.1304]], id:"userId_pathId5", isAirPlane: true},
-    {type: "LineString", coordinates: [[120.9842, 14.5995], [140.3929, 35.7720]], id:"userId_pathId6", isAirPlane: true},
-    {type: "LineString", coordinates: [[120.9842, 14.5995], [-122.810850, 49.191663]], id:"userId_pathId7", isAirPlane: true},
-    {type: "LineString", coordinates: [[-122.810850, 49.191663], [-156.0407, 19.7367]], id:"userId_pathId8", isAirPlane: true},
-    {type: "LineString", coordinates: [[-122.810850, 49.191663], [-123.131479, 49.006889], [-123.878891, 49.224376], [-123.892490, 49.161571]], id:"userId_pathId9", isAirPlane: false}
-  ]);
-  
-  const [landmarks, setLandmarks] = React.useState([
-    {
-      id: "manila_ph",
-      name: "Manila / Marikina",
-      description: "First Hometown. Revisited 2011, 2013, 2017, 2018, and 2019.",
-      coordinates: [120.9842, 14.5995]
-    },{
-      id: "kyoto_ja",
-      name: "Kyoto, Japan",
-      description: "Saw stuff",
-      coordinates: [135.7681, 35.0116]
-    },{
-      id: "osaka_ja",
-      name: "Osaka, Japan",
-      description: "Saw stuff",
-      coordinates: [135.5023, 34.6937]
-    },{
-      id: "vancouver_ca",
-      name: "Vancouver, Canada",
-      description: "Saw stuff",
-      coordinates: [-122.810850, 49.191663]
-    },{
-      id: "mauna_kea_hawaii",
-      name: "Mauna Kea, Hawaii",
-      description: "Saw stuff",
-      coordinates: [-155.4681, 19.8206]
-    },{
-      id: "washington_dc_usa",
-      name: "Washington D.C., USA",
-      description: "Saw stuff",
-      coordinates: [-77.0369, 38.9072]
-    },{
-      id: "badwater_california",
-      name: "Badwater Basin, Death Valley, California",
-      description: "Saw stuff\nabcd\naa",
-      coordinates: [-116.8185, 36.2461]
-    },{
-      id: "montemar_ph",
-      name: "Montemar, Philippines",
-      description: "Saw stuff",
-      coordinates: [120.3935, 14.5865]
-    },{
-      id: "lac_la_hache_ca",
-      name: "Lac La Hache, Canada",
-      description: "Saw stuff",
-      coordinates: [-121.529595, 51.808729]
-    },{
-      id: "tofino_ca",
-      name: "Tofino, Canada",
-      description: "Saw stuff",
-      coordinates: [-125.913095, 49.146747]
-    },{
-      id: "hole_in_the_wall_port_alberni_ca",
-      name: "Hole In The Wall, Port Alberni, Canada",
-      description: "Saw stuff",
-      coordinates: [-124.748174, 49.260497]
-    }
-  ]);
-
+  const [paths, setPaths] = React.useState([]);
+  const [landmarks, setLandmarks] = React.useState([]);
   const [currentLandmark, setCurrentLandmark] = React.useState(null);
 
   // const clientHeight = document.getElementById('globeGrid').clientHeight;
@@ -132,6 +63,23 @@ function App() {
     isVisible: false
   }]);
 
+  const getUserPaths = () => {
+    fetch(`${REACT_APP_BACKEND}/paths?userID=${userID}`)
+    .then(res => res.json())
+    .then(res => setPaths(res));
+  };
+
+  const getUserLandmarks = () => {
+    fetch(`${REACT_APP_BACKEND}/landmarks?userID=${userID}`)
+    .then(res => res.json())
+    .then(res => setLandmarks(res));
+  };
+
+  useEffect(() => {
+    getUserLandmarks();
+    getUserPaths();
+  }, []);
+
   return (
     <div className="App">
       <Grid container spacing={0}>
@@ -159,7 +107,7 @@ function App() {
           <AppBar position="static">
             <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs example">
               <Tab label="Info" />
-              <Tab label="New Landmark"  />
+              <Tab label="New Landmark" />
               <Tab label="New Path" />
             </Tabs>
           </AppBar>

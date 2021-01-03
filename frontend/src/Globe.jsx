@@ -18,7 +18,7 @@ import lightsCoarse from "./jsonData/cities-200000.json";//TODO: use if performa
 function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLandmark}) {
     //States
     const [mouseCoordinates, setMouseCoordinates] = useState(null);         //state for initially pressing down the mouse button's position
-    const [oldCoordinates, setOldCoordinates] = useState([90, -14.5995]);   //state for the position of the globe during inactivity (units in -longitude, -latitude)
+    const [oldCoordinates, setOldCoordinates] = useState([180, -25]);   //state for the position of the globe during inactivity (units in -longitude, -latitude)
     const [newCoordinates, setNewCoordinates] = useState(null);             //state for updating the old coordinates
 
     //Constants
@@ -230,7 +230,15 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
      * @param {boolean} isDaylight - the parameter used for night time styles
      */
     const drawLandmarks = (svg, isDaylight) => {
-        // console.log(landmarks);
+        // Format of one element of data
+        //   {
+        //     id: "landmark_1",
+        //     landmark_uid: 1,
+        //     name: "Manila / Marikina",
+        //     description: "First Hometown. Revisited 2011, 2013, 2017, 2018, and 2019.",
+        //     coordinates: [120.9842, 14.5995]
+        //   }
+        // console.log("drawing landmarks");
         svg
             .selectAll(".landmarks")
             .data(landmarks)
@@ -238,7 +246,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("class", "landmarks")
             .attr("id", landmark => `${landmark.id}`)
             .style("fill", isDaylight ? "black" : "gray")
-            .attr("fill-opacity","0.5")
+            .attr("fill-opacity","0.3")
             .on("mouseover", (mouseEvent, item) => {
                 d3.select(`#${item.id}`).style("fill", "red")
                 .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.7)()));
@@ -247,14 +255,20 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .on("mouseout", (mouseEvent, item) => {
                 d3.select(`#${item.id}`)
                 .style("fill", isDaylight ? "black" : "gray")
-                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.15)()));
+                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
                 landmarkHandler(null);
             } )
-            .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.15)()));
+            .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)())).raise();
     };
 
     const drawTempLandmark = (svg, isDaylight) => {
-        // console.log(landmarks);
+        //format of one element of data
+        // {
+        //     name: "",
+        //     description: "",
+        //     coordinates: [0, 0],
+        //     isVisible: false
+        //   }
         svg
             .selectAll(".tempLandmark")
             .data(tempLandmark)
@@ -271,11 +285,11 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             } )
             .on("mouseout", (mouseEvent, item) => {
                 d3.select(`#temp_${item.id}`)
-                .style("fill", "blue")
-                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.15)()));
+                .style("fill", "red")
+                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
                 landmarkHandler(null);
             } )
-            .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.15)()));
+            .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
     };
 
     /**
@@ -284,6 +298,8 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
      * @param {boolean} isDayTime - the parameter used for night time styles
      */
     const drawArcs = (svg, isDayTime) => {
+        //The format of one element of data is 
+        //{ type: "LineString", coordinates: [[-122.810850, 49.191663], [-156.0407, 19.7367]], id:"path_9", path_uid: 9, isAirPlane: true}
         svg
             .selectAll(".arc")
             .data(paths)
@@ -298,7 +314,12 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     };
 
     const drawTempPath = (svg, isDayTime) => {
-        // console.log("this is the temp path from the globe: ", tempPath);
+        //format of one element of data
+        // {
+        //     type: "LineString", 
+        //     coordinates: [],
+        //     isAirPlane: true
+        //   }
         svg
             .selectAll(".tempPath")
             .data(tempPath)
@@ -336,11 +357,12 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
 
         drawArcs(svg, isDaylight);
 
-        drawLandmarks(svg, isDaylight);
-
         drawTempPath(svg, isDaylight);
         
         drawTempLandmark(svg, isDaylight);
+
+        drawLandmarks(svg, isDaylight);
+
     };
 
     //Use effect hook.

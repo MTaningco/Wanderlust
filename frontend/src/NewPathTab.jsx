@@ -8,6 +8,8 @@ import FormControl from '@material-ui/core/FormControl';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
+const REACT_APP_BACKEND = process.env.REACT_APP_BACKEND || '';
+
 function NewPathTab({setPaths, value, index, userID, setTempPath}) {
 
   //NewPathTab states
@@ -26,16 +28,33 @@ function NewPathTab({setPaths, value, index, userID, setTempPath}) {
    */
   const handleNewPath = () => {
     //TODO: validation
-    //TODO: give to backend
     //TODO: use proper id
-    let newPath = {
-      type: "LineString", 
-      coordinates: [...nodes], 
-      id:"asdffff",
-      isAirPlane: isAirplane
-    };
 
-    setPaths(prevArray => [...prevArray, newPath]);
+    const body = {
+      userUID: userID,
+      coordinates: [...nodes], 
+      isAirPlane: isAirplane
+    }
+
+    fetch(`${REACT_APP_BACKEND}/paths`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body)
+    })
+    .then(res => res.json())
+    .then(res => {
+      let newPath = {
+        type: "LineString", 
+        coordinates: [...nodes], 
+        id:`path_${res.path_uid}`,
+        path_uid: res.path_uid,
+        isAirPlane: isAirplane
+      };
+
+      setPaths(prevArray => [...prevArray, newPath]);
+    });
+
+    
     setNodes([]);
     setTempPath([{
       type: "LineString",
