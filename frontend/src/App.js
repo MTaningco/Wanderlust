@@ -9,7 +9,46 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import NewLandmarkTab from './NewLandmarkTab';
-import NewPathTab from './NewPathTab'
+import NewPathTab from './NewPathTab';
+import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import SearchIcon from '@material-ui/icons/Search';
+import InfoIcon from '@material-ui/icons/Info';
+import RoomIcon from '@material-ui/icons/Room';
+import TimelineIcon from '@material-ui/icons/Timeline';
+
+const theme = createMuiTheme({
+  palette: {
+    type: "dark",
+  }
+});
+
+const marks = [
+  {
+    value: 1,
+    label: '12700 km',
+  },
+  {
+    value: 2,
+    label: '6371 km',
+  },
+  {
+    value: 6.371,
+    label: '2000 km',
+  },
+  {
+    value: 12.742,
+    label: '1000 km',
+  },
+  {
+    value: 15.9275,
+    label: '800 km',
+  },
+  {
+    value: 25,
+    label: '500 km',
+  },
+];
 
 // const useStyles = theme => ({
 //   buttonPadding: {    
@@ -79,44 +118,50 @@ function App() {
     getUserLandmarks();
     getUserPaths();
   }, []);
+  console.log(theme);
 
   return (
-    <div className="App">
-      <Grid container spacing={0}>
-        <Grid item xs={1} style={{ padding: 60 }}>
-          <Typography id="vertical-slider" gutterBottom>
-            Zoom
-          </Typography>
-          <Slider
-            orientation="vertical" value={scale} onChange={handleChangeScale}
-            aria-labelledby="vertical-slider" step={0.01}
-            min={1}
-            max={25}
-            valueLabelDisplay="on"
-          />
+    <ThemeProvider theme={theme}>
+      <CssBaseline/>
+      <div className="App">
+        <Grid container spacing={0}>
+          <Grid item xs={1} style={{ padding: 60 }}>
+            {/* <Typography id="vertical-slider" gutterBottom>
+              Zoom
+            </Typography> */}
+            <SearchIcon  id="vertical-slider" gutterBottom/>
+            <Slider
+              orientation="vertical" value={scale} onChange={handleChangeScale}
+              aria-labelledby="vertical-slider" step={0.01}
+              min={1}
+              max={25}
+              valueLabelDisplay="on"
+              marks={marks}
+            />
+          </Grid>
+          <Grid item xs={8} style={{ padding: 60 }}>
+            <Globe scale={scale * getMinDimension()*0.6/2} 
+              paths={paths} landmarks={landmarks} 
+              landmarkHandler={setCurrentLandmark} 
+              size={getMinDimension()*0.7} 
+              tempPath={tempPath}
+              tempLandmark={tempLandmark}/>
+          </Grid>
+          <Grid item xs={3} style={{ padding: 60 }} align="left">
+            <AppBar position="static">
+              <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs example" variant="fullWidth">
+                <Tab style={{ minWidth: 25 }} icon={<InfoIcon/>}/>
+                <Tab style={{ minWidth: 25 }} icon={<RoomIcon/>}/>
+                <Tab style={{ minWidth: 25 }} icon={<TimelineIcon/>}/>
+              </Tabs>
+            </AppBar>
+            <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0}/>
+            <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} userID={userID} setTempLandmark={setTempLandmark}/>
+            <NewPathTab setPaths={setPaths} value={tabValue} index={2} userID={userID} setTempPath={setTempPath}/>
+          </Grid>
         </Grid>
-        <Grid item xs={8} style={{ padding: 60 }}>
-          <Globe scale={scale * getMinDimension()*0.6/2} 
-            paths={paths} landmarks={landmarks} 
-            landmarkHandler={setCurrentLandmark} 
-            size={getMinDimension()*0.7} 
-            tempPath={tempPath}
-            tempLandmark={tempLandmark}/>
-        </Grid>
-        <Grid item xs={3} style={{ padding: 60 }} align="left">
-          <AppBar position="static">
-            <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs example">
-              <Tab label="Info" />
-              <Tab label="New Landmark" />
-              <Tab label="New Path" />
-            </Tabs>
-          </AppBar>
-          <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0}/>
-          <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} userID={userID} setTempLandmark={setTempLandmark}/>
-          <NewPathTab setPaths={setPaths} value={tabValue} index={2} userID={userID} setTempPath={setTempPath}/>
-        </Grid>
-      </Grid>
-    </div>
+      </div>
+    </ThemeProvider>
   );
 }
 
