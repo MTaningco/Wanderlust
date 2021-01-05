@@ -126,7 +126,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .data([{type: "Sphere"}])
             .join("path")
             .attr("class", "sphere")
-            .attr("fill", isDaylight ? "#dde" : "black")
+            .attr("fill", isDaylight ? "#dde" : "#1c458c")
             .attr("d", feature => pathGenerator(feature));
     };
 
@@ -143,8 +143,9 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .join("path")
             .attr("class", "mesh")
             .attr("fill-opacity","0")
-            .attr("stroke", isDaylight ? "#ccf" : "#222")
-            .attr("stroke-width", isDaylight ? 1 : 0.5)
+            .attr("stroke", isDaylight ? "#ccf" : "gray")
+            .attr("stroke-opacity", "0.5")
+            .attr("stroke-width", isDaylight ? 1 : 0.3)
             .attr("d", feature => pathGenerator(feature));
     };
 
@@ -163,8 +164,8 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         .data(land)
         .join("path")
         .attr("class", "country")
-        .attr("fill", isDaylight ? "#edd" : "#000")
-        .attr("stroke", isDaylight ? "#faa" : "#600")
+        .attr("fill", isDaylight ? "#edd" : "#ba9868")
+        .attr("stroke", isDaylight ? "#faa" : "#997d56")
         .attr("stroke-width", 0.5)
         .attr("d", feature => pathGenerator(feature));
 
@@ -245,7 +246,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .join("path")
             .attr("class", "landmarks")
             .attr("id", landmark => `${landmark.id}`)
-            .style("fill", isDaylight ? "black" : "gray")
+            .style("fill", isDaylight ? "black" : "black")
             .attr("fill-opacity","0.3")
             .on("mouseover", (mouseEvent, item) => {
                 d3.select(`#${item.id}`).style("fill", "red")
@@ -254,7 +255,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             } )
             .on("mouseout", (mouseEvent, item) => {
                 d3.select(`#${item.id}`)
-                .style("fill", isDaylight ? "black" : "gray")
+                .style("fill", isDaylight ? "black" : "black")
                 .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
                 landmarkHandler(null);
             } )
@@ -307,8 +308,8 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("class", "arc")
             // .transition()
             .attr("fill-opacity", "0")
-            .attr("stroke-opacity", feature => feature.isAirPlane ? 0.1 : 1)
-            .attr("stroke", feature => isDayTime ? "black" : "gray")
+            .attr("stroke-opacity", feature => feature.isAirPlane ? 0.3 : 1)
+            .attr("stroke", feature => isDayTime ? "black" : "#5c5c5c")
             .attr("stroke-width", feature => feature.isAirPlane ? 2 : 0.5)
             .attr("d", feature =>pathGenerator(feature));
     };
@@ -343,13 +344,13 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         const svg = d3.select(svgRef.current);
         projection.rotate(rotateParams).scale(scaleParams);
 
-        var isDaylight = true;
+        var isDaylight = false;
         
         drawSphere(svg, isDaylight);
-            
-        drawGraticule(svg, isDaylight);
 
         drawLand(svg, isCoarse, isDaylight);
+            
+        drawGraticule(svg, isDaylight);
 
         if(!isDaylight){
             // drawLights(svg, false);
