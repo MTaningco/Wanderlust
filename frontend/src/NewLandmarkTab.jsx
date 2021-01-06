@@ -30,9 +30,9 @@ function LandmarkInfo({setLandmarks, value, index, userID, setTempLandmark}) {
       isVisible: true
     }];
 
-    if(landmarkLongitude !== "" && landmarkLatitude !== ""){
-      setTempLandmark(newTempLandmark);
-    }
+    // if(landmarkLongitude !== "" && landmarkLatitude !== ""){
+    //   setTempLandmark(newTempLandmark);
+    // }
   };
 
   /**
@@ -49,9 +49,9 @@ function LandmarkInfo({setLandmarks, value, index, userID, setTempLandmark}) {
       isVisible: true
     }];
     
-    if(landmarkLongitude !== "" && landmarkLatitude !== ""){
-      setTempLandmark(newTempLandmark);
-    }
+    // if(landmarkLongitude !== "" && landmarkLatitude !== ""){
+    //   setTempLandmark(newTempLandmark);
+    // }
   }
 
   /**
@@ -133,7 +133,7 @@ function LandmarkInfo({setLandmarks, value, index, userID, setTempLandmark}) {
       longitude: parseFloat(landmarkLongitude)
     }
 
-    fetch(`${REACT_APP_BACKEND}/landmarks`, {
+    fetch(`/landmarks`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(body)
@@ -202,6 +202,7 @@ function LandmarkInfo({setLandmarks, value, index, userID, setTempLandmark}) {
         value={landmarkDescription}
         onChange={handleDescriptionChange} 
         fullWidth/>
+      <br/>
       <br/>
       <Button variant="contained" color="primary" onClick={handleAddLandmark}>
         Add Landmark

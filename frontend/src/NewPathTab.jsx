@@ -7,7 +7,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-
+import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
+import CommuteIcon from '@material-ui/icons/Commute';
 const REACT_APP_BACKEND = process.env.REACT_APP_BACKEND || '';
 
 function NewPathTab({setPaths, value, index, userID, setTempPath}) {
@@ -28,7 +29,6 @@ function NewPathTab({setPaths, value, index, userID, setTempPath}) {
    */
   const handleNewPath = () => {
     //TODO: validation
-    //TODO: use proper id
 
     const body = {
       userUID: userID,
@@ -36,7 +36,7 @@ function NewPathTab({setPaths, value, index, userID, setTempPath}) {
       isAirPlane: isAirplane
     }
 
-    fetch(`${REACT_APP_BACKEND}/paths`, {
+    fetch(`/paths`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(body)
@@ -177,8 +177,16 @@ function NewPathTab({setPaths, value, index, userID, setTempPath}) {
   return (
     <form hidden={value !== index}>
       <FormControlLabel
-        control={<Switch checked={isAirplane} onChange={handleSwitchChange} name="checkedA" />}
-        label="Air Travel"/>
+        control={
+          <Switch 
+            checked={isAirplane} 
+            onChange={handleSwitchChange} 
+            name="checkedA" 
+            checkedIcon={<AirplanemodeActiveIcon/>}
+            icon={<CommuteIcon/>}
+          />
+        }
+        label="Travel Type"/>
       {
         nodes.map((element, index) => {
           var latId = `nodeLatitude_${index}`;

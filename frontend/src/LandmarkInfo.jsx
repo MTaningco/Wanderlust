@@ -48,6 +48,7 @@ function LandmarkInfo({ currentLandmark, value, index }) {
 
     return (
         <div hidden={value !== index}>
+            <br/>
             {getLandmarkInfo()}
         </div>
     );

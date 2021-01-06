@@ -26,27 +26,43 @@ const theme = createMuiTheme({
 const marks = [
   {
     value: 1,
-    label: '12700 km',
+    label: 'Full View',
   },
   {
     value: 2,
-    label: '6371 km',
+    label: 'Half View',
   },
   {
-    value: 6.371,
-    label: '2000 km',
+    value: 4.24733333333,
+    label: '3000 km',
+  },
+  {
+    value: 8.49466666667,
+    label: '1500 km',
   },
   {
     value: 12.742,
     label: '1000 km',
   },
   {
-    value: 15.9275,
-    label: '800 km',
+    value: 16.9893333333,
+    label: '750 km',
   },
   {
-    value: 25,
+    value: 21.2366666667,
+    label: '600 km',
+  },
+  {
+    value: 25.484,
     label: '500 km',
+  },
+  {
+    value: 31.855,
+    label: '400 km',
+  },
+  {
+    value: 42.4733333333,
+    label: '300 km',
   },
 ];
 
@@ -103,13 +119,13 @@ function App() {
   }]);
 
   const getUserPaths = () => {
-    fetch(`${REACT_APP_BACKEND}/paths?userID=${userID}`)
+    fetch(`/paths?userID=${userID}`)
     .then(res => res.json())
     .then(res => setPaths(res));
   };
 
   const getUserLandmarks = () => {
-    fetch(`${REACT_APP_BACKEND}/landmarks?userID=${userID}`)
+    fetch(`/landmarks?userID=${userID}`)
     .then(res => res.json())
     .then(res => setLandmarks(res));
   };
@@ -118,7 +134,7 @@ function App() {
     getUserLandmarks();
     getUserPaths();
   }, []);
-  console.log(theme);
+  // console.log(theme);
 
   return (
     <ThemeProvider theme={theme}>
@@ -126,16 +142,14 @@ function App() {
       <div className="App">
         <Grid container spacing={0}>
           <Grid item xs={1} style={{ padding: 60 }}>
-            {/* <Typography id="vertical-slider" gutterBottom>
-              Zoom
-            </Typography> */}
-            <SearchIcon  id="vertical-slider" gutterBottom/>
+            <Typography id="vertical-slider" gutterBottom>
+              <SearchIcon/>
+            </Typography>
             <Slider
               orientation="vertical" value={scale} onChange={handleChangeScale}
               aria-labelledby="vertical-slider" step={0.01}
               min={1}
-              max={25}
-              valueLabelDisplay="on"
+              max={25.484}
               marks={marks}
             />
           </Grid>

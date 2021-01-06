@@ -76,11 +76,11 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
      
     //Idle timer and parameters
     const { getRemainingTime, getLastActiveTime, resume } = useIdleTimer({
-        timeout: 1000 * 2,
+        timeout: 1000 * 1,
         onIdle: handleOnIdle,
         onActive: handleOnActive,
         onAction: handleOnAction,
-        events: ['mousedown'],
+        events: ['mousedown', 'mouseup'],
         debounce: 500
     })
 
@@ -164,8 +164,8 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         .data(land)
         .join("path")
         .attr("class", "country")
-        .attr("fill", isDaylight ? "#edd" : "#ba9868")
-        .attr("stroke", isDaylight ? "#faa" : "#997d56")
+        .attr("fill", isDaylight ? "#edd" : "#f5c684")
+        .attr("stroke", isDaylight ? "#faa" : "#b89463")
         .attr("stroke-width", 0.5)
         .attr("d", feature => pathGenerator(feature));
 
@@ -276,20 +276,20 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .join("path")
             .attr("class", "tempLandmark")
             .attr("id", landmark => `temp_${landmark.id}`)
-            .style("fill", "blue")
+            .style("fill", "red")
             .attr("fill-opacity","0.5")
             .attr("visibility", landmark => landmark.isVisible ? "visible" : "hidden")
-            .on("mouseover", (mouseEvent, item) => {
-                d3.select(`#temp_${item.id}`).style("fill", "red")
-                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.7)()));
-                landmarkHandler(item);
-            } )
-            .on("mouseout", (mouseEvent, item) => {
-                d3.select(`#temp_${item.id}`)
-                .style("fill", "red")
-                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
-                landmarkHandler(null);
-            } )
+            // .on("mouseover", (mouseEvent, item) => {
+            //     d3.select(`#temp_${item.id}`).style("fill", "red")
+            //     .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.7)()));
+            //     landmarkHandler(item);
+            // } )
+            // .on("mouseout", (mouseEvent, item) => {
+            //     d3.select(`#temp_${item.id}`)
+            //     .style("fill", "red")
+            //     .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
+            //     landmarkHandler(null);
+            // } )
             .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
     };
 
@@ -309,7 +309,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             // .transition()
             .attr("fill-opacity", "0")
             .attr("stroke-opacity", feature => feature.isAirPlane ? 0.3 : 1)
-            .attr("stroke", feature => isDayTime ? "black" : "#5c5c5c")
+            .attr("stroke", feature => isDayTime ? "black" : "black")
             .attr("stroke-width", feature => feature.isAirPlane ? 2 : 0.5)
             .attr("d", feature =>pathGenerator(feature));
     };
@@ -328,9 +328,9 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("class", "tempPath")
             // .transition()
             .attr("fill-opacity","0")
-            .attr("stroke", feature => isDayTime ? "red" : "blue")
-            .attr("stroke-opacity", feature => feature.isAirPlane ? 0.1 : 1)
-            .attr("stroke-width", feature => feature.isAirPlane ? 2 : 0.5)
+            .attr("stroke", feature => feature.isAirPlane ? "red" : "#0dff00")
+            .attr("stroke-opacity", feature => 1)
+            .attr("stroke-width", feature => 0.5)
             .attr("d", feature =>pathGenerator(feature));
     };
     
@@ -369,7 +369,12 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     //Use effect hook.
     useEffect(() => {
         drawGlobe(oldCoordinates, scale, true);
-    }, [scale, landmarks, paths, tempPath, tempLandmark])
+    }, [scale])
+
+    
+    useEffect(() => {
+        drawGlobe(oldCoordinates, scale, false);
+    }, [landmarks, paths, tempPath, tempLandmark])
     
     return (
         <svg width={size} height={size} ref={svgRef} style={{border:1 }}
