@@ -4,9 +4,9 @@ var Landmarks = {
   create : async function(userUID, landmarkName, landmarkDescription, latitude, longitude, callback){
     const queryResult = await pool.query(`
       insert into Landmarks(user_uid, landmark_name, landmark_description, longitude, latitude) 
-      values (${userUID}, '${landmarkName}', '${landmarkDescription}', ${longitude}, ${latitude}) 
+      values ($1, $2, $3, $4, $5) 
       returning *
-    `);
+    `, [userUID, landmarkName, landmarkDescription, longitude, latitude]);
     callback(queryResult.rows[0]);
   },
 
@@ -14,8 +14,8 @@ var Landmarks = {
     const allLandmarks = await pool.query(`
       select landmark_uid, landmark_name, landmark_description, longitude, latitude 
       from Landmarks 
-      where user_uid = ${userUID}
-    `);
+      where user_uid = $1
+    `, [userUID]);
     const data = allLandmarks.rows;
     const output = [];
     for(var i = 0; i < data.length; i++){

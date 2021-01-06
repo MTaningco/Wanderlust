@@ -2,22 +2,28 @@ var pool = require('./db');
 
 var Paths = {
   create : async function(userUID, pathNodes, isAirplane, callback){
+    var isAirPlaneParam = isAirplane ? 't' : 'f';
     const pathInfoResult = await pool.query(`
       insert into PathInfo(user_uid, is_airplane) 
-      values (${userUID}, '${isAirplane ? 't' : 'f'}') 
+      values ($1, $2) 
       returning *
-    `);
+    `, [userUID, isAirPlaneParam]);
     const pathNodesQuery = "insert into PathNodes(path_uid, path_order, latitude, longitude) values ";
 
     console.log(pathInfoResult.rows[0]);
     const path_uid = pathInfoResult.rows[0].path_uid;
     var nodesAsQueryArray = [];
+    var parametersArray = [];
     for(var i = 0; i < pathNodes.length; i++){
-      nodesAsQueryArray.push(`(${path_uid}, ${i}, ${pathNodes[i][1]}, ${pathNodes[i][0]})`);
+      nodesAsQueryArray.push(`($${i * 4 + 1}, $${i * 4 + 2}, $${i * 4 + 3}, $${i * 4 + 4})`);
+      parametersArray.push(path_uid);
+      parametersArray.push(i);
+      parametersArray.push(pathNodes[i][1]);
+      parametersArray.push(pathNodes[i][0]);
     }
     var nodesAsQuery = nodesAsQueryArray.join(', ');
     console.log(pathNodesQuery + nodesAsQuery);
-    await pool.query(pathNodesQuery + nodesAsQuery);
+    await pool.query(pathNodesQuery + nodesAsQuery, parametersArray);
     callback(pathInfoResult.rows[0]);
   },
 
@@ -26,8 +32,8 @@ var Paths = {
       select pn.path_uid, pi.is_airplane, pn.path_order, latitude, longitude 
       from pathinfo pi 
       join pathnodes pn on pi.path_uid = pn.path_uid 
-      where user_uid = ${userUID} 
-      order by pn.path_uid, pn.path_order asc`);
+      where user_uid = $1
+      order by pn.path_uid, pn.path_order asc`, [userUID]);
       
     const data = allPaths.rows;
     const output = [];
