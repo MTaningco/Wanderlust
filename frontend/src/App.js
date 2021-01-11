@@ -17,6 +17,10 @@ import InfoIcon from '@material-ui/icons/Info';
 import RoomIcon from '@material-ui/icons/Room';
 import TimelineIcon from '@material-ui/icons/Timeline';
 
+//TODO: the token must be dynamically populated with a proper sign in page 
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX3VpZCI6MTIsInVzZXJuYW1lIjoiam1pZ3N0IiwiaWF0IjoxNjEwMzU0MDQ2LCJleHAiOjE2MTAzNTc2NDZ9.ma15LYBF6Uigj8hbM2mMjgdrNhDYwn4VwUXSgfgpzZQ';
+localStorage.setItem('token', token);
+
 const theme = createMuiTheme({
   palette: {
     type: "dark",
@@ -75,7 +79,7 @@ const REACT_APP_BACKEND = process.env.REACT_APP_BACKEND || '';
 
 function App() {
   // const classes = useStyles();
-  const [userID, setUserID] = React.useState(2);
+  // const [userID, setUserID] = React.useState(12);
   const [scale, setScale] = React.useState(1);
   const [paths, setPaths] = React.useState([]);
   const [landmarks, setLandmarks] = React.useState([]);
@@ -119,13 +123,21 @@ function App() {
   }]);
 
   const getUserPaths = () => {
-    fetch(`/paths?userID=${userID}`)
+    fetch(`/paths`, {
+      headers: {
+        'authorization' : `Bearer ${localStorage.getItem('token')}` 
+      }
+    })
     .then(res => res.json())
     .then(res => setPaths(res));
   };
 
   const getUserLandmarks = () => {
-    fetch(`/landmarks?userID=${userID}`)
+    fetch(`/landmarks`, {
+      headers: {
+        'authorization' : `Bearer ${localStorage.getItem('token')}` 
+      }
+    })
     .then(res => res.json())
     .then(res => setLandmarks(res));
   };
@@ -170,8 +182,8 @@ function App() {
               </Tabs>
             </AppBar>
             <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0}/>
-            <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} userID={userID} setTempLandmark={setTempLandmark}/>
-            <NewPathTab setPaths={setPaths} value={tabValue} index={2} userID={userID} setTempPath={setTempPath}/>
+            <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} setTempLandmark={setTempLandmark}/>
+            <NewPathTab setPaths={setPaths} value={tabValue} index={2} setTempPath={setTempPath}/>
           </Grid>
         </Grid>
       </div>

@@ -9,9 +9,7 @@ import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import CommuteIcon from '@material-ui/icons/Commute';
-const REACT_APP_BACKEND = process.env.REACT_APP_BACKEND || '';
-
-function NewPathTab({setPaths, value, index, userID, setTempPath}) {
+function NewPathTab({setPaths, value, index, setTempPath}) {
 
   //NewPathTab states
   const [nodes, setNodes] = useState([]);
@@ -31,14 +29,16 @@ function NewPathTab({setPaths, value, index, userID, setTempPath}) {
     //TODO: validation
 
     const body = {
-      userUID: userID,
       coordinates: [...nodes], 
       isAirPlane: isAirplane
     }
 
     fetch(`/paths`, {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: {
+        "Content-Type": "application/json",
+        'authorization' : `Bearer ${localStorage.getItem('token')}`
+      },
       body: JSON.stringify(body)
     })
     .then(res => res.json())

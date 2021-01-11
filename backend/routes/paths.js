@@ -1,8 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var pathController = require('../controllers/paths');
+var tokenHeader = require('../controllers/tokenHeader');
 
-router.get('/', pathController.getAllPaths);
-router.post('/', pathController.createPath);
+router.get('/', tokenHeader.verifyToken, pathController.getAllPaths);
+router.post('/', tokenHeader.verifyToken, pathController.createPath);
 
 module.exports = router;

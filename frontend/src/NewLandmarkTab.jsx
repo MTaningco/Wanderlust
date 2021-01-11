@@ -6,9 +6,7 @@ import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
-const REACT_APP_BACKEND = process.env.REACT_APP_BACKEND || '';
-
-function LandmarkInfo({setLandmarks, value, index, userID, setTempLandmark}) {
+function LandmarkInfo({setLandmarks, value, index, setTempLandmark}) {
 
   //NewLandmarkTab states
   const [landmarkName, setLandmarkName] = useState("");
@@ -126,7 +124,6 @@ function LandmarkInfo({setLandmarks, value, index, userID, setTempLandmark}) {
     //TODO: do validation
 
     const body = {
-      userUID: userID,
       landmarkName: landmarkName,
       landmarkDescription: landmarkDescription,
       latitude: parseFloat(landmarkLatitude),
@@ -135,7 +132,10 @@ function LandmarkInfo({setLandmarks, value, index, userID, setTempLandmark}) {
 
     fetch(`/landmarks`, {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: {
+        "Content-Type": "application/json",
+        'authorization' : `Bearer ${localStorage.getItem('token')}`
+      },
       body: JSON.stringify(body)
     })
     .then(res => res.json())
