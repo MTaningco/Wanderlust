@@ -34,3 +34,16 @@ exports.createUser = function(req, res, next){
     }
   });
 }
+
+exports.verify = function(req, res, next){
+  jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
+    if(err){
+      console.log("error in the token");
+      res.json({isTokenValid: false});
+    }
+    else{
+      console.log("good token");
+      res.json({isTokenValid: true});
+    }
+  });
+}
