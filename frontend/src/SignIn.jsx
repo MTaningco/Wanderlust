@@ -41,7 +41,7 @@ function SignIn() {
       localStorage.setItem('token', res.token);
       setIsTokenValid(true);
     })
-    .catch((error) => console.log(error));
+    .catch((error) => alert("Invalid credentials!"));
   };
 
   useEffect(() => {
