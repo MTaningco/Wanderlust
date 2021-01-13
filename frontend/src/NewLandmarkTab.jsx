@@ -122,6 +122,7 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
    */
   const handleAddLandmark = () => {
 
+    //TODO: validation check, there might be fields that are empty
     const body = {
       landmarkName: landmarkName,
       landmarkDescription: landmarkDescription,

@@ -26,7 +26,7 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
    * Handles creating a new path.
    */
   const handleNewPath = () => {
-    //TODO: validation
+    //TODO: validation, there might be certain nodes that are incomplete
 
     const body = {
       coordinates: [...nodes], 
