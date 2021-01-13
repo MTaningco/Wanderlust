@@ -38,14 +38,6 @@ function ZoomSlider({ scale, handleChangeScale }) {
       value: 25.484,
       label: '500 km',
     },
-    {
-      value: 31.855,
-      label: '400 km',
-    },
-    {
-      value: 42.4733333333,
-      label: '300 km',
-    },
   ];
 
   return (
