@@ -1,7 +1,8 @@
 create table AppUsers (
   user_uid serial primary key,
-  email varchar(255) unique not null,
-  password varchar(100) not null
+  email varchar(255) not null,
+  password varchar(100) not null,
+  username varchar(100) unique not null
 );
 
 create table PathInfo (
