@@ -9,6 +9,8 @@ router.post('/create', users.createUser);
 //post to check if the account is properly authenticated
 router.post('/login', users.login);
 
+router.get('/exists', users.exists);
+
 router.post('/checkToken', tokenHeader.verifyToken, users.verify);
 
 module.exports = router;

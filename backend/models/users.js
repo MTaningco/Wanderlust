@@ -40,6 +40,16 @@ var Users = {
     else{
       callback(null);
     }
+  },
+
+  exists : async function(username, callback){
+    console.log(username);
+    const dbPassword = await pool.query(`
+      select case when count(*) = 1 then 'true' else 'false' end as isExist 
+      from AppUsers 
+      where username = $1
+    `, [username]);
+    callback(dbPassword.rows);
   }
 }
 

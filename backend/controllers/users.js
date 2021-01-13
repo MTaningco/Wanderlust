@@ -35,6 +35,12 @@ exports.createUser = function(req, res, next){
   });
 }
 
+exports.exists = function(req, res, next){
+  users.exists(req.query.username, (rows) => {
+    res.json(rows[0]);
+  });
+}
+
 exports.verify = function(req, res, next){
   jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
     if(err){
