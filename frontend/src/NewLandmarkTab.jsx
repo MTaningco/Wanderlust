@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
-function LandmarkInfo({setLandmarks, value, index, setTempLandmark}) {
+function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAuth}) {
 
   //NewLandmarkTab states
   const [landmarkName, setLandmarkName] = useState("");
@@ -121,7 +121,6 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark}) {
    * Handles the add landmark event.
    */
   const handleAddLandmark = () => {
-    //TODO: do validation
 
     const body = {
       landmarkName: landmarkName,
@@ -147,7 +146,8 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark}) {
         description: landmarkDescription,
         coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
       }])
-    });
+    })
+    .catch(err => invalidateAuth());
 
     setLandmarkName("");
     setLandmarkLatitude("");

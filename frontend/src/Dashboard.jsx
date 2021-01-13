@@ -1,7 +1,7 @@
 import './App.css';
 import Globe from './Globe';
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Grid } from '@material-ui/core';
+import { Button, Grid } from '@material-ui/core';
 import LandmarkInfo from './LandmarkInfo';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
@@ -68,7 +68,7 @@ function Dashboard() {
     .then(res => res.json())
     .then(res => setPaths(res))
     .catch((error) => {
-      setIsAuth(false);
+      invalidateAuth();
     });
   };
 
@@ -81,8 +81,13 @@ function Dashboard() {
     .then(res => res.json())
     .then(res => setLandmarks(res))
     .catch((error) => {
-      setIsAuth(false);
+      invalidateAuth();
     });
+  };
+
+  const invalidateAuth = () => {
+    localStorage.removeItem('token');
+    setIsAuth(false);
   };
 
   useEffect(() => {
@@ -115,8 +120,13 @@ function Dashboard() {
               </Tabs>
             </AppBar>
             <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0}/>
-            <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} setTempLandmark={setTempLandmark}/>
-            <NewPathTab setPaths={setPaths} value={tabValue} index={2} setTempPath={setTempPath}/>
+            <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} setTempLandmark={setTempLandmark} invalidateAuth={invalidateAuth}/>
+            <NewPathTab setPaths={setPaths} value={tabValue} index={2} setTempPath={setTempPath} invalidateAuth={invalidateAuth}/>
+          </Grid>
+          <Grid item xs={12} style={{ padding: 60}}>
+            <Button variant="contained" color="primary" onClick={invalidateAuth}>
+              Logout
+            </Button>
           </Grid>
         </Grid>
       );

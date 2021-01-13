@@ -9,7 +9,7 @@ import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import CommuteIcon from '@material-ui/icons/Commute';
-function NewPathTab({setPaths, value, index, setTempPath}) {
+function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
 
   //NewPathTab states
   const [nodes, setNodes] = useState([]);
@@ -52,7 +52,8 @@ function NewPathTab({setPaths, value, index, setTempPath}) {
       };
 
       setPaths(prevArray => [...prevArray, newPath]);
-    });
+    })
+    .catch(err => invalidateAuth());
 
     
     setNodes([]);
