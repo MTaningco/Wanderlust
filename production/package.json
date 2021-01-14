@@ -10,7 +10,7 @@
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "both": "concurrently \"npm run dev\" \"cd ../frontend &&  npm start\"",
-    "build": "cd ../ && rm -rf production/ && mkdir production && cp -a ./backend/. ./production/ && rm -rf production/node_modules/ && rm production/.env && cd frontend && npm run build && cd ../ && mv frontend/build/ ./production"
+    "build-production": "cd ../ && rm -rf production/ && mkdir production && cp -a ./backend/. ./production/ && rm -rf production/node_modules/ && rm production/.env && cd frontend && npm run build && cd ../ && mv frontend/build/ ./production"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",
