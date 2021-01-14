@@ -26,7 +26,7 @@ function SignIn() {
       "password": password
     }
 
-    console.log("body used for signing in", body);
+    // console.log("body used for signing in", body);
 
     fetch(`/users/login`, {
       method: "POST",
@@ -100,7 +100,6 @@ function SignIn() {
               onChange={handlePasswordChange}
             />
             <Button
-              type="submit"
               fullWidth
               variant="contained"
               color="primary"

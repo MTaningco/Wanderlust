@@ -81,15 +81,15 @@ function SignUp() {
         "username" : username
       }
   
-      console.log("body used for signing in", body);
-      const temp = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      };
-      console.log("parameters used with the api", temp);
+      // console.log("body used for signing in", body);
+      // const temp = {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: JSON.stringify(body)
+      // };
+      // console.log("parameters used with the api", temp);
   
       fetch(`/users/create`, {
         method: "POST",
@@ -100,17 +100,13 @@ function SignUp() {
       })
       .then(res => res.json())
       .then(res => {
-        // console.log("result of signing in", res);
-        // localStorage.setItem('token', res.token);
-        // setIsTokenValid(true);
-        console.log("successful creation of user");
         setUsername("");
         setPassword("");
         setEmail("");
         alert("A new user has been made!");
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
         alert("The username already exists! Please create an unowned username.");
       });
     }
@@ -147,7 +143,6 @@ function SignUp() {
           fullWidth
           id="email"
           label="Email"
-          name="email"
           autoComplete="email"
           autoFocus
           value={email}
@@ -160,7 +155,6 @@ function SignUp() {
           fullWidth
           id="username"
           label="Username"
-          name="username"
           autoComplete="username"
           value={username}
           onChange={handleUsernameChange}
@@ -171,7 +165,6 @@ function SignUp() {
           margin="normal"
           required
           fullWidth
-          name="password"
           label="Password"
           type="password"
           id="password"
@@ -181,7 +174,7 @@ function SignUp() {
         />
         Password Strength: {strengthIndicator(password)}
         <Button
-          type="submit"
+          // type="submit"
           fullWidth
           variant="contained"
           color="secondary"
