@@ -37,7 +37,7 @@ function SignIn() {
     })
     .then(res => res.json())
     .then(res => {
-      console.log("result of signing in", res);
+      // console.log("result of signing in", res);
       localStorage.setItem('token', res.token);
       setIsTokenValid(true);
     })

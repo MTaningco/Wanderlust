@@ -82,6 +82,14 @@ function SignUp() {
       }
   
       console.log("body used for signing in", body);
+      const temp = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      };
+      console.log("parameters used with the api", temp);
   
       fetch(`/users/create`, {
         method: "POST",
@@ -95,12 +103,16 @@ function SignUp() {
         // console.log("result of signing in", res);
         // localStorage.setItem('token', res.token);
         // setIsTokenValid(true);
+        console.log("successful creation of user");
         setUsername("");
         setPassword("");
         setEmail("");
-        alert("A new user has been made!")
+        alert("A new user has been made!");
       })
-      .catch((error) => alert("The username already exists! Please create an unowned username."));
+      .catch((error) => {
+        console.log(error);
+        alert("The username already exists! Please create an unowned username.");
+      });
     }
   };
 
