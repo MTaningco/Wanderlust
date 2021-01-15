@@ -5,11 +5,11 @@ import * as topojson from "topojson";
 import { useIdleTimer } from 'react-idle-timer';
 
 //Imports from self defined structures
-//https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-10m.json
-//https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-50m.json
-//https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json
-import landFine from "./jsonData/land-50m.json";//TODO: use 10 m if land vs water bug is fixed
-import landCoarse from "./jsonData/land-110m.json";
+//https://github.com/martynafford/natural-earth-geojson
+import landFine from "./jsonData/ne_10m_land.json";//TODO: use 10 m if land vs water bug is fixed
+import landCoarse from "./jsonData/ne_110m_land.json";
+import lakesFine from "./jsonData/ne_50m_lakes.json";
+import lakesCoarse from "./jsonData/ne_110m_lakes.json";
 //https://s3-us-west-2.amazonaws.com/s.cdpn.io/215059/cities-200000.json
 //https://public.opendatasoft.com/api/records/1.0/search/?dataset=geonames-all-cities-with-a-population-1000&q=&rows=10000&sort=population&pretty_print=true&format=json&fields=population,coordinates,name
 import lightsFine from "./jsonData/geonames-all-cities-with-a-population-1000.json";
@@ -157,7 +157,9 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
      */
     const drawLand = (svg, isCoarse, isDaylight) => {
         //Using local json data that is of type Topology
-        const land = topojson.feature(isCoarse ? landCoarse : landFine, isCoarse ? landCoarse.objects.land : landFine.objects.land).features;
+        // console.log(landCoarse.objects.land);
+        console.log(landFine);
+        const land = isCoarse ? landCoarse.features : landFine.features;
         // console.log(land);
         svg
         .selectAll(".country")
@@ -168,6 +170,54 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         .attr("stroke", isDaylight ? "#faa" : "#b89463")
         .attr("stroke-width", 0.5)
         .attr("d", feature => pathGenerator(feature));
+
+        //Using external json data that is of type Topology
+        // d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-10m.json").then(res => {
+        //     const countries1 = topojson.feature(isCoarse ? landCoarse : res, isCoarse ? landCoarse.objects.land : res.objects.land).features;
+        //     console.log(countries1);
+        //     svg
+        //     .selectAll(".country")
+        //     .data(countries1)
+        //     .join("path")
+        //     .attr("id", feature => console.log(feature))
+        //     .attr("class", "country")
+        //     .attr("fill", feature => "#edd")//daytime
+        //     // .attr("fill", feature => "#114")//nighttime
+        //     .attr("stroke", feature => "#faa")//daytime
+        //     // .attr("stroke", feature => "#004")//nighttime
+        //     .attr("d", feature => pathGenerator(feature));
+        // });
+
+        //Using local json data that is of type FeatureCollection
+        // svg
+        //     .selectAll(".country")
+        //     .data(dataCoarse.features)
+        //     .join("path")
+        //     .attr("class", "country")
+        //     // .attr("fill", feature => "#edd")//daytime
+        //     .attr("fill", feature => "#114")//nighttime
+        //     // .attr("stroke", feature => "#faa")//daytime
+        //     .attr("stroke", feature => "#004")//nighttime
+        //     .attr("d", feature => pathGenerator(feature));
+    };
+
+    const drawLakes = (svg, isCoarse, isDaylight) => {
+        //Using local json data that is of type Topology
+        // console.log(landCoarse.objects.land);
+        // console.log(landFine);
+        const lakes = isCoarse ? lakesCoarse.features :lakesFine.features;
+        // console.log(land);
+        // if(!isCoarse){
+            svg
+            .selectAll(".lakes")
+            .data(lakes)
+            .join("path")
+            .attr("class", "lakes")
+            .attr("fill", isDaylight ? "#edd" : "#1c458c")
+            .attr("stroke", isDaylight ? "#faa" : "#b89463")
+            .attr("stroke-width", 0.5)
+            .attr("d", feature => pathGenerator(feature)).raise();
+        // }
 
         //Using external json data that is of type Topology
         // d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-10m.json").then(res => {
@@ -311,7 +361,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("stroke-opacity", feature => feature.isAirPlane ? 0.3 : 1)
             .attr("stroke", feature => isDayTime ? "black" : "black")
             .attr("stroke-width", feature => feature.isAirPlane ? 2 : 0.5)
-            .attr("d", feature =>pathGenerator(feature));
+            .attr("d", feature =>pathGenerator(feature)).raise();
     };
 
     const drawTempPath = (svg, isDayTime) => {
@@ -349,6 +399,8 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         drawSphere(svg, isDaylight);
 
         drawLand(svg, isCoarse, isDaylight);
+
+        drawLakes(svg, isCoarse, isDaylight);
             
         drawGraticule(svg, isDaylight);
 
