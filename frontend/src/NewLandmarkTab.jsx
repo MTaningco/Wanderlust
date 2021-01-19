@@ -1,6 +1,6 @@
 //Imports from libraries
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Input } from '@material-ui/core';
+import { Input, Typography } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -121,49 +121,52 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
    * Handles the add landmark event.
    */
   const handleAddLandmark = () => {
-
-    //TODO: validation check, there might be fields that are empty
-    const body = {
-      landmarkName: landmarkName,
-      landmarkDescription: landmarkDescription,
-      latitude: parseFloat(landmarkLatitude),
-      longitude: parseFloat(landmarkLongitude)
+    if(!(landmarkName === "" || landmarkDescription === "" || landmarkLatitude === "" || landmarkLongitude === "")){
+      const body = {
+        landmarkName: landmarkName,
+        landmarkDescription: landmarkDescription,
+        latitude: parseFloat(landmarkLatitude),
+        longitude: parseFloat(landmarkLongitude)
+      }
+  
+      fetch(`/landmarks`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          'authorization' : `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(body)
+      })
+      .then(res => res.json())
+      .then(res => {
+        setLandmarks(prevArray => [...prevArray, {
+          id: `landmark_${res.landmark_uid}`,
+          path_uid: res.landmark_uid,
+          name: landmarkName,
+          description: landmarkDescription,
+          coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
+        }])
+  
+        setLandmarkName("");
+        setLandmarkLatitude("");
+        setLandmarkLongitude("");
+        setLandmarkDescription("");
+        setTempLandmark([{
+          name: "",
+          description: "",
+          coordinates: [0, 0],
+          isVisible: false
+        }]);
+      })
+      .catch(err => invalidateAuth());
     }
-
-    fetch(`/landmarks`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        'authorization' : `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify(body)
-    })
-    .then(res => res.json())
-    .then(res => {
-      setLandmarks(prevArray => [...prevArray, {
-        id: `landmark_${res.landmark_uid}`,
-        path_uid: res.landmark_uid,
-        name: landmarkName,
-        description: landmarkDescription,
-        coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
-      }])
-    })
-    .catch(err => invalidateAuth());
-
-    setLandmarkName("");
-    setLandmarkLatitude("");
-    setLandmarkLongitude("");
-    setLandmarkDescription("");
-    setTempLandmark([{
-      name: "",
-      description: "",
-      coordinates: [0, 0],
-      isVisible: false
-    }]);
   };
 
   return (
     <form hidden={value !== index}>
+      <Typography variant="h5">
+        Create a New Landmark
+      </Typography>
       <FormControl fullWidth>
       <InputLabel htmlFor="landmarkLatitude">Latitude</InputLabel>
       <Input 
