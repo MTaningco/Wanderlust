@@ -1,7 +1,7 @@
 import './App.css';
 import Globe from './Globe';
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Button, Grid } from '@material-ui/core';
+import { Button, Grid, Toolbar, Typography } from '@material-ui/core';
 import LandmarkInfo from './LandmarkInfo';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
@@ -20,7 +20,12 @@ function Dashboard() {
   const [scale, setScale] = React.useState(1);
   const [paths, setPaths] = React.useState([]);
   const [landmarks, setLandmarks] = React.useState([]);
-  const [currentLandmark, setCurrentLandmark] = React.useState(null);
+  const [currentLandmark, setCurrentLandmark] = React.useState([{
+    name: "",
+    description: "",
+    coordinates: [0, 0],
+    isVisible: false
+  }]);
 
   // const clientHeight = document.getElementById('globeGrid').clientHeight;
 
@@ -109,7 +114,8 @@ function Dashboard() {
               landmarkHandler={setCurrentLandmark} 
               size={getMinDimension()*0.8} 
               tempPath={tempPath}
-              tempLandmark={tempLandmark}/>
+              tempLandmark={tempLandmark}
+              currentLandmark={currentLandmark}/>
           </Grid>
           <Grid item xs={4} style={{ padding: 60, height:"90vh" }} align="left">
             <AppBar position="static">
@@ -123,11 +129,11 @@ function Dashboard() {
             <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} setTempLandmark={setTempLandmark} invalidateAuth={invalidateAuth}/>
             <NewPathTab setPaths={setPaths} value={tabValue} index={2} setTempPath={setTempPath} invalidateAuth={invalidateAuth}/>
           </Grid>
-          <Grid item xs={12} style={{ padding: 60}}>
+          {/* <Grid item xs={12} style={{ padding: 60}}>
             <Button variant="contained" color="primary" onClick={invalidateAuth}>
               Logout
             </Button>
-          </Grid>
+          </Grid> */}
         </Grid>
       );
     }
@@ -138,6 +144,16 @@ function Dashboard() {
 
   return (
     <div className="App">
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6">
+            Wanderlust
+          </Typography>
+          <Button variant="contained" color="primary" onClick={invalidateAuth}>
+            Logout
+          </Button>
+        </Toolbar>
+      </AppBar>
       {getDashboardContent()}
     </div>
   );

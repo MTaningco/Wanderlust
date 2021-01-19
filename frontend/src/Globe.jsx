@@ -6,16 +6,16 @@ import { useIdleTimer } from 'react-idle-timer';
 
 //Imports from self defined structures
 //https://github.com/martynafford/natural-earth-geojson
-import landFine from "./jsonData/ne_10m_land.json";//TODO: use 10 m if land vs water bug is fixed
+import landFine from "./jsonData/ne_10m_land.json";
 import landCoarse from "./jsonData/ne_110m_land.json";
-import lakesFine from "./jsonData/ne_50m_lakes.json";
+import lakesFine from "./jsonData/ne_10m_lakes.json";
 import lakesCoarse from "./jsonData/ne_110m_lakes.json";
 //https://s3-us-west-2.amazonaws.com/s.cdpn.io/215059/cities-200000.json
 //https://public.opendatasoft.com/api/records/1.0/search/?dataset=geonames-all-cities-with-a-population-1000&q=&rows=10000&sort=population&pretty_print=true&format=json&fields=population,coordinates,name
 import lightsFine from "./jsonData/geonames-all-cities-with-a-population-1000.json";
 import lightsCoarse from "./jsonData/cities-200000.json";//TODO: use if performance is fixed
 
-function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLandmark}) {
+function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLandmark, currentLandmark}) {
     //States
     const [mouseCoordinates, setMouseCoordinates] = useState(null);         //state for initially pressing down the mouse button's position
     const [oldCoordinates, setOldCoordinates] = useState([180, -25]);   //state for the position of the globe during inactivity (units in -longitude, -latitude)
@@ -59,14 +59,25 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
      * @param {*} event - the event during idle.
      */
     const handleOnIdle = event => {
-        drawGlobe(oldCoordinates, scale, false);
+        // if(event !== null && event.type !== "mousedown"){
+            console.log("idle happening");
+            drawGlobe(oldCoordinates, scale, false);
+        // }
+        // console.log(event);
     }
     
     /**
      * Handles when the user has become active.
      * @param {*} event - the event during active
      */
-    const handleOnActive = event => {}
+    const handleOnActive = event => {
+        if(newCoordinates){
+            setMouseCoordinates(null);
+            setOldCoordinates(newCoordinates);
+            setNewCoordinates(null);
+        }
+        setMouseCoordinates(null);
+    }
     
     /**
      * Handles when the user has done an action.
@@ -80,7 +91,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         onIdle: handleOnIdle,
         onActive: handleOnActive,
         onAction: handleOnAction,
-        events: ['mousedown', 'mouseup'],
+        events: ['mouseup'],
         debounce: 500
     })
 
@@ -127,7 +138,21 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .join("path")
             .attr("class", "sphere")
             .attr("fill", isDaylight ? "#dde" : "#1c458c")
-            .attr("d", feature => pathGenerator(feature));
+            .attr("d", feature => pathGenerator(feature))
+            .on("click", (mouseEvent, item) => {
+                // d3.select(`#${currentLandmark.id}`)
+                // .style("fill", isDaylight ? "black" : "black")
+                // .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
+                landmarkHandler([{
+                    name: "",
+                    description: "",
+                    coordinates: [0, 0],
+                    isVisible: false
+                }]);
+                // svg
+                //     .selectAll(".currentLandmark")
+                //     .attr("fill-opacity","0");
+            } );
     };
 
     /**
@@ -146,7 +171,15 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("stroke", isDaylight ? "#ccf" : "gray")
             .attr("stroke-opacity", "0.5")
             .attr("stroke-width", isDaylight ? 1 : 0.3)
-            .attr("d", feature => pathGenerator(feature));
+            .attr("d", feature => pathGenerator(feature)).raise()
+            .on("click", (mouseEvent, item) => {
+                landmarkHandler([{
+                    name: "",
+                    description: "",
+                    coordinates: [0, 0],
+                    isVisible: false
+                }]);
+            } );
     };
 
     /**
@@ -158,7 +191,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     const drawLand = (svg, isCoarse, isDaylight) => {
         //Using local json data that is of type Topology
         // console.log(landCoarse.objects.land);
-        console.log(landFine);
+        // console.log(landFine);
         const land = isCoarse ? landCoarse.features : landFine.features;
         // console.log(land);
         svg
@@ -169,7 +202,21 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         .attr("fill", isDaylight ? "#edd" : "#f5c684")
         .attr("stroke", isDaylight ? "#faa" : "#b89463")
         .attr("stroke-width", 0.5)
-        .attr("d", feature => pathGenerator(feature));
+        .attr("d", feature => pathGenerator(feature))
+        .on("click", (mouseEvent, item) => {
+            // d3.select(`#${currentLandmark.id}`)
+            // .style("fill", isDaylight ? "black" : "black")
+            // .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
+            landmarkHandler([{
+                name: "",
+                description: "",
+                coordinates: [0, 0],
+                isVisible: false
+            }]);
+            // svg
+            //     .selectAll(".currentLandmark")
+            //     .attr("fill-opacity","0");
+        } );
 
         //Using external json data that is of type Topology
         // d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-10m.json").then(res => {
@@ -202,51 +249,30 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     };
 
     const drawLakes = (svg, isCoarse, isDaylight) => {
-        //Using local json data that is of type Topology
-        // console.log(landCoarse.objects.land);
-        // console.log(landFine);
         const lakes = isCoarse ? lakesCoarse.features :lakesFine.features;
-        // console.log(land);
-        // if(!isCoarse){
-            svg
-            .selectAll(".lakes")
-            .data(lakes)
-            .join("path")
-            .attr("class", "lakes")
-            .attr("fill", isDaylight ? "#edd" : "#1c458c")
-            .attr("stroke", isDaylight ? "#faa" : "#b89463")
-            .attr("stroke-width", 0.5)
-            .attr("d", feature => pathGenerator(feature)).raise();
-        // }
-
-        //Using external json data that is of type Topology
-        // d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-10m.json").then(res => {
-        //     const countries1 = topojson.feature(isCoarse ? landCoarse : res, isCoarse ? landCoarse.objects.land : res.objects.land).features;
-        //     console.log(countries1);
-        //     svg
-        //     .selectAll(".country")
-        //     .data(countries1)
-        //     .join("path")
-        //     .attr("id", feature => console.log(feature))
-        //     .attr("class", "country")
-        //     .attr("fill", feature => "#edd")//daytime
-        //     // .attr("fill", feature => "#114")//nighttime
-        //     .attr("stroke", feature => "#faa")//daytime
-        //     // .attr("stroke", feature => "#004")//nighttime
-        //     .attr("d", feature => pathGenerator(feature));
-        // });
-
-        //Using local json data that is of type FeatureCollection
-        // svg
-        //     .selectAll(".country")
-        //     .data(dataCoarse.features)
-        //     .join("path")
-        //     .attr("class", "country")
-        //     // .attr("fill", feature => "#edd")//daytime
-        //     .attr("fill", feature => "#114")//nighttime
-        //     // .attr("stroke", feature => "#faa")//daytime
-        //     .attr("stroke", feature => "#004")//nighttime
-        //     .attr("d", feature => pathGenerator(feature));
+        svg
+        .selectAll(".lakes")
+        .data(lakes)
+        .join("path")
+        .attr("class", "lakes")
+        .attr("fill", isDaylight ? "#edd" : "#1c458c")
+        .attr("stroke", isDaylight ? "#faa" : "#b89463")
+        .attr("stroke-width", 0.5)
+        .attr("d", feature => pathGenerator(feature)).raise()
+        .on("click", (mouseEvent, item) => {
+            // d3.select(`#${currentLandmark.id}`)
+            // .style("fill", isDaylight ? "black" : "black")
+            // .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
+            landmarkHandler([{
+                name: "",
+                description: "",
+                coordinates: [0, 0],
+                isVisible: false
+            }]);
+            // svg
+            //     .selectAll(".currentLandmark")
+            //     .attr("fill-opacity","0");
+        } );
     };
 
     /**
@@ -296,21 +322,86 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .join("path")
             .attr("class", "landmarks")
             .attr("id", landmark => `${landmark.id}`)
-            .style("fill", isDaylight ? "black" : "black")
+            .style("fill", "black")
             .attr("fill-opacity","0.3")
             .on("mouseover", (mouseEvent, item) => {
                 d3.select(`#${item.id}`).style("fill", "red")
-                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.7)()));
-                landmarkHandler(item);
+                .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.3)()));
+                // landmarkHandler([{
+                //     name: item.name,
+                //     description: item.description,
+                //     coordinates: item.coordinates,
+                //     isVisible: true
+                // }]);
             } )
             .on("mouseout", (mouseEvent, item) => {
                 d3.select(`#${item.id}`)
                 .style("fill", isDaylight ? "black" : "black")
                 .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
-                landmarkHandler(null);
+                // landmarkHandler(null);
             } )
+            .on("click", (mouseEvent, item) => {
+                // landmarkHandler(item);
+                landmarkHandler([{
+                    name: item.name,
+                    description: item.description,
+                    coordinates: item.coordinates,
+                    isVisible: true
+                }]);
+                // svg
+                //     .selectAll(".currentLandmark")
+                //     .data([item])
+                //     .join("path")
+                //     .attr("class", "currentLandmark")
+                //     .attr("id", landmark => `current_${landmark.id}`)
+                //     .style("fill", "red")
+                //     .attr("fill-opacity","0.3")
+                //     // .attr("visibility", landmark => landmark.isVisible ? "visible" : "hidden")
+                //     // .on("mouseover", (mouseEvent, item) => {
+                //     //     d3.select(`#temp_${item.id}`).style("fill", "red")
+                //     //     .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.7)()));
+                //     //     landmarkHandler(item);
+                //     // } )
+                //     // .on("mouseout", (mouseEvent, item) => {
+                //     //     d3.select(`#temp_${item.id}`)
+                //     //     .style("fill", "red")
+                //     //     .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
+                //     //     landmarkHandler(null);
+                //     // } )
+                //     .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.2)())).raise();
+                // svg
+                //     .selectAll(".currentLandmark")
+                //     .attr("fill-opacity","0");
+            })
             .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)())).raise();
     };
+
+    const drawCurrentLandmark = (svg, isDaylight) => {
+        // console.log("this is the current landmark", currentLandmark);
+        // var data = currentLandmark ? [currentLandmark] : [];
+        svg
+            .selectAll(".currentLandmark")
+            .data(currentLandmark)
+            .join("path")
+            .attr("class", "currentLandmark")
+            .attr("id", landmark => `current_${landmark.id}`)
+            .style("fill", "red")
+            .attr("fill-opacity","0.3")
+            .attr("visibility", landmark => landmark.isVisible ? "visible" : "hidden")
+            // .attr("visibility", landmark => landmark.isVisible ? "visible" : "hidden")
+            // .on("mouseover", (mouseEvent, item) => {
+            //     d3.select(`#temp_${item.id}`).style("fill", "red")
+            //     .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.7)()));
+            //     landmarkHandler(item);
+            // } )
+            // .on("mouseout", (mouseEvent, item) => {
+            //     d3.select(`#temp_${item.id}`)
+            //     .style("fill", "red")
+            //     .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
+            //     landmarkHandler(null);
+            // } )
+            .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.2)())).raise();
+    }
 
     const drawTempLandmark = (svg, isDaylight) => {
         //format of one element of data
@@ -361,7 +452,15 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("stroke-opacity", feature => feature.isAirPlane ? 0.3 : 1)
             .attr("stroke", feature => isDayTime ? "black" : "black")
             .attr("stroke-width", feature => feature.isAirPlane ? 2 : 0.5)
-            .attr("d", feature =>pathGenerator(feature)).raise();
+            .attr("d", feature =>pathGenerator(feature)).raise()
+            .on("click", (mouseEvent, item) => {
+                landmarkHandler([{
+                    name: "",
+                    description: "",
+                    coordinates: [0, 0],
+                    isVisible: false
+                }]);
+            } );
     };
 
     const drawTempPath = (svg, isDayTime) => {
@@ -401,12 +500,14 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         drawLand(svg, isCoarse, isDaylight);
 
         drawLakes(svg, isCoarse, isDaylight);
-            
-        drawGraticule(svg, isDaylight);
 
         if(!isDaylight){
             // drawLights(svg, false);
         }
+            
+        drawGraticule(svg, isDaylight);
+
+        drawCurrentLandmark(svg, isDaylight);
 
         drawArcs(svg, isDaylight);
 
@@ -426,7 +527,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     
     useEffect(() => {
         drawGlobe(oldCoordinates, scale, false);
-    }, [landmarks, paths, tempPath, tempLandmark])
+    }, [landmarks, paths, tempPath, tempLandmark, currentLandmark])
     
     return (
         <svg width={size} height={size} ref={svgRef} style={{border:1 }}

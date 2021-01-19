@@ -7,16 +7,18 @@ function LandmarkInfo({ currentLandmark, value, index }) {
      * Gets the landmark information.
      */
     const getLandmarkInfo = () => {
-        if (currentLandmark) {
-            var description = currentLandmark.description;
+        console.log("landmark info updating", currentLandmark);
+        const landmark = currentLandmark[0];
+        if (landmark.isVisible) {
+            var description = landmark.description;
             var descriptionArray = description.split("\n");
             return (
                 <div>
                     <Typography variant="h4">
-                        {currentLandmark.name}
+                        {landmark.name}
                     </Typography>
                     <Typography variant="h6" paragraph>
-                        Latitude: {currentLandmark.coordinates[1]}, Longitude: {currentLandmark.coordinates[0]}
+                        Latitude: {landmark.coordinates[1]}, Longitude: {landmark.coordinates[0]}
                     </Typography>
                     {
                         descriptionArray.map(element => {
@@ -34,7 +36,7 @@ function LandmarkInfo({ currentLandmark, value, index }) {
             return (
                 <div>
                     <Typography variant="h4">
-                        No Landmark Selected
+                        Hover Over a Landmark
                     </Typography>
                 </div>
             );
@@ -48,6 +50,10 @@ function LandmarkInfo({ currentLandmark, value, index }) {
 
     return (
         <div hidden={value !== index}>
+            
+            <Typography variant="h5">
+                Landmark Information
+            </Typography>
             <br/>
             {getLandmarkInfo()}
         </div>
