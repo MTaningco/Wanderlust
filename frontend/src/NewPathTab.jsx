@@ -26,42 +26,52 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
    * Handles creating a new path.
    */
   const handleNewPath = () => {
-    //TODO: validation, there might be certain nodes that are incomplete
+    var isNodesPopulated = true;
 
-    const body = {
-      coordinates: [...nodes], 
-      isAirPlane: isAirplane
+    for(var i = 0; i < nodes.length; i++){
+      if(nodes[i][0] === "" || nodes[i][1] === ""){
+        isNodesPopulated = false;
+      }
+    }
+    
+    if(isNodesPopulated){
+      console.log("going here");
+      const body = {
+        coordinates: [...nodes], 
+        isAirPlane: isAirplane
+      }
+  
+      fetch(`/paths`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          'authorization' : `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(body)
+      })
+      .then(res => res.json())
+      .then(res => {
+        let newPath = {
+          type: "LineString", 
+          coordinates: [...nodes], 
+          id:`path_${res.path_uid}`,
+          path_uid: res.path_uid,
+          isAirPlane: isAirplane
+        };
+  
+        setPaths(prevArray => [...prevArray, newPath]);
+        setNodes([]);
+        setTempPath([{
+          type: "LineString",
+          coordinates: [],
+          isAirPlane: isAirplane
+        }]);
+      })
+      .catch(err => invalidateAuth());
+  
+      
     }
 
-    fetch(`/paths`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        'authorization' : `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify(body)
-    })
-    .then(res => res.json())
-    .then(res => {
-      let newPath = {
-        type: "LineString", 
-        coordinates: [...nodes], 
-        id:`path_${res.path_uid}`,
-        path_uid: res.path_uid,
-        isAirPlane: isAirplane
-      };
-
-      setPaths(prevArray => [...prevArray, newPath]);
-    })
-    .catch(err => invalidateAuth());
-
-    
-    setNodes([]);
-    setTempPath([{
-      type: "LineString",
-      coordinates: [],
-      isAirPlane: isAirplane
-    }]);
   };
 
   /**
@@ -177,6 +187,9 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
 
   return (
     <form hidden={value !== index}>
+      <Typography variant="h5">
+        Create a New Path
+      </Typography>
       <FormControlLabel
         control={
           <Switch 
