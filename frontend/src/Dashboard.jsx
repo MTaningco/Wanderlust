@@ -21,6 +21,7 @@ function Dashboard() {
   const [paths, setPaths] = React.useState([]);
   const [landmarks, setLandmarks] = React.useState([]);
   const [currentLandmark, setCurrentLandmark] = React.useState([{
+    landmark_uid: -1,
     name: "",
     description: "",
     coordinates: [0, 0],
@@ -58,8 +59,11 @@ function Dashboard() {
   }]);
 
   const [tempLandmark, setTempLandmark] = useState([{
-    name: "",
-    description: "",
+    coordinates: [0, 0],
+    isVisible: false
+  }]);
+
+  const [editLandmark, setEditLandmark] = useState([{
     coordinates: [0, 0],
     isVisible: false
   }]);
@@ -108,14 +112,15 @@ function Dashboard() {
             <ZoomSlider scale={scale} handleChangeScale={handleChangeScale}/>
           </Grid>
           <Grid item xs={7} style={{ padding: 60, height:"90vh" }}>
-            <Globe scale={scale * getMinDimension()*0.6/2} 
+            <Globe scale={scale * getMinDimension()*0.8/2} 
               paths={paths} 
               landmarks={landmarks} 
               landmarkHandler={setCurrentLandmark} 
               size={getMinDimension()*0.8} 
               tempPath={tempPath}
               tempLandmark={tempLandmark}
-              currentLandmark={currentLandmark}/>
+              currentLandmark={currentLandmark}
+              editLandmark={editLandmark}/>
           </Grid>
           <Grid item xs={4} style={{ padding: 60, height:"90vh" }} align="left">
             <AppBar position="static">
@@ -125,7 +130,7 @@ function Dashboard() {
                 <Tab style={{ minWidth: 25 }} icon={<TimelineIcon/>}/>
               </Tabs>
             </AppBar>
-            <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0}/>
+            <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0} setEditLandmark={setEditLandmark}/>
             <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} setTempLandmark={setTempLandmark} invalidateAuth={invalidateAuth}/>
             <NewPathTab setPaths={setPaths} value={tabValue} index={2} setTempPath={setTempPath} invalidateAuth={invalidateAuth}/>
           </Grid>

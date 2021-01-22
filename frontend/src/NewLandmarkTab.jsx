@@ -20,17 +20,6 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
    */
   const handleDescriptionChange = (event) => {
     setLandmarkDescription(event.target.value);
-
-    var newTempLandmark = [{
-      name: landmarkName,
-      description: event.target.value,
-      coordinates: [landmarkLongitude, landmarkLatitude],
-      isVisible: true
-    }];
-
-    // if(landmarkLongitude !== "" && landmarkLatitude !== ""){
-    //   setTempLandmark(newTempLandmark);
-    // }
   };
 
   /**
@@ -39,17 +28,6 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
    */
   const handleNameChange = (event) => {
     setLandmarkName(event.target.value);
-
-    var newTempLandmark = [{
-      name: event.target.value,
-      description: landmarkDescription,
-      coordinates: [landmarkLongitude, landmarkLatitude],
-      isVisible: true
-    }];
-    
-    // if(landmarkLongitude !== "" && landmarkLatitude !== ""){
-    //   setTempLandmark(newTempLandmark);
-    // }
   }
 
   /**
@@ -62,8 +40,6 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
     //TODO: validation check
     if(event.target.value === ""){
       var newTempLandmark = [{
-        name: landmarkName,
-        description: landmarkDescription,
         coordinates: [0, 0],
         isVisible: false
       }];
@@ -73,8 +49,6 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
     if(Math.abs(event.target.value) <= 90){
       setLandmarkLatitude(event.target.value);
       var newTempLandmark = [{
-        name: landmarkName,
-        description: landmarkDescription,
         coordinates: [landmarkLongitude, event.target.value],
         isVisible: true
       }];
@@ -93,8 +67,6 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
     //TODO: validation check
     if(event.target.value === ""){
       var newTempLandmark = [{
-        name: landmarkName,
-        description: landmarkDescription,
         coordinates: [0, 0],
         isVisible: false
       }];
@@ -105,8 +77,6 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
       setLandmarkLongitude(event.target.value);
 
       var newTempLandmark = [{
-        name: landmarkName,
-        description: landmarkDescription,
         coordinates: [event.target.value, landmarkLatitude],
         isVisible: true
       }];
@@ -152,8 +122,6 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
         setLandmarkLongitude("");
         setLandmarkDescription("");
         setTempLandmark([{
-          name: "",
-          description: "",
           coordinates: [0, 0],
           isVisible: false
         }]);
