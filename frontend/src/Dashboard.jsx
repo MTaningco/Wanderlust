@@ -111,6 +111,31 @@ function Dashboard() {
     });
   };
 
+  const updateLandmarks = (landmark) => {
+    let items = [...landmarks];
+    for(var i = 0; i < items.length; i++){
+      if(items[i].landmark_uid === landmark.landmark_uid){
+        let itemToUpdate = {...items[i]};
+        itemToUpdate.name = landmark.name;
+        itemToUpdate.description = landmark.description;
+        itemToUpdate.coordinates = landmark.coordinates;
+        items[i] = itemToUpdate;
+        setLandmarks(items);
+        setCurrentLandmark([{
+          landmark_uid: landmark.landmark_uid,
+          name: landmark.name,
+          description: landmark.description,
+          coordinates: landmark.coordinates,
+          isVisible: true
+        }]);
+        setEditLandmark([{
+          coordinates: [0, 0],
+          isVisible: false
+        }]);
+      }
+    }
+  };
+
   useEffect(() => {
     getUserLandmarks();
     getUserPaths();
@@ -149,7 +174,7 @@ function Dashboard() {
                 <Tab style={{ minWidth: 25 }} icon={<TimelineIcon/>}/>
               </Tabs>
             </AppBar>
-            <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0} setEditLandmark={setEditLandmark}/>
+            <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0} setEditLandmark={setEditLandmark} updateLandmarks={updateLandmarks}/>
             <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} setTempLandmark={setTempLandmark} invalidateAuth={invalidateAuth}/>
             <NewPathTab setPaths={setPaths} value={tabValue} index={2} setTempPath={setTempPath} invalidateAuth={invalidateAuth}/>
           </Grid>

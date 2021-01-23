@@ -6,7 +6,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { FormControl, Input, InputLabel, TextField } from "@material-ui/core";
 
-function LandmarkInfo({ currentLandmark, value, index, setEditLandmark }) {
+function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLandmarks }) {
 
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(-1);
@@ -97,6 +97,13 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark }) {
     };
 
     const handleEditLandmark = () => {
+        updateLandmarks({
+            landmark_uid: editId,
+            name: editName,
+            description: editDescription,
+            coordinates: [editLongitude, editLatitude]
+        });
+        setIsEdit(false);
         alert(`not yet implemented, these are the parameters: \n id: ${editId}\nname: ${editName}\nlongitude:${editLongitude}\nlatitude:${editLatitude}\ndescription:${editDescription}`);
     };
     /**
