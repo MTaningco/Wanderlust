@@ -15,7 +15,7 @@ import lakesCoarse from "./jsonData/ne_110m_lakes.json";
 import lightsFine from "./jsonData/geonames-all-cities-with-a-population-1000.json";
 import lightsCoarse from "./jsonData/cities-200000.json";//TODO: use if performance is fixed
 
-function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLandmark, currentLandmark, editLandmark}) {
+function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLandmark, currentLandmark, editLandmark, subSolarLat, subSolarLong}) {
     //States
     const [mouseCoordinates, setMouseCoordinates] = useState(null);         //state for initially pressing down the mouse button's position
     const [oldCoordinates, setOldCoordinates] = useState([180, -25]);   //state for the position of the globe during inactivity (units in -longitude, -latitude)
@@ -367,8 +367,9 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     }
 
     const drawCurrentShadow = (svg, isDaylight) => {
-        var nightLongitude = 54 + 180;
-        var nightLatitude = 19;
+        var nightLongitude = subSolarLong + 180;
+        var nightLatitude = -subSolarLat;
+        // console.log(subSolarLat, subSolarLong);
         var opacity = "0.06";
         svg
             .selectAll(".shadow")
@@ -587,7 +588,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     
     useEffect(() => {
         drawGlobe(oldCoordinates, scale, false);
-    }, [landmarks, paths, tempPath, tempLandmark, currentLandmark, editLandmark])
+    }, [landmarks, paths, tempPath, tempLandmark, currentLandmark, editLandmark, subSolarLong, subSolarLat])
     
     return (
         <svg width={size} height={size} ref={svgRef} style={{border:1 }}

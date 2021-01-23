@@ -98,10 +98,27 @@ function Dashboard() {
     localStorage.removeItem('token');
     setIsAuth(false);
   };
+  const [subSolarLat, setSubSolarLat] = useState("");
+  const [subSolarLong, setSubSolarLong] = useState("");
+
+  const getSubsolarPoint = () => {
+    fetch(`/sun`)
+    .then(res => res.json())
+    .then(res => {
+      console.log(res);
+      setSubSolarLong(res.longitude);
+      setSubSolarLat(res.latitude);
+    });
+  };
 
   useEffect(() => {
     getUserLandmarks();
     getUserPaths();
+    getSubsolarPoint();
+    const interval = setInterval(() => {
+      getSubsolarPoint();
+    }, 2 * 60000);
+    return () => clearInterval(interval);
   }, []);
 
   const getDashboardContent = () => {
@@ -120,7 +137,9 @@ function Dashboard() {
               tempPath={tempPath}
               tempLandmark={tempLandmark}
               currentLandmark={currentLandmark}
-              editLandmark={editLandmark}/>
+              editLandmark={editLandmark}
+              subSolarLat={subSolarLat}
+              subSolarLong={subSolarLong}/>
           </Grid>
           <Grid item xs={4} style={{ padding: 60, height:"90vh" }} align="left">
             <AppBar position="static">
