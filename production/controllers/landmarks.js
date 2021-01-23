@@ -19,6 +19,19 @@ exports.getAllLandmarks = function(req, res, next){
   });
 }; 
 
+exports.updateLandmark = function(req, res, next){
+  jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
+    if(err){
+      res.status(401).send('Unauthorized');
+    }
+    else{
+      landmarks.update(decoded.user_uid, req.body.landmark_uid, req.body.name, req.body.description, req.body.coordinates[1], req.body.coordinates[0], (rows) => {
+        res.json(rows);
+      });
+    }
+  });
+}
+
 exports.createLandmark = function(req, res, next){
   jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
     if(err){

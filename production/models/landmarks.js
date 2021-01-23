@@ -10,6 +10,16 @@ var Landmarks = {
     callback(queryResult.rows[0]);
   },
 
+  update : async function(userUID, landmarkUID, landmarkName, landmarkDescription, latitude, longitude, callback){
+    const queryResult = await pool.query(`
+      update Landmarks
+      set landmark_name = $1, landmark_description = $2, longitude = $3, latitude = $4
+      where landmark_uid = $5 and user_uid = $6
+      returning *
+    `, [landmarkName, landmarkDescription, longitude, latitude, landmarkUID, userUID]);
+    callback(queryResult.rows[0]);
+  },
+
   getAll : async function(userUID, callback){
     const allLandmarks = await pool.query(`
       select landmark_uid, landmark_name, landmark_description, longitude, latitude 

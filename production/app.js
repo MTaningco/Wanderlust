@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 var testAPIRouter = require("./routes/testAPI");
 var pathsRouter = require("./routes/paths");
 var landmarksRouter = require("./routes/landmarks");
+var globeRouter = require("./routes/globe");
 
 var app = express();
 
@@ -32,6 +33,7 @@ app.use('/users', usersRouter);
 // app.use("/testAPI", testAPIRouter);
 app.use("/paths", pathsRouter);
 app.use("/landmarks", landmarksRouter);
+app.use("/sun", globeRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
