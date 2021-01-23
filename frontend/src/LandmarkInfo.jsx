@@ -6,7 +6,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { FormControl, Input, InputLabel, TextField } from "@material-ui/core";
 
-function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLandmarks }) {
+function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLandmarks, invalidateAuth }) {
 
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(-1);
@@ -97,14 +97,37 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
     };
 
     const handleEditLandmark = () => {
-        updateLandmarks({
-            landmark_uid: editId,
-            name: editName,
-            description: editDescription,
-            coordinates: [editLongitude, editLatitude]
-        });
-        setIsEdit(false);
-        alert(`not yet implemented, these are the parameters: \n id: ${editId}\nname: ${editName}\nlongitude:${editLongitude}\nlatitude:${editLatitude}\ndescription:${editDescription}`);
+        if(editId !== -1 && editName !== "" && editDescription !== "" && editLongitude !== "" && editLatitude !== ""){
+            const body = {
+                landmark_uid: editId,
+                name: editName,
+                description: editDescription,
+                coordinates: [editLongitude, editLatitude]
+            };
+
+            fetch(`/landmarks`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  'authorization' : `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(body)
+            })
+            .then(res => res.json())
+            .then(res => {
+                updateLandmarks({
+                    landmark_uid: editId,
+                    name: editName,
+                    description: editDescription,
+                    coordinates: [editLongitude, editLatitude]
+                });
+                setIsEdit(false);
+            })
+            .catch(err => invalidateAuth());
+        }
+        else{
+            alert('A field is missing! Cannot update landmark.')
+        }
     };
     /**
      * Gets the landmark information.

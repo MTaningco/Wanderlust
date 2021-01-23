@@ -174,7 +174,7 @@ function Dashboard() {
                 <Tab style={{ minWidth: 25 }} icon={<TimelineIcon/>}/>
               </Tabs>
             </AppBar>
-            <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0} setEditLandmark={setEditLandmark} updateLandmarks={updateLandmarks}/>
+            <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0} setEditLandmark={setEditLandmark} updateLandmarks={updateLandmarks} invalidateAuth={invalidateAuth}/>
             <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} setTempLandmark={setTempLandmark} invalidateAuth={invalidateAuth}/>
             <NewPathTab setPaths={setPaths} value={tabValue} index={2} setTempPath={setTempPath} invalidateAuth={invalidateAuth}/>
           </Grid>
