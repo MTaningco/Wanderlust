@@ -98,16 +98,13 @@ function Dashboard() {
     localStorage.removeItem('token');
     setIsAuth(false);
   };
-  const [subSolarLat, setSubSolarLat] = useState("");
-  const [subSolarLong, setSubSolarLong] = useState("");
+  const [subSolarCoordinates, setSubSolarCoordinates] = useState([0, 0]);
 
   const getSubsolarPoint = () => {
     fetch(`/sun`)
     .then(res => res.json())
     .then(res => {
-      console.log(res);
-      setSubSolarLong(res.longitude);
-      setSubSolarLat(res.latitude);
+      setSubSolarCoordinates([res.longitude, res.latitude]);
     });
   };
 
@@ -188,8 +185,7 @@ function Dashboard() {
               tempLandmark={tempLandmark}
               currentLandmark={currentLandmark}
               editLandmark={editLandmark}
-              subSolarLat={subSolarLat}
-              subSolarLong={subSolarLong}/>
+              subSolarCoordinates={subSolarCoordinates}/>
           </Grid>
           <Grid item xs={4} style={{ padding: 60, height:"90vh" }} align="left">
             <AppBar position="static">
