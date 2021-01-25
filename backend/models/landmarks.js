@@ -20,6 +20,15 @@ var Landmarks = {
     callback(queryResult.rows[0]);
   },
 
+  delete : async function(userUID, landmarkUID, callback){
+    const queryResult = await pool.query(`
+      delete from Landmarks
+      where landmark_uid = $1 and user_uid = $2
+      returning *
+    `, [landmarkUID, userUID]);
+    callback(queryResult.rows[0]);
+  },
+
   getAll : async function(userUID, callback){
     const allLandmarks = await pool.query(`
       select landmark_uid, landmark_name, landmark_description, longitude, latitude 

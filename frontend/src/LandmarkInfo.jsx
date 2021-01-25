@@ -6,7 +6,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { FormControl, Input, InputLabel, TextField } from "@material-ui/core";
 
-function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLandmarks, invalidateAuth }) {
+function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLandmarks, invalidateAuth, deleteLandmark }) {
 
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(-1);
@@ -68,8 +68,23 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
     }
 
     const handleDeleteLandmark = () => {
-        // console.log(currentLandmark[0].id);
-        alert(`not yet implemented: \nid:${currentLandmark[0].landmark_uid}`);
+        const body = {
+            landmark_uid: currentLandmark[0].landmark_uid
+        };
+        fetch(`/landmarks`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              'authorization' : `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(body)
+        })
+        .then(res => res.json())
+        .then(res => {
+            deleteLandmark(currentLandmark[0].landmark_uid);
+            setIsEdit(false);
+        })
+        .catch(err => invalidateAuth());
     };
 
     const handleEditLandmarkMode = () => {
