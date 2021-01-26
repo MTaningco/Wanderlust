@@ -86,8 +86,7 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
    * Handles the add landmark event.
    */
   const handleAddLandmark = () => {
-    //TODO: allow description to be empty. modify with production
-    if(!(landmarkName === "" || landmarkDescription === "" || landmarkLatitude === "" || landmarkLongitude === "")){
+    if(!(landmarkName === "" || landmarkLatitude === "" || landmarkLongitude === "")){
       const body = {
         landmarkName: landmarkName,
         landmarkDescription: landmarkDescription,
