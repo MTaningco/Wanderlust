@@ -32,6 +32,20 @@ exports.updateLandmark = function(req, res, next){
   });
 }
 
+exports.deleteLandmark = function(req, res, next){
+  jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
+    if(err){
+      res.status(401).send('Unauthorized');
+    }
+    else{
+      landmarks.delete(decoded.user_uid, req.body.landmark_uid, (rows) => {
+        console.log(rows);
+        res.json(rows);
+      });
+    }
+  });
+}
+
 exports.createLandmark = function(req, res, next){
   jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
     if(err){

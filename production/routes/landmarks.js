@@ -6,5 +6,7 @@ var tokenHeader = require('../controllers/tokenHeader');
 router.get('/', tokenHeader.verifyToken, pathController.getAllLandmarks);
 router.post('/', tokenHeader.verifyToken, pathController.createLandmark);
 router.put('/', tokenHeader.verifyToken, pathController.updateLandmark);
+router.delete('/', tokenHeader.verifyToken, pathController.deleteLandmark);
+
 
 module.exports = router;

@@ -140,8 +140,7 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
      * Handles editing the landmark.
      */
     const handleEditLandmark = () => {
-        //TODO: allow an empty description. Change with production.
-        if(editId !== -1 && editName !== "" && editDescription !== "" && editLongitude !== "" && editLatitude !== ""){
+        if(editId !== -1 && editName !== "" && editLongitude !== "" && editLatitude !== ""){
             const body = {
                 landmark_uid: editId,
                 name: editName,

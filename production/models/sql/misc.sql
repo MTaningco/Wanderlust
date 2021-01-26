@@ -1,0 +1,1 @@
+alter table landmarks alter column landmark_description drop not null;
