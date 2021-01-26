@@ -68,23 +68,26 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
     }
 
     const handleDeleteLandmark = () => {
-        const body = {
-            landmark_uid: currentLandmark[0].landmark_uid
-        };
-        fetch(`/landmarks`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              'authorization' : `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify(body)
-        })
-        .then(res => res.json())
-        .then(res => {
-            deleteLandmark(currentLandmark[0].landmark_uid);
-            setIsEdit(false);
-        })
-        .catch(err => invalidateAuth());
+        let isConfirmed = window.confirm(`Are you sure you want to delete this landmark?\n\n${currentLandmark[0].name}\nlongitude:${currentLandmark[0].coordinates[0]}\nlatitude:${currentLandmark[0].coordinates[1]}\n\n${currentLandmark[0].description}`);
+        if(isConfirmed){
+            const body = {
+                landmark_uid: currentLandmark[0].landmark_uid
+            };
+            fetch(`/landmarks`, {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                  'authorization' : `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(body)
+            })
+            .then(res => res.json())
+            .then(res => {
+                deleteLandmark(currentLandmark[0].landmark_uid);
+                setIsEdit(false);
+            })
+            .catch(err => invalidateAuth());
+        }
     };
 
     const handleEditLandmarkMode = () => {
