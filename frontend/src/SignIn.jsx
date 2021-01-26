@@ -4,19 +4,30 @@ import React, { Component, useState, useRef, useEffect } from "react";
 import {  Redirect, Link } from "react-router-dom";
 
 function SignIn() {
-
+  //States
   const [isTokenValid, setIsTokenValid] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  /**
+   * Handles the change in username.
+   * @param {*} event - the event for the username change
+   */
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
   };
 
+  /**
+   * Handles the change in password.
+   * @param {*} event - the event for the password change
+   */
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
   };
 
+  /**
+   * Handles the signing in.
+   */
   const handleSignIn = () => {
     setUsername("");
     setPassword("");
@@ -25,9 +36,7 @@ function SignIn() {
       "username": username,
       "password": password
     }
-
-    // console.log("body used for signing in", body);
-
+    
     fetch(`/users/login`, {
       method: "POST",
       headers: {
@@ -37,13 +46,13 @@ function SignIn() {
     })
     .then(res => res.json())
     .then(res => {
-      // console.log("result of signing in", res);
       localStorage.setItem('token', res.token);
       setIsTokenValid(true);
     })
     .catch((error) => alert("Invalid credentials!"));
   };
 
+  //Use effect hook.
   useEffect(() => {
     if(localStorage.getItem('token') !== null){
       fetch(`/users/checkToken`, {
@@ -62,6 +71,9 @@ function SignIn() {
     }
   }, []);
 
+  /**
+   * Gets the SignIn page content.
+   */
   const getSignInContent = () => {
     if(isTokenValid){
       return (<Redirect to={{pathname:'/dashboard'}}/>);
