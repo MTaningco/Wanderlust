@@ -9,6 +9,7 @@ import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import CommuteIcon from '@material-ui/icons/Commute';
+
 function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
 
   //NewPathTab states
@@ -35,7 +36,6 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
     }
     
     if(isNodesPopulated){
-      console.log("going here");
       const body = {
         coordinates: [...nodes], 
         isAirPlane: isAirplane
@@ -68,10 +68,7 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
         }]);
       })
       .catch(err => invalidateAuth());
-  
-      
     }
-
   };
 
   /**
@@ -132,10 +129,11 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
     else if(event.target.value === ""){
       item[1] = event.target.value;
     }
-
+    
     newElements[index] = item;
 
     setNodes(newElements);
+    //TODO: fix excessive rendering
     updateTempPath(newElements);
   };
 
@@ -160,7 +158,17 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
     newElements[index] = item;
     
     setNodes(newElements);
+    //TODO: fix excessive rendering
     updateTempPath(newElements);
+  };
+
+  /**
+   * Handles the switch state being changed.
+   * @param {*} event - the switch event
+   */
+  const handleSwitchChange = (event) => {
+    setIsAirplane(event.target.checked);
+    updateTempPath(nodes, event.target.checked);
   };
 
   /**
@@ -174,15 +182,6 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
         </Button>
       );
     }
-  };
-
-  /**
-   * Handles the switch state being changed.
-   * @param {*} event - the switch event
-   */
-  const handleSwitchChange = (event) => {
-    setIsAirplane(event.target.checked);
-    updateTempPath(nodes, event.target.checked);
   };
 
   return (
