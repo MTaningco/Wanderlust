@@ -16,20 +16,43 @@ import {  Redirect } from "react-router-dom";
 
 function Dashboard() {
   // const classes = useStyles();
-  const [isAuth, setIsAuth] = React.useState(true);
-  const [scale, setScale] = React.useState(1);
-  const [paths, setPaths] = React.useState([]);
-  const [landmarks, setLandmarks] = React.useState([]);
-  const [currentLandmark, setCurrentLandmark] = React.useState([{
+  //States
+  const [scale, setScale] = useState(1);
+  const [tabValue, setTabValue] = useState(0);
+
+  const [isAuth, setIsAuth] = useState(true);
+  const [paths, setPaths] = useState([]);
+  const [landmarks, setLandmarks] = useState([]);
+  const [subSolarCoordinates, setSubSolarCoordinates] = useState([0, 0]);
+
+  const [currentLandmark, setCurrentLandmark] = useState([{
     landmark_uid: -1,
     name: "",
     description: "",
     coordinates: [0, 0],
     isVisible: false
   }]);
+  const [tempPath, setTempPath] = useState([{
+    type: "LineString", 
+    coordinates: [],
+    isAirPlane: true
+  }]);
+  const [tempLandmark, setTempLandmark] = useState([{
+    coordinates: [0, 0],
+    isVisible: false
+  }]);
+  const [editLandmark, setEditLandmark] = useState([{
+    coordinates: [0, 0],
+    isVisible: false
+  }]);
 
   // const clientHeight = document.getElementById('globeGrid').clientHeight;
 
+  /**
+   * Handles the scale change.
+   * @param {*} event - the event of the scale change
+   * @param {number} newValue - the value used to change the scale
+   */
   const handleChangeScale = (event, newValue) => {
     setScale(newValue);
   };
@@ -42,32 +65,26 @@ function Dashboard() {
   //   return width < height ? width : height;
   // };
 
+  /**
+   * Gets the minimum dimension of the browser window.
+   */
   const getMinDimension = () => {
     // console.log("dimension calculated");
     return window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth;
   };
 
-  const [tabValue, setTabValue] = useState(0);
+  /**
+   * Handle's the tab change.
+   * @param {*} event - the event of the tab change
+   * @param {number} newValue - the value used to change the tab
+   */
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
-  const [tempPath, setTempPath] = useState([{
-    type: "LineString", 
-    coordinates: [],
-    isAirPlane: true
-  }]);
-
-  const [tempLandmark, setTempLandmark] = useState([{
-    coordinates: [0, 0],
-    isVisible: false
-  }]);
-
-  const [editLandmark, setEditLandmark] = useState([{
-    coordinates: [0, 0],
-    isVisible: false
-  }]);
-
+  /**
+   * Gets the user's paths from the database.
+   */
   const getUserPaths = () => {
     fetch(`/paths`, {
       headers: {
@@ -81,6 +98,9 @@ function Dashboard() {
     });
   };
 
+  /**
+   * Gets the user's landmarks from the database.
+   */
   const getUserLandmarks = () => {
     fetch(`/landmarks`, {
       headers: {
@@ -94,12 +114,17 @@ function Dashboard() {
     });
   };
 
+  /**
+   * Invalidates the authorization of the user.
+   */
   const invalidateAuth = () => {
     localStorage.removeItem('token');
     setIsAuth(false);
   };
-  const [subSolarCoordinates, setSubSolarCoordinates] = useState([0, 0]);
 
+  /**
+   * Gets the subsolar point from the backend.
+   */
   const getSubsolarPoint = () => {
     fetch(`/sun`)
     .then(res => res.json())
@@ -108,15 +133,22 @@ function Dashboard() {
     });
   };
 
+  /**
+   * Updates the front end landmark.
+   * @param {*} landmark - the landmark to be updated
+   */
   const updateLandmarks = (landmark) => {
     let items = [...landmarks];
     for(var i = 0; i < items.length; i++){
       if(items[i].landmark_uid === landmark.landmark_uid){
         let itemToUpdate = {...items[i]};
+
         itemToUpdate.name = landmark.name;
         itemToUpdate.description = landmark.description;
         itemToUpdate.coordinates = landmark.coordinates;
+
         items[i] = itemToUpdate;
+
         setLandmarks(items);
         setCurrentLandmark([{
           landmark_uid: landmark.landmark_uid,
@@ -133,6 +165,10 @@ function Dashboard() {
     }
   };
 
+  /**
+   * Deletes the frontend landmark.
+   * @param {number} landmark_uid - the landmark UID to be deleted.
+   */
   const deleteLandmark = (landmark_uid) => {
     let items = [...landmarks];
     var index = -1;
@@ -158,6 +194,7 @@ function Dashboard() {
     }
   };
 
+ // Use effect hook.
   useEffect(() => {
     getUserLandmarks();
     getUserPaths();
@@ -168,6 +205,9 @@ function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  /**
+   * Gets the dashboard content.
+   */
   const getDashboardContent = () => {
     if(isAuth){
       return (
@@ -199,11 +239,6 @@ function Dashboard() {
             <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} setTempLandmark={setTempLandmark} invalidateAuth={invalidateAuth}/>
             <NewPathTab setPaths={setPaths} value={tabValue} index={2} setTempPath={setTempPath} invalidateAuth={invalidateAuth}/>
           </Grid>
-          {/* <Grid item xs={12} style={{ padding: 60}}>
-            <Button variant="contained" color="primary" onClick={invalidateAuth}>
-              Logout
-            </Button>
-          </Grid> */}
         </Grid>
       );
     }
