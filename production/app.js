@@ -6,7 +6,6 @@ var logger = require('morgan');
 var cors = require("cors");
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var testAPIRouter = require("./routes/testAPI");
 var pathsRouter = require("./routes/paths");
 var landmarksRouter = require("./routes/landmarks");
 var globeRouter = require("./routes/globe");
@@ -30,7 +29,6 @@ else{
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-// app.use("/testAPI", testAPIRouter);
 app.use("/paths", pathsRouter);
 app.use("/landmarks", landmarksRouter);
 app.use("/sun", globeRouter);

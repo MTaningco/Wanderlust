@@ -10,7 +10,6 @@ var Paths = {
     `, [userUID, isAirPlaneParam]);
     const pathNodesQuery = "insert into PathNodes(path_uid, path_order, latitude, longitude) values ";
 
-    console.log(pathInfoResult.rows[0]);
     const path_uid = pathInfoResult.rows[0].path_uid;
     var nodesAsQueryArray = [];
     var parametersArray = [];
@@ -22,7 +21,6 @@ var Paths = {
       parametersArray.push(pathNodes[i][0]);
     }
     var nodesAsQuery = nodesAsQueryArray.join(', ');
-    console.log(pathNodesQuery + nodesAsQuery);
     await pool.query(pathNodesQuery + nodesAsQuery, parametersArray);
     callback(pathInfoResult.rows[0]);
   },

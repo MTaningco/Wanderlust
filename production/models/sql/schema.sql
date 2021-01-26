@@ -31,7 +31,7 @@ create table Landmarks (
   landmark_uid serial primary key,
   user_uid int not null,
   landmark_name varchar(255) not null,
-  landmark_description varchar(500) not null,
+  landmark_description varchar(500),
   longitude numeric not null,
   latitude numeric not null,
   constraint fk_landmarks_useruid
