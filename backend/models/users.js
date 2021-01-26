@@ -9,7 +9,6 @@ var Users = {
     bcrypt.hash(email, saltRounds, async function(err, hashedEmail) {
       // Hash the password
       bcrypt.hash(password, saltRounds, async function(err, hashedPassword) {
-        // console.log(hashedEmail, hashedPassword);
         try{
           const queryResult = await pool.query(`
             insert into AppUsers(email, password, username) 
