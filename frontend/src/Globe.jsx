@@ -61,6 +61,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
      * @param {*} event - the event during idle.
      */
     const handleOnIdle = event => {
+        //TODO: fix fine rendering issue
         // if(event !== null && event.type !== "mousedown"){
             // console.log("event for idle", event);
             // console.log("redrawing globe");
@@ -81,6 +82,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
      * @param {*} event - the event during active
      */
     const handleOnActive = event => {
+        //TODO: fix fine rendering issue
         // console.log(event.path[1].tagName === "svg");
         // if(event.path[1].tagName === "svg"){
         //     if(newCoordinates){
@@ -113,6 +115,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
      * @param {*} event - the event of when the mouse has been moved
      */
     const onMouseMoveHandler = (event) => {
+        //TODO: fix fine rendering issue
         if(mouseCoordinates){
             // console.log("mouse move", e);
             // console.log("drawing the globe coarse");
@@ -134,6 +137,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
      * @param {*} event - the event of when the mouse click is now up
      */
     const onMouseUpHandler = (event) => {
+        //TODO: fix fine rendering issue
         // console.log("mouseuphandler activated");
         if(newCoordinates){
             // setMouseCoordinates(null);
@@ -169,8 +173,8 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     };
 
     /**
-     * Draws the grid in the ocean.
-     * @param {*} svg - the svg used to draw the sphere.
+     * Draws the grid.
+     * @param {*} svg - the svg used to draw the graticule.
      * @param {boolean} isDaylight - the parameter for night time styles.
      */
     const drawGraticule = (svg, isDaylight) => {
@@ -184,7 +188,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("stroke", isDaylight ? "#ccf" : "gray")
             .attr("stroke-opacity", "0.5")
             .attr("stroke-width", isDaylight ? 1 : 0.3)
-            .attr("d", feature => pathGenerator(feature)).raise()
+            .attr("d", feature => pathGenerator(feature))
             .on("click", (mouseEvent, item) => {
                 landmarkHandler([{
                     landmark_uid: -1,
@@ -193,21 +197,19 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
                     coordinates: [0, 0],
                     isVisible: false
                 }]);
-            } );
+            } )
+            .raise();
     };
 
     /**
      * Draws the land.
-     * @param {*} svg - the svg used to draw the sphere
+     * @param {*} svg - the svg used to draw the land
      * @param {boolean} isCoarse - the parameter for fine detail or coarse detail
      * @param {boolean} isDaylight - the parameter for night time styles
      */
     const drawLand = (svg, isCoarse, isDaylight) => {
         //Using local json data that is of type Topology
-        // console.log(landCoarse.objects.land);
-        // console.log(landFine);
         const land = isCoarse ? landCoarse.features : landFine.features;
-        // console.log(land);
         svg
         .selectAll(".country")
         .data(land)
@@ -258,6 +260,12 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         //     .attr("d", feature => pathGenerator(feature));
     };
 
+    /**
+     * Draws the lakes.
+     * @param {*} svg - the svg used to draw the land
+     * @param {boolean} isCoarse - the parameter for fine detail or coarse detail
+     * @param {boolean} isDaylight - the parameter for night time styles
+     */
     const drawLakes = (svg, isCoarse, isDaylight) => {
         const lakes = isCoarse ? lakesCoarse.features :lakesFine.features;
         svg
@@ -284,6 +292,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     /**
      * Draws city lights based on population sizes in cities.
      * @param {*} svg - the svg used to draw city lights
+     * @param {boolean} isCoarse - the parameter for fine detail or coarse detail
      */
     const drawLights = (svg, isCoarse) => {
         if(isCoarse){
@@ -294,7 +303,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("class", "lights")
             .style("fill", "#ff8")
             .attr("fill-opacity","0.4")
-            .attr("d", cityElement => pathGenerator(circle.center([parseFloat(cityElement[3]), parseFloat(cityElement[2])]).radius(getCityRadius(cityElement[0]))()));
+            .attr("d", cityElement => pathGenerator(circle.center([parseFloat(cityElement[3]), parseFloat(cityElement[2])]).radius(getCityRadius(cityElement[0]))())).raise();
         }else{
             svg
             .selectAll(".lights")
@@ -303,7 +312,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("class", "lights")
             .style("fill", "#ff8")
             .attr("fill-opacity","0.4")
-            .attr("d", cityElement => pathGenerator(circle.center(cityElement.geometry.coordinates).radius(getCityRadius(cityElement.fields.population))()));
+            .attr("d", cityElement => pathGenerator(circle.center(cityElement.geometry.coordinates).radius(getCityRadius(cityElement.fields.population))())).raise();
         }
     };
 
@@ -321,7 +330,6 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         //     description: "First Hometown. Revisited 2011, 2013, 2017, 2018, and 2019.",
         //     coordinates: [120.9842, 14.5995]
         //   }
-        // console.log("drawing landmarks");
         svg
             .selectAll(".landmarks")
             .data(landmarks)
@@ -351,9 +359,12 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)())).raise();
     };
 
+    /**
+     * Draws the current selected landmark.
+     * @param {*} svg - the svg used to draw the current selected landmark
+     * @param {boolean} isDaylight - the parameter used for night time styles
+     */
     const drawCurrentLandmark = (svg, isDaylight) => {
-        // console.log("this is the current landmark", currentLandmark);
-        // var data = currentLandmark ? [currentLandmark] : [];
         svg
             .selectAll(".currentLandmark")
             .data(currentLandmark)
@@ -366,10 +377,14 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.2)())).raise();
     }
 
+    /**
+     * Draws the current world night time.
+     * @param {*} svg - the svg used to draw the world night time
+     * @param {boolean} isDaylight - the parameter used for night time styles
+     */
     const drawCurrentShadow = (svg, isDaylight) => {
         var nightLongitude = subSolarCoordinates[0] + 180;
         var nightLatitude = -subSolarCoordinates[1];
-        // console.log(subSolarLat, subSolarLong);
         var opacity = "0.06";
         svg
             .selectAll(".shadow")
@@ -448,6 +463,11 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             });
     }
 
+    /**
+     * Draws the current new landmark.
+     * @param {*} svg - the svg used to draw the current new landmark
+     * @param {boolean} isDaylight - the parameter used for night time styles
+     */
     const drawTempLandmark = (svg, isDaylight) => {
         //format of one element of data
         // {
@@ -466,13 +486,17 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)())).raise();
     };
 
+    /**
+     * Draws the current modified landmark.
+     * @param {} svg - the svg used to draw the current modified landmark
+     * @param {boolean} isDaylight - the parameter used for night time styles
+     */
     const drawEditLandmark = (svg, isDaylight) => {
         //format of one element of data
         // {
         //     coordinates: [0, 0],
         //     isVisible: false
         //   }
-        // console.log(editLandmark);
         svg
             .selectAll(".editLandmark")
             .data(editLandmark)
@@ -518,6 +542,11 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .raise();
     };
 
+    /**
+     * Draws the current new path.
+     * @param {*} svg - the svg used to draw the current new path
+     * @param {boolean} isDayTime - the parameter used for night time styles
+     */
     const drawTempPath = (svg, isDayTime) => {
         //format of one element of data
         // {
@@ -552,29 +581,21 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         var isDaylight = false;
         
         drawSphere(svg, isDaylight);
-
         drawLand(svg, isCoarse, isDaylight);
-
         drawLakes(svg, isCoarse, isDaylight);
+        drawCurrentShadow(svg, isDaylight);
 
         if(!isDaylight){
             // drawLights(svg, false);
         }
-
-        drawCurrentShadow(svg, isDaylight);
             
         drawGraticule(svg, isDaylight);
 
         drawCurrentLandmark(svg, isDaylight);
-
         drawArcs(svg, isDaylight);
-
         drawTempPath(svg, isDaylight);
-        
         drawTempLandmark(svg, isDaylight);
-        
         drawEditLandmark(svg, isDaylight);
-
         drawLandmarks(svg, isDaylight);
 
     };
@@ -585,7 +606,6 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         setIsMove(true);
     }, [scale])
 
-    
     useEffect(() => {
         drawGlobe(oldCoordinates, scale, false);
     }, [landmarks, paths, tempPath, tempLandmark, currentLandmark, editLandmark, subSolarCoordinates])
