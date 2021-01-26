@@ -7,7 +7,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { FormControl, Input, InputLabel, TextField } from "@material-ui/core";
 
 function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLandmarks, invalidateAuth, deleteLandmark }) {
-
+    //States
     const [isEdit, setIsEdit] = useState(false);
     const [editId, setEditId] = useState(-1);
     const [editName, setEditName] = useState("");
@@ -15,14 +15,26 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
     const [editLongitude, setEditLongitude] = useState("");
     const [editLatitude, setEditLatitude] = useState("");
 
+    /**
+     * Handles the name change of the edited landmark.
+     * @param {*} event - the event for the name change
+     */
     const handleNameChange = (event) => {
         setEditName(event.target.value);
     }
 
+    /**
+     * Handles the description change of the edited landmark.
+     * @param {*} event - the event for the desription change
+     */
     const handleDescriptionChange = (event) => {
         setEditDescription(event.target.value);
     }
 
+    /**
+     * Handles the latitude change of the edited landmark.
+     * @param {*} event - the event for the latitude change
+     */
     const handleLatitudeChange = (event) => {
         if(event.target.value === ""){
             var editLandmark = [{
@@ -33,19 +45,21 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
         }
 
         if(Math.abs(event.target.value) <= 90){
-            // console.log("value within 90")
             setEditLatitude(event.target.value);
             var editLandmark = [{
                 coordinates: [editLongitude, parseFloat(event.target.value)],
                 isVisible: true
             }];
             if(editLongitude !== "" && event.target.value !== ""){
-                // console.log("modify edit landmark");
                 setEditLandmark(editLandmark);
             }
         }
     }
 
+    /**
+     * Handles the longitude change of the edited landmark.
+     * @param {*} event - the event for the longitude change
+     */
     const handleLongitudeChange = (event) => {
         if(event.target.value === ""){
             var editLandmark = [{
@@ -67,6 +81,9 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
         }
     }
 
+    /**
+     * Handles deleting the landmark.
+     */
     const handleDeleteLandmark = () => {
         let isConfirmed = window.confirm(`Are you sure you want to delete this landmark?\n\n${currentLandmark[0].name}\nlongitude:${currentLandmark[0].coordinates[0]}\nlatitude:${currentLandmark[0].coordinates[1]}\n\n${currentLandmark[0].description}`);
         if(isConfirmed){
@@ -90,8 +107,10 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
         }
     };
 
+    /**
+     * Handles switching to the mode of editing a landmark.
+     */
     const handleEditLandmarkMode = () => {
-        // alert("edit not yet implemented");
         setIsEdit(true);
         setEditId(currentLandmark[0].landmark_uid);
         setEditName(currentLandmark[0].name);
@@ -105,6 +124,9 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
         setEditLandmark(editLandmark);
     };
 
+    /**
+     * Handles canceling out of the edit mode.
+     */
     const handleCancelEdit = () => {
         var editLandmark = [{
             coordinates: [0, 0],
@@ -114,7 +136,11 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
         setIsEdit(false);
     };
 
+    /**
+     * Handles editing the landmark.
+     */
     const handleEditLandmark = () => {
+        //TODO: allow an empty description. Change with production.
         if(editId !== -1 && editName !== "" && editDescription !== "" && editLongitude !== "" && editLatitude !== ""){
             const body = {
                 landmark_uid: editId,
@@ -147,16 +173,13 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
             alert('A field is missing! Cannot update landmark.')
         }
     };
+
     /**
      * Gets the landmark information.
      */
-    const getLandmarkInfo = () => {
-        // console.log("landmark info updating", currentLandmark);
+    const getLandmarkInfoContent = () => {
         const landmark = currentLandmark[0];
         if (landmark.isVisible) {
-            var description = landmark.description;
-            var descriptionArray = description.split("\n");
-
             if(isEdit){
                 return (
                     <form>
@@ -212,6 +235,8 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
                 );
             }
             else{
+                var description = landmark.description;
+                var descriptionArray = description.split("\n");
                 return (
                     <div>
                         <Button
@@ -258,11 +283,6 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
         }
     };
 
-    //Use effect hook.
-    // useEffect(() => {
-    //     drawGlobe(oldCoordinates, scale, true);
-    // }, [scale, landmarks])
-
     return (
         <div hidden={value !== index}>
             
@@ -270,7 +290,7 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
                 Landmark Information
             </Typography>
             <br/>
-            {getLandmarkInfo()}
+            {getLandmarkInfoContent()}
         </div>
     );
 }
