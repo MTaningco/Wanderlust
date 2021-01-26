@@ -6,9 +6,9 @@ import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
-function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAuth}) {
+function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidateAuth}) {
 
-  //NewLandmarkTab states
+  //States
   const [landmarkName, setLandmarkName] = useState("");
   const [landmarkLatitude, setLandmarkLatitude] = useState("");
   const [landmarkLongitude, setLandmarkLongitude] = useState("");
@@ -35,9 +35,6 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
    * @param {*} event - the text event
    */
   const handleLatitudeChange = (event) => {
-    var latitudeInput = parseFloat(event.target.value);
-    
-    //TODO: validation check
     if(event.target.value === ""){
       var newTempLandmark = [{
         coordinates: [0, 0],
@@ -47,9 +44,9 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
       setTempLandmark(newTempLandmark);
     }
     if(Math.abs(event.target.value) <= 90){
-      setLandmarkLatitude(event.target.value);
+      setLandmarkLatitude(parseFloat(event.target.value));
       var newTempLandmark = [{
-        coordinates: [landmarkLongitude, event.target.value],
+        coordinates: [landmarkLongitude, parseFloat(event.target.value)],
         isVisible: true
       }];
       if(landmarkLongitude !== "" && event.target.value !== ""){
@@ -63,8 +60,6 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
    * @param {*} event - the text event
    */
   const handleLongitudeChange = (event) => {
-    var longitudeInput = parseFloat(event.target.value);
-    //TODO: validation check
     if(event.target.value === ""){
       var newTempLandmark = [{
         coordinates: [0, 0],
@@ -74,10 +69,10 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
       setTempLandmark(newTempLandmark);
     }
     if(Math.abs(event.target.value) <= 180){
-      setLandmarkLongitude(event.target.value);
+      setLandmarkLongitude(parseFloat(event.target.value));
 
       var newTempLandmark = [{
-        coordinates: [event.target.value, landmarkLatitude],
+        coordinates: [parseFloat(event.target.value), landmarkLatitude],
         isVisible: true
       }];
 
@@ -91,6 +86,7 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
    * Handles the add landmark event.
    */
   const handleAddLandmark = () => {
+    //TODO: allow description to be empty. modify with production
     if(!(landmarkName === "" || landmarkDescription === "" || landmarkLatitude === "" || landmarkLongitude === "")){
       const body = {
         landmarkName: landmarkName,
@@ -183,4 +179,4 @@ function LandmarkInfo({setLandmarks, value, index, setTempLandmark, invalidateAu
   );
 }
  
-export default LandmarkInfo;
+export default NewLandmarkTab;
