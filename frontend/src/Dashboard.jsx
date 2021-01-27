@@ -194,6 +194,28 @@ function Dashboard() {
     }
   };
 
+  /**
+   * Handles a new path called by the NewPathTab.
+   * @param {*} newPath - the new temp path to compare against the previous state
+   */
+  const newPathHandler = (newPath) => {
+    let isSameLength = newPath[0].coordinates.length === tempPath[0].coordinates.length;
+    let isAirPlaneSame = newPath[0].isAirPlane === tempPath[0].isAirPlane;
+    let isCoordinatesSame = true;
+    if(isSameLength){
+      for(var i = 0; i < newPath[0].coordinates.length; i++){
+        if(newPath[0].coordinates[i][0] !== tempPath[0].coordinates[i][0] || newPath[0].coordinates[i][1] !== tempPath[0].coordinates[i][1]){
+          isCoordinatesSame = false;
+          break;
+        }
+      }
+    }
+    
+    if(!isSameLength || !isAirPlaneSame || !isCoordinatesSame){
+      setTempPath(newPath);
+    }
+  };
+
  // Use effect hook.
   useEffect(() => {
     getUserLandmarks();
@@ -237,7 +259,7 @@ function Dashboard() {
             </AppBar>
             <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0} setEditLandmark={setEditLandmark} updateLandmarks={updateLandmarks} invalidateAuth={invalidateAuth} deleteLandmark={deleteLandmark}/>
             <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} setTempLandmark={setTempLandmark} invalidateAuth={invalidateAuth}/>
-            <NewPathTab setPaths={setPaths} value={tabValue} index={2} setTempPath={setTempPath} invalidateAuth={invalidateAuth}/>
+            <NewPathTab setPaths={setPaths} value={tabValue} index={2} setTempPath={newPathHandler} invalidateAuth={invalidateAuth}/>
           </Grid>
         </Grid>
       );

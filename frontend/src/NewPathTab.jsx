@@ -138,7 +138,6 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
     newElements[index] = item;
 
     setNodes(newElements);
-    //TODO: fix excessive rendering
     updateTempPath(newElements);
   };
 
@@ -163,7 +162,6 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
     newElements[index] = item;
     
     setNodes(newElements);
-    //TODO: fix excessive rendering
     updateTempPath(newElements);
   };
 
