@@ -1,6 +1,6 @@
 //Imports from libraries
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Input, Typography } from '@material-ui/core';
+import { Input, Typography, CircularProgress } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -13,6 +13,7 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
   const [landmarkLatitude, setLandmarkLatitude] = useState("");
   const [landmarkLongitude, setLandmarkLongitude] = useState("");
   const [landmarkDescription, setLandmarkDescription] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   /**
    * Handles the description change
@@ -87,6 +88,7 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
    */
   const handleAddLandmark = () => {
     if(!(landmarkName === "" || landmarkLatitude === "" || landmarkLongitude === "")){
+      setIsProcessing(true);
       const body = {
         landmarkName: landmarkName,
         landmarkDescription: landmarkDescription,
@@ -104,24 +106,26 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
       })
       .then(res => res.json())
       .then(res => {
-        setLandmarks(prevArray => [...prevArray, {
-          id: `landmark_${res.landmark_uid}`,
-          path_uid: res.landmark_uid,
-          name: landmarkName,
-          description: landmarkDescription,
-          coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
-        }])
-  
         setLandmarkName("");
         setLandmarkLatitude("");
         setLandmarkLongitude("");
         setLandmarkDescription("");
-        setTempLandmark([{
-          coordinates: [0, 0],
-          isVisible: false
-        }]);
+        setTimeout(() => {
+          setIsProcessing(false);
+          setLandmarks(prevArray => [...prevArray, {
+            id: `landmark_${res.landmark_uid}`,
+            path_uid: res.landmark_uid,
+            name: landmarkName,
+            description: landmarkDescription,
+            coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
+          }]);
+          setTempLandmark([{
+            coordinates: [0, 0],
+            isVisible: false
+          }]);
+        }, 500);
       })
-      .catch(err => invalidateAuth());
+      .catch(err => invalidateAuth());//TODO: check if processing needs to be set to false here
     }
   };
 
@@ -172,7 +176,8 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
       <br/>
       <br/>
       <Button variant="contained" color="primary" onClick={handleAddLandmark}>
-        Add Landmark
+        {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
+        {!isProcessing && 'Add Landmark'}
       </Button>
     </form>
   );
