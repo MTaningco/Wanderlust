@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { FormControl, Input, InputLabel, TextField } from "@material-ui/core";
+import { CircularProgress, FormControl, Input, InputLabel, TextField } from "@material-ui/core";
 
 function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLandmarks, invalidateAuth, deleteLandmark }) {
     //States
@@ -14,6 +14,7 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
     const [editDescription, setEditDescription] = useState("");
     const [editLongitude, setEditLongitude] = useState("");
     const [editLatitude, setEditLatitude] = useState("");
+    const [isProcessing, setIsProcessing] = useState(false);
 
     /**
      * Handles the name change of the edited landmark.
@@ -87,6 +88,7 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
     const handleDeleteLandmark = () => {
         let isConfirmed = window.confirm(`Are you sure you want to delete this landmark?\n\n${currentLandmark[0].name}\nlongitude:${currentLandmark[0].coordinates[0]}\nlatitude:${currentLandmark[0].coordinates[1]}\n\n${currentLandmark[0].description}`);
         if(isConfirmed){
+            setIsProcessing(true);
             const body = {
                 landmark_uid: currentLandmark[0].landmark_uid
             };
@@ -100,8 +102,12 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
             })
             .then(res => res.json())
             .then(res => {
-                deleteLandmark(currentLandmark[0].landmark_uid);
+                setIsProcessing(false);
+                // deleteLandmark(currentLandmark[0].landmark_uid);
                 setIsEdit(false);
+                setTimeout(() => {
+                    deleteLandmark(currentLandmark[0].landmark_uid);
+                }, 500);
             })
             .catch(err => invalidateAuth());
         }
@@ -141,6 +147,7 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
      */
     const handleEditLandmark = () => {
         if(editId !== -1 && editName !== "" && editLongitude !== "" && editLatitude !== ""){
+            setIsProcessing(true);
             const body = {
                 landmark_uid: editId,
                 name: editName,
@@ -158,13 +165,16 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
             })
             .then(res => res.json())
             .then(res => {
-                updateLandmarks({
-                    landmark_uid: editId,
-                    name: editName,
-                    description: editDescription,
-                    coordinates: [editLongitude, editLatitude]
-                });
                 setIsEdit(false);
+                setIsProcessing(false);
+                setTimeout(() => {
+                    updateLandmarks({
+                        landmark_uid: editId,
+                        name: editName,
+                        description: editDescription,
+                        coordinates: [editLongitude, editLatitude]
+                    })
+                }, 500);
             })
             .catch(err => invalidateAuth());
         }
@@ -224,11 +234,13 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
                         <br/>
                         <br/>
                         <Button variant="contained" color="primary" onClick={handleEditLandmark}>
-                            Finish Edit
+                            {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
+                            {!isProcessing && 'Finish Edit'}
                         </Button>
                         
                         <Button variant="contained" color="secondary" onClick={handleCancelEdit}>
-                            Cancel Edit
+                            {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
+                            {!isProcessing && 'Cancel Edit'}
                         </Button>
                     </form>
                 );
@@ -241,16 +253,18 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
                         <Button
                             variant="contained"
                             color="primary"
-                            endIcon={<EditIcon/>}
+                            endIcon={!isProcessing ? <EditIcon/> : ''}
                             onClick={handleEditLandmarkMode}>
-                            Edit
+                            {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
+                            {!isProcessing && 'Edit'}
                         </Button>
                         <Button
                             variant="contained"
                             color="secondary"
-                            endIcon={<DeleteIcon/>}
+                            endIcon={!isProcessing ? <DeleteIcon/> : ''}
                             onClick={handleDeleteLandmark}>
-                            Delete
+                            {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
+                            {!isProcessing && 'Delete'}
                         </Button>
                         <Typography variant="h4">
                             {landmark.name}
