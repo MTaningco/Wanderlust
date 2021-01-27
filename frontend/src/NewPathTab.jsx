@@ -1,7 +1,7 @@
 //Imports from libraries
 import React, { useState } from "react";
 import Typography from '@material-ui/core/Typography';
-import { Input } from '@material-ui/core';
+import { Input, CircularProgress } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
@@ -15,6 +15,7 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
   //NewPathTab states
   const [nodes, setNodes] = useState([]);
   const [isAirplane, setIsAirplane] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   /**
    * Handles creating a new node.
@@ -36,6 +37,7 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
     }
     
     if(isNodesPopulated){
+      setIsProcessing(true);
       const body = {
         coordinates: [...nodes], 
         isAirPlane: isAirplane
@@ -59,13 +61,16 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
           isAirPlane: isAirplane
         };
   
-        setPaths(prevArray => [...prevArray, newPath]);
         setNodes([]);
-        setTempPath([{
-          type: "LineString",
-          coordinates: [],
-          isAirPlane: isAirplane
-        }]);
+        setTimeout(() => {
+          setIsProcessing(false);
+          setPaths(prevArray => [...prevArray, newPath]);
+          setTempPath([{
+            type: "LineString",
+            coordinates: [],
+            isAirPlane: isAirplane
+          }]);
+        }, 500);
       })
       .catch(err => invalidateAuth());
     }
@@ -178,7 +183,8 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
     if(nodes.length >= 2){
       return(
         <Button variant="contained" color="secondary" onClick={handleNewPath} fullWidth>
-          Finish Path
+          {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
+          {!isProcessing && 'Finish Path'}
         </Button>
       );
     }
