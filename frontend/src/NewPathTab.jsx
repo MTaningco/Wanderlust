@@ -1,7 +1,7 @@
 //Imports from libraries
 import React, { useState } from "react";
 import Typography from '@material-ui/core/Typography';
-import { Input, CircularProgress } from '@material-ui/core';
+import { Input, CircularProgress, Paper } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
@@ -204,43 +204,45 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
           />
         }
         label="Travel Type"/>
-      {
-        nodes.map((element, index) => {
-          var latId = `nodeLatitude_${index}`;
-          var longitudeId = `nodeLongitude_${index}`;
-          var deleteBtnId = `deleteBtn_${index}`;
+      <Paper style={{maxHeight: "50vh", overflow: 'auto'}}>
+        {
+          nodes.map((element, index) => {
+            var latId = `nodeLatitude_${index}`;
+            var longitudeId = `nodeLongitude_${index}`;
+            var deleteBtnId = `deleteBtn_${index}`;
 
-          return (
-            <form>
-              <br/>
-              <Typography>Node {index + 1}</Typography>
-              <FormControl fullWidth>
-                <InputLabel htmlFor={latId}>Latitude</InputLabel>
+            return (
+              <form>
+                <br/>
+                <Typography>Node {index + 1}</Typography>
+                <FormControl fullWidth>
+                  <InputLabel htmlFor={latId}>Latitude</InputLabel>
+                  <Input 
+                    type="number" 
+                    id={latId}
+                    placeholder="Enter value between -90 to 90" 
+                    name="Latitude"
+                    value={element[1]}
+                    onChange={onElementLatitudeChange} />
+                </FormControl>
+                <FormControl fullWidth>
+                <InputLabel htmlFor={longitudeId}>Longitude</InputLabel>
                 <Input 
                   type="number" 
-                  id={latId}
-                  placeholder="Enter value between -90 to 90" 
-                  name="Latitude"
-                  value={element[1]}
-                  onChange={onElementLatitudeChange} />
-              </FormControl>
-              <FormControl fullWidth>
-              <InputLabel htmlFor={longitudeId}>Longitude</InputLabel>
-              <Input 
-                type="number" 
-                id={longitudeId}
-                placeholder="Enter value between -180 to 180" 
-                name="Longitude"
-                value={element[0]}
-                onChange={onElementLongitudeChange} />
-              </FormControl>
-              <Button variant="contained" color="secondary" onClick={handleDeleteNode} fullWidth id={deleteBtnId}>
-                Delete Node {index + 1}
-              </Button>
-            </form>
-          );
-        })
-      }
+                  id={longitudeId}
+                  placeholder="Enter value between -180 to 180" 
+                  name="Longitude"
+                  value={element[0]}
+                  onChange={onElementLongitudeChange} />
+                </FormControl>
+                <Button variant="contained" color="secondary" onClick={handleDeleteNode} fullWidth id={deleteBtnId}>
+                  Delete Node {index + 1}
+                </Button>
+              </form>
+            );
+          })
+        }
+      </Paper>
       <br/>
       <Button variant="contained" color="primary" onClick={handleNewNode} fullWidth> 
         Add Node
