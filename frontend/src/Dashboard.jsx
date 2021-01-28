@@ -1,7 +1,7 @@
 import './App.css';
 import Globe from './Globe';
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Button, Grid, Toolbar, Typography } from '@material-ui/core';
+import { Button, Grid, IconButton, Menu, MenuItem, Toolbar, Typography } from '@material-ui/core';
 import LandmarkInfo from './LandmarkInfo';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
@@ -13,6 +13,7 @@ import RoomIcon from '@material-ui/icons/Room';
 import TimelineIcon from '@material-ui/icons/Timeline';
 import ZoomSlider from './ZoomSlider';
 import {  Redirect } from "react-router-dom";
+import AccountCircle from '@material-ui/icons/AccountCircle';
 
 function Dashboard() {
   // const classes = useStyles();
@@ -24,6 +25,8 @@ function Dashboard() {
   const [paths, setPaths] = useState([]);
   const [landmarks, setLandmarks] = useState([]);
   const [subSolarCoordinates, setSubSolarCoordinates] = useState([0, 0]);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
 
   const [currentLandmark, setCurrentLandmark] = useState([{
     landmark_uid: -1,
@@ -216,6 +219,14 @@ function Dashboard() {
     }
   };
 
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
  // Use effect hook.
   useEffect(() => {
     getUserLandmarks();
@@ -247,7 +258,8 @@ function Dashboard() {
               tempLandmark={tempLandmark}
               currentLandmark={currentLandmark}
               editLandmark={editLandmark}
-              subSolarCoordinates={subSolarCoordinates}/>
+              subSolarCoordinates={subSolarCoordinates}
+              setScale={setScale}/>
           </Grid>
           <Grid item xs={4} style={{ padding: 60, height:"90vh" }} align="left">
             <AppBar position="static">
@@ -276,9 +288,34 @@ function Dashboard() {
           <Typography variant="h6">
             Wanderlust
           </Typography>
-          <Button variant="contained" color="primary" onClick={invalidateAuth}>
+          {/* <Button variant="contained" color="primary" onClick={invalidateAuth}>
             Logout
-          </Button>
+          </Button> */}
+          <IconButton>
+            <AccountCircle
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="inherit"/>
+          </IconButton>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={open}
+            onClose={handleClose}>
+            <MenuItem onClick={handleClose}>Preferences</MenuItem>
+            <MenuItem onClick={invalidateAuth}>Logout</MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
       {getDashboardContent()}
