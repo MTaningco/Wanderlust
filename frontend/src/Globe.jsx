@@ -274,6 +274,33 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         //     .attr("d", feature => pathGenerator(feature));
     };
 
+    const drawLandOutline = (svg, isCoarse, isDaylight) => {
+        //Using local json data that is of type Topology
+        const land = isCoarse ? landCoarse.features : landFine.features;
+        svg
+        .selectAll(".countryOutline")
+        .data(land)
+        .join("path")
+        .attr("class", "countryOutline")
+        .attr("fill-opacity", "0")
+        .attr("stroke", "#b89463")
+        .attr("stroke-width", 0.3)
+        // .attr("stroke-opacity", "0.8")
+        .attr("d", feature => pathGenerator(feature))
+        .on("click", (mouseEvent, item) => {
+            if(currentLandmark[0].isVisible){
+                landmarkHandler([{
+                    landmark_uid: -1,
+                    name: "",
+                    description: "",
+                    coordinates: [0, 0],
+                    isVisible: false
+                }]);
+            }
+        } )
+        .raise();
+    };
+
     /**
      * Draws the lakes.
      * @param {*} svg - the svg used to draw the land
@@ -290,6 +317,31 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         .attr("fill", isDaylight ? "#edd" : "#1c458c")
         .attr("stroke", isDaylight ? "#faa" : "#b89463")
         .attr("stroke-width", 0.5)
+        .attr("d", feature => pathGenerator(feature))
+        .raise()
+        .on("click", (mouseEvent, item) => {
+            if(currentLandmark[0].isVisible){
+                landmarkHandler([{
+                    landmark_uid: -1,
+                    name: "",
+                    description: "",
+                    coordinates: [0, 0],
+                    isVisible: false
+                }]);
+            }
+        });
+    };
+
+    const drawLakesOutline = (svg, isCoarse, isDaylight) => {
+        const lakes = isCoarse ? lakesCoarse.features :lakesFine.features;
+        svg
+        .selectAll(".lakesOutline")
+        .data(lakes)
+        .join("path")
+        .attr("class", "lakesOutline")
+        .attr("fill-opacity", "0")
+        .attr("stroke", isDaylight ? "#faa" : "#b89463")
+        .attr("stroke-width", 0.3)
         .attr("d", feature => pathGenerator(feature))
         .raise()
         .on("click", (mouseEvent, item) => {
@@ -353,6 +405,8 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("class", "landmarks")
             .attr("id", landmark => `${landmark.id}`)
             .style("fill", "black")
+            .style("stroke", "white")
+            .attr("stroke-width", 0.2)
             .attr("fill-opacity","0.3")
             .on("mouseover", (mouseEvent, item) => {
                 d3.select(`#${item.id}`).style("fill", "red")
@@ -401,7 +455,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     const drawCurrentShadow = (svg, isDaylight) => {
         var nightLongitude = subSolarCoordinates[0] + 180;
         var nightLatitude = -subSolarCoordinates[1];
-        var opacity = "0.06";
+        var opacity = "0.3";
         svg
             .selectAll(".shadow")
             .data([90, 90-6, 90-12, 90-18])
@@ -481,15 +535,39 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         //The format of one element of data is 
         //{ type: "LineString", coordinates: [[-122.810850, 49.191663], [-156.0407, 19.7367]], id:"path_9", path_uid: 9, isAirPlane: true}
         svg
+        .selectAll(".arcOutline")
+        .data(paths)
+        .join("path")
+        .attr("class", "arcOutline")
+        // .transition()
+        .attr("fill-opacity", "0")
+        .attr("stroke-opacity", feature => feature.isAirPlane ? 0.5 : 1)
+        .attr("stroke", feature => isDayTime ? "black" : "white")
+        .attr("stroke-width", feature => feature.isAirPlane ? 0.8 : 0.2)
+        .attr("d", feature =>pathGenerator(feature)).raise()
+        .on("click", (mouseEvent, item) => {
+            if(currentLandmark[0].isVisible){
+                landmarkHandler([{
+                    landmark_uid: -1,
+                    name: "",
+                    description: "",
+                    coordinates: [0, 0],
+                    isVisible: false
+                }]);
+            }
+        } )
+        .raise();
+        svg
             .selectAll(".arc")
             .data(paths)
             .join("path")
             .attr("class", "arc")
             // .transition()
             .attr("fill-opacity", "0")
-            .attr("stroke-opacity", feature => feature.isAirPlane ? 0.3 : 1)
+            .attr("stroke-opacity", feature => feature.isAirPlane ? 0.5 : 1)
             .attr("stroke", feature => isDayTime ? "black" : "black")
-            .attr("stroke-width", feature => feature.isAirPlane ? 2 : 0.5)
+            .attr("stroke-width", feature => feature.isAirPlane ? 1 : 0.5)
+            .style("stroke-dasharray", feature => feature.isAirPlane ? ("15, 3") : ("3", "3"))
             .attr("d", feature =>pathGenerator(feature)).raise()
             .on("click", (mouseEvent, item) => {
                 if(currentLandmark[0].isVisible){
@@ -525,9 +603,10 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("class", "tempPath")
             // .transition()
             .attr("fill-opacity","0")
-            .attr("stroke", feature => feature.isAirPlane ? "red" : "#0dff00")
+            .attr("stroke", feature => feature.isAirPlane ? "red" : "red")
+            .style("stroke-dasharray", feature => feature.isAirPlane ? ("15, 3") : ("3", "3"))
             .attr("stroke-opacity", feature => 1)
-            .attr("stroke-width", feature => 0.5)
+            .attr("stroke-width", feature => 1)
             .attr("d", feature =>pathGenerator(feature))
             .raise();
     };
@@ -556,11 +635,14 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         drawLakes(svg, isCoarse, isDaylight);
         drawCurrentShadow(svg, isDaylight);
 
+        drawLandOutline(svg, isCoarse, isDaylight);
+        drawLakesOutline(svg, isCoarse, isDaylight);
+
         if(!isDaylight){
             // drawLights(svg, false);
         }
-            
-        drawGraticule(svg, isDaylight);
+        
+        drawGraticule(svg, isDaylight);    
 
         drawCurrentLandmark(svg, isDaylight);
         drawArcs(svg, isDaylight);
