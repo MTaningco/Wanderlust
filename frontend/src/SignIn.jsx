@@ -1,7 +1,9 @@
 //Imports from libraries
-import { Button, TextField, Typography } from "@material-ui/core";
+import { Button, TextField, Typography, Toolbar, Grid } from "@material-ui/core";
 import React, { Component, useState, useRef, useEffect } from "react";
 import {  Redirect, Link } from "react-router-dom";
+import AppBar from '@material-ui/core/AppBar';
+import Image from './landing.png'; // Import using relative path
 
 function SignIn() {
   //States
@@ -81,46 +83,66 @@ function SignIn() {
     else{
       return (
         <div>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-          <form>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="username"
-              label="Username"
-              name="username"
-              autoComplete="username"
-              autoFocus
-              value={username}
-              onChange={handleUsernameChange}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={handlePasswordChange}
-            />
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              onClick={handleSignIn}
-            >
-              Sign In
-            </Button>
-          </form>
-          <Link to="/signUp">Don't have an account? Sign up</Link>
+          <AppBar position="static">
+            <Toolbar>
+              <Typography variant="h6">
+                Wanderlust
+              </Typography>
+            </Toolbar>
+          </AppBar>
+          <Grid container spacing={0}>
+            <Grid item xs={8} style={{ padding: 60, backgroundImage: `url(${Image})`, backgroundSize: 'cover', height: '95vh' }}>
+              <Typography component="h1" variant="h3">
+                Record Your Travels. Personalize Your Globe.
+              </Typography>
+              <Typography component="h1" variant="h6">
+                Wanderlust allows you to revisit places you have been to and even the journey you took to get there. With a clean design, you can see the globe in real time and take things into perspective.
+              </Typography>
+            </Grid>
+            <Grid item xs={4} style={{ padding: 60 }}>
+              <Typography component="h1" variant="h5">
+                Sign In
+              </Typography>
+              <form>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  autoFocus
+                  value={username}
+                  onChange={handleUsernameChange}
+                />
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={handlePasswordChange}
+                />
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSignIn}
+                >
+                  Sign In
+                </Button>
+              </form>
+              <Link to="/signUp">Don't have an account? Sign up</Link>
+            </Grid>
+          </Grid>
+          
         </div>
       );
     }
