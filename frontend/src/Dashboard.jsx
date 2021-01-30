@@ -14,6 +14,7 @@ import TimelineIcon from '@material-ui/icons/Timeline';
 import ZoomSlider from './ZoomSlider';
 import {  Redirect } from "react-router-dom";
 import AccountCircle from '@material-ui/icons/AccountCircle';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 function Dashboard() {
   // const classes = useStyles();
@@ -27,6 +28,9 @@ function Dashboard() {
   const [subSolarCoordinates, setSubSolarCoordinates] = useState([0, 0]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  const [isPathsLoaded, setIsPathsLoaded] = useState(false);
+  const [isLandmarksLoaded, setIsLandmarksLoaded] = useState(false);
+  const [isSubSolarLoaded, setIsSubsolarLoaded] = useState(false);
 
   const [currentLandmark, setCurrentLandmark] = useState([{
     landmark_uid: -1,
@@ -95,7 +99,10 @@ function Dashboard() {
       }
     })
     .then(res => res.json())
-    .then(res => setPaths(res))
+    .then(res => {
+      setPaths(res);
+      setIsPathsLoaded(true);
+    })
     .catch((error) => {
       invalidateAuth();
     });
@@ -111,7 +118,10 @@ function Dashboard() {
       }
     })
     .then(res => res.json())
-    .then(res => setLandmarks(res))
+    .then(res => {
+      setLandmarks(res);
+      setIsLandmarksLoaded(true);
+    })
     .catch((error) => {
       invalidateAuth();
     });
@@ -133,6 +143,7 @@ function Dashboard() {
     .then(res => res.json())
     .then(res => {
       setSubSolarCoordinates([res.longitude, res.latitude]);
+      setIsSubsolarLoaded(true);
     });
   };
 
@@ -249,7 +260,8 @@ function Dashboard() {
             <ZoomSlider scale={scale} handleChangeScale={handleChangeScale}/>
           </Grid>
           <Grid item xs={7} style={{ padding: 60, height:"90vh" }}>
-            <Globe scale={scale * getMinDimension()*0.8/2} 
+            {isLandmarksLoaded && isPathsLoaded && isSubSolarLoaded ? 
+              <Globe scale={scale * getMinDimension()*0.8/2} 
               paths={paths} 
               landmarks={landmarks} 
               landmarkHandler={setCurrentLandmark} 
@@ -259,7 +271,9 @@ function Dashboard() {
               currentLandmark={currentLandmark}
               editLandmark={editLandmark}
               subSolarCoordinates={subSolarCoordinates}
-              setScale={setScale}/>
+              setScale={setScale}/> : 
+              <CircularProgress size={300}/>
+            }
           </Grid>
           <Grid item xs={4} style={{ padding: 60, height:"90vh" }} align="left">
             <AppBar position="static">
@@ -269,9 +283,23 @@ function Dashboard() {
                 <Tab style={{ minWidth: 25 }} icon={<TimelineIcon/>}/>
               </Tabs>
             </AppBar>
-            <LandmarkInfo currentLandmark={currentLandmark} value={tabValue} index={0} setEditLandmark={setEditLandmark} updateLandmarks={updateLandmarks} invalidateAuth={invalidateAuth} deleteLandmark={deleteLandmark}/>
-            <NewLandmarkTab setLandmarks={setLandmarks} value={tabValue} index={1} setTempLandmark={setTempLandmark} invalidateAuth={invalidateAuth}/>
-            <NewPathTab setPaths={setPaths} value={tabValue} index={2} setTempPath={newPathHandler} invalidateAuth={invalidateAuth}/>
+            <LandmarkInfo currentLandmark={currentLandmark} 
+              value={tabValue} 
+              index={0} 
+              setEditLandmark={setEditLandmark} 
+              updateLandmarks={updateLandmarks} 
+              invalidateAuth={invalidateAuth} 
+              deleteLandmark={deleteLandmark}/>
+            <NewLandmarkTab setLandmarks={setLandmarks} 
+              value={tabValue} 
+              index={1} 
+              setTempLandmark={setTempLandmark} 
+              invalidateAuth={invalidateAuth}/>
+            <NewPathTab setPaths={setPaths} 
+              value={tabValue} 
+              index={2} 
+              setTempPath={newPathHandler} 
+              invalidateAuth={invalidateAuth}/>
           </Grid>
         </Grid>
       );
@@ -288,9 +316,6 @@ function Dashboard() {
           <Typography variant="h6">
             Wanderlust
           </Typography>
-          {/* <Button variant="contained" color="primary" onClick={invalidateAuth}>
-            Logout
-          </Button> */}
           <IconButton>
             <AccountCircle
                 aria-label="account of current user"
