@@ -1,8 +1,7 @@
 //Imports from libraries
-import { Button, TextField, Typography, Toolbar, Grid } from "@material-ui/core";
+import { Button, TextField, Typography, Toolbar, Grid, CircularProgress } from "@material-ui/core";
 import React, { Component, useState, useRef, useEffect } from "react";
 import {  Redirect, Link } from "react-router-dom";
-import AppBar from '@material-ui/core/AppBar';
 import Image from './landing.png'; // Import using relative path
 
 function SignIn() {
@@ -10,6 +9,7 @@ function SignIn() {
   const [isTokenValid, setIsTokenValid] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   /**
    * Handles the change in username.
@@ -33,6 +33,7 @@ function SignIn() {
   const handleSignIn = () => {
     setUsername("");
     setPassword("");
+    setIsProcessing(true);
 
     const body = {
       "username": username,
@@ -50,8 +51,12 @@ function SignIn() {
     .then(res => {
       localStorage.setItem('token', res.token);
       setIsTokenValid(true);
+      setIsProcessing(false);
     })
-    .catch((error) => alert("Invalid credentials!"));
+    .catch((error) => {
+      alert("Invalid credentials!");
+      setIsProcessing(false);
+    });
   };
 
   //Use effect hook.
@@ -83,15 +88,8 @@ function SignIn() {
     else{
       return (
         <div>
-          <AppBar position="static">
-            <Toolbar>
-              <Typography variant="h6">
-                Wanderlust
-              </Typography>
-            </Toolbar>
-          </AppBar>
           <Grid container spacing={0}>
-            <Grid item xs={8} style={{ padding: 60, backgroundImage: `url(${Image})`, backgroundSize: 'cover', height: '95vh' }}>
+            <Grid item xs={8} style={{ padding: 60, backgroundImage: `url(${Image})`, backgroundSize: 'cover', height: '100vh' }}>
               <Typography component="h1" variant="h3">
                 Record Your Travels. Personalize Your Globe.
               </Typography>
@@ -136,7 +134,8 @@ function SignIn() {
                   color="primary"
                   onClick={handleSignIn}
                 >
-                  Sign In
+                  {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
+                  {!isProcessing && 'Sign In'}
                 </Button>
               </form>
               <Link to="/signUp">Don't have an account? Sign up</Link>
