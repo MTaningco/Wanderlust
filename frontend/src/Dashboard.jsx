@@ -14,7 +14,7 @@ import TimelineIcon from '@material-ui/icons/Timeline';
 import ZoomSlider from './ZoomSlider';
 import {  Redirect } from "react-router-dom";
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Skeleton from '@material-ui/lab/Skeleton';
 
 function Dashboard() {
   // const classes = useStyles();
@@ -272,7 +272,7 @@ function Dashboard() {
               editLandmark={editLandmark}
               subSolarCoordinates={subSolarCoordinates}
               setScale={setScale}/> : 
-              <CircularProgress size={300}/>
+              <Skeleton variant="circle" width={getMinDimension()*0.8} height={getMinDimension()*0.8}/>
             }
           </Grid>
           <Grid item xs={4} style={{ padding: 60, height:"90vh" }} align="left">
