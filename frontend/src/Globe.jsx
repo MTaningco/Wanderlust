@@ -14,9 +14,55 @@ import lakesCoarse from "./jsonData/ne_110m_lakes.json";
 //https://public.opendatasoft.com/api/records/1.0/search/?dataset=geonames-all-cities-with-a-population-1000&q=&rows=10000&sort=population&pretty_print=true&format=json&fields=population,coordinates,name
 import lightsFine from "./jsonData/geonames-all-cities-with-a-population-1000.json";
 import lightsCoarse from "./jsonData/cities-200000.json";//TODO: use if performance is fixed
-import { CircularProgress, LinearProgress } from "@material-ui/core";
+import { Button, CircularProgress, IconButton, LinearProgress, Typography } from "@material-ui/core";
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import AddIcon from '@material-ui/icons/Add';
+import RemoveIcon from '@material-ui/icons/Remove';
+
+const useStyles = makeStyles((theme) => ({
+    root: {
+      justifyContent:'center',
+      alignItems:'center',
+      textAlign: "center",
+      position: 'relative'
+    },
+    zoomInButton: {
+        display: "block",
+        backgroundColor: "white",
+        color: "black",
+        '&:hover': {
+            color: "white",
+            backgroundColor: 'gray',
+            boxShadow: 'none',
+        },
+        position: 'absolute',
+        left: "83%",
+        bottom: "150px",
+    },
+    zoomOutButton: {
+        display: "block",
+        backgroundColor: "white",
+        color: "black",
+        '&:hover': {
+            color: "white",
+            backgroundColor: 'gray',
+            boxShadow: 'none',
+        },
+        position: 'absolute',
+        left: "83%",
+        bottom: "90px",
+    },
+    renderText: {
+        position: 'absolute',
+        left: "15%",
+        bottom: '30px',
+    }
+  }));
 
 function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLandmark, currentLandmark, editLandmark, subSolarCoordinates, setScale}) {
+    
+    const classes = useStyles();
+    
     //States
     const [mouseCoordinates, setMouseCoordinates] = useState(null);         //state for initially pressing down the mouse button's position
     const [oldCoordinates, setOldCoordinates] = useState([180, -25]);   //state for the position of the globe during inactivity (units in -longitude, -latitude)
@@ -24,6 +70,8 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     const [isMove, setIsMove] = useState(false);
     const [isDrag, setIsDrag] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [renderText, setRenderText] = useState("");
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     //Constants
     const svgRef = useRef();
@@ -68,14 +116,15 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             // console.log("event for idle", event);
             // console.log("redrawing globe");
             // console.log("isMove=", isMove);
-            // console.log("ismove", isMove);
-            // console.log("!isDrag", !isDrag);
+            console.log("ismove", isMove);
+            console.log("!isDrag", !isDrag);
         if(isMove && !isDrag){
             // console.log("redrawing globe");
             // drawGlobe(oldCoordinates, scale, false);
             setIsMove(false);
             
             setIsLoading(true);
+            setRenderText("Rendering full resolution...");
             setTimeout(() => {
                 drawGlobe(oldCoordinates, scale, false);
                 setIsLoading(false);
@@ -91,6 +140,8 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
      */
     const handleOnActive = event => {
         //TODO: fix fine rendering issue
+        setIsDrag(false);
+        console.log("mouse up done");
         // console.log(event.path[1].tagName === "svg");
         // if(event.path[1].tagName === "svg"){
         //     if(newCoordinates){
@@ -137,6 +188,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             setIsMove(true);
             setIsDrag(true);
             drawGlobe(movedCoordinates, scale, true);
+            console.log("mouse moved while dragged");
         }
     };
 
@@ -154,6 +206,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         }
         setIsDrag(false);
         setMouseCoordinates(null);
+        console.log("mouse up done");
     };
 
     /**
@@ -618,6 +671,33 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         });
     };
 
+    const drawScale = (svg) => {
+
+        var lineGenerator = d3.line();
+        svg
+            .selectAll(".scale")
+            .data([1])
+            .join("path")
+            .attr("class", "scale")
+            // .append('path')
+            .style("stroke", "white")
+            .style("stroke-width", 1)
+            .style("fill-opacity", 0)
+            .style("stroke-opacity", 1)
+            .attr("d", lineGenerator([[size * 0.73, size * 0.98], [size * 0.73, size * 0.98 + 10], [size * 0.73 + size/4.0, size * 0.98 + 10], [size * 0.73 + size/4.0, size * 0.98]])).raise();
+        
+        svg
+            .selectAll(".textScale")
+            .data([1])
+            .join("text")
+            .attr("class", "textScale")
+            .attr("dx", size * 0.73 + size/8.0)
+            .attr("dy", size * 0.98)
+            .style("text-anchor", "middle")
+            .style("fill", "white")
+            .text(`${Math.ceil(12742/4.0/(scale/size*2) * 100)/100} km`).raise();
+    }
+
     /**
      * Draws the globe.
      * @param {Array<number>} rotateParams - the rotation parameters to position the globe
@@ -651,32 +731,146 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         drawEditLandmark(svg, isDaylight);
         drawLandmarks(svg, isDaylight);
 
+        drawScale(svg);
     };
+
+    const zoomInHandler = () => {
+        setScale(prevVal => Math.min(prevVal + 1, 25.484));
+    }
+
+    const zoomOutHandler = () => {
+        setScale(prevVal => Math.max(prevVal - 1, 1));
+    }
 
     //Use effect hook.
     useEffect(() => {
-        drawGlobe(oldCoordinates, scale, true);
-        setIsMove(true);
+            drawGlobe(oldCoordinates, scale, true);
+            setIsMove(true);
     }, [scale])
 
     useEffect(() => {
+        if(!isInitialLoad){
+            console.log("subsolar");
+            setIsLoading(true);
+            setRenderText("Updating earth shadow...");
+            setTimeout(() => {
+                drawGlobe(oldCoordinates, scale, isDrag);
+                setIsLoading(false);
+            }, 800);
+        }
+    }, [subSolarCoordinates])
+
+    useEffect(() => {
+        if(!isInitialLoad){
+            console.log("current landmark");
+            setIsLoading(true);
+            setRenderText("Rendering clicked landmark...");
+            setTimeout(() => {
+                drawGlobe(oldCoordinates, scale, false);
+                setIsLoading(false);
+            }, 800);
+        }
+    }, [currentLandmark])
+
+    useEffect(() => {
+        if(!isInitialLoad){
+            console.log("else");
+            setIsLoading(true);
+            setRenderText("Rendering for resized window...");
+            setTimeout(() => {
+                drawGlobe(oldCoordinates, scale, false);
+                setIsLoading(false);
+            }, 800);
+        }
+    }, [size])
+
+    useEffect(() => {
+        if(!isInitialLoad){
+            console.log("templandmark");
+            setIsLoading(true);
+            setRenderText("Rendering new landmark...");
+            setTimeout(() => {
+                drawGlobe(oldCoordinates, scale, false);
+                setIsLoading(false);
+            }, 800);
+        }
+    }, [tempLandmark])
+
+    useEffect(() => {
+        if(!isInitialLoad){
+            console.log("edit landmark");
+            setIsLoading(true);
+            setRenderText("Rendering edited landmark...");
+            setTimeout(() => {
+                drawGlobe(oldCoordinates, scale, false);
+                setIsLoading(false);
+            }, 800);
+        }
+    }, [editLandmark])
+
+    useEffect(() => {
+        if(!isInitialLoad){
+            console.log("new path");
+            setIsLoading(true);
+            setRenderText("Rendering new path...");
+            setTimeout(() => {
+                drawGlobe(oldCoordinates, scale, false);
+                setIsLoading(false);
+            }, 800);
+        }
+    }, [tempPath])
+
+    useEffect(() => {
+        if(!isInitialLoad){
+            console.log("paths");
+            setIsLoading(true);
+            setRenderText("Updating paths...");
+            setTimeout(() => {
+                drawGlobe(oldCoordinates, scale, false);
+                setIsLoading(false);
+            }, 800);
+        }
+    }, [paths])
+
+    useEffect(() => {
+        if(!isInitialLoad){
+            console.log("else");
+            setIsLoading(true);
+            setRenderText("Updating landmarks...");
+            setTimeout(() => {
+                drawGlobe(oldCoordinates, scale, false);
+                setIsLoading(false);
+            }, 800);
+        }
+    }, [landmarks])
+
+    useEffect(() => {
+        console.log("paths");
         setIsLoading(true);
+        setRenderText("Rendering globe...");
         setTimeout(() => {
             drawGlobe(oldCoordinates, scale, false);
             setIsLoading(false);
+            setIsInitialLoad(false);
         }, 800);
-    }, [landmarks, paths, tempPath, tempLandmark, currentLandmark, editLandmark, subSolarCoordinates])
-    
+    }, [])
+
     return (
-        <div>
-            <svg width={size} height={size} ref={svgRef} style={{border:1 }}
+        <div className={classes.root}>
+            <svg width={size} height={size} ref={svgRef}
                 onMouseDown={onMouseDownHandler} 
                 onMouseMove={onMouseMoveHandler} 
                 onMouseUp={onMouseUpHandler}
                 onWheel={mouseWheelHandler}
                 >
             </svg>
-            {isLoading && <LinearProgress color='secondary'/>}
+            <IconButton  size="medium" variant="contained" className={classes.zoomInButton} onClick={zoomInHandler}>
+                <AddIcon/>
+            </IconButton>
+            <IconButton  size="medium" variant="contained" className={classes.zoomOutButton} onClick={zoomOutHandler}>
+                <RemoveIcon/>
+            </IconButton>
+            {isLoading && <Typography className={classes.renderText}>{renderText}</Typography>}
         </div>
     );
 }
