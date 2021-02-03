@@ -1,7 +1,7 @@
 import './App.css';
 import Globe from './Globe';
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Button, Grid, IconButton, Menu, MenuItem, Toolbar, Typography } from '@material-ui/core';
+import { Box, Button, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemText, Menu, MenuItem, Paper, Toolbar, Typography } from '@material-ui/core';
 import LandmarkInfo from './LandmarkInfo';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
@@ -11,13 +11,50 @@ import NewPathTab from './NewPathTab';
 import InfoIcon from '@material-ui/icons/Info';
 import RoomIcon from '@material-ui/icons/Room';
 import TimelineIcon from '@material-ui/icons/Timeline';
-import ZoomSlider from './ZoomSlider';
+// import ZoomSlider from './ZoomSlider';
 import {  Redirect } from "react-router-dom";
-import AccountCircle from '@material-ui/icons/AccountCircle';
+// import AccountCircle from '@material-ui/icons/AccountCircle';
 import Skeleton from '@material-ui/lab/Skeleton';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+// import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import AddIcon from '@material-ui/icons/Add';
+import EditIcon from '@material-ui/icons/Edit';
+import PaletteIcon from '@material-ui/icons/Palette';
+const drawerWidth = 240;
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+  },
+  // necessary for content to be below app bar
+  toolbar: {
+    padding: 20,
+    fontWeight: "bold"
+  },
+  toolbarMenu: {
+    paddingTop: 20,
+    paddingLeft: 20,
+    fontWeight: "bold"
+  },
+  drawerPaper: {
+    width: drawerWidth,
+    backgroundColor: "#11255c"
+  },
+  globeGrid: {
+    flexGrow: 1,
+  },
+  rightPanel: {
+    // padding: 60, 
+    height:"100vh",
+    // borderLeft: 1
+  },
+}));
 
 function Dashboard() {
   // const classes = useStyles();
+  const classes = useStyles();
   //States
   const [scale, setScale] = useState(1);
   const [tabValue, setTabValue] = useState(0);
@@ -31,6 +68,10 @@ function Dashboard() {
   const [isPathsLoaded, setIsPathsLoaded] = useState(false);
   const [isLandmarksLoaded, setIsLandmarksLoaded] = useState(false);
   const [isSubSolarLoaded, setIsSubsolarLoaded] = useState(false);
+  const [windowSize, setWindowSize] = useState({
+    width: undefined,
+    height: undefined,
+  });
 
   const [currentLandmark, setCurrentLandmark] = useState([{
     landmark_uid: -1,
@@ -64,20 +105,12 @@ function Dashboard() {
     setScale(newValue);
   };
 
-  
-  // const getWindowDimension = () => {
-  //   var width = document.getElementById('globeGrid').offsetWidth;
-  //   var height = document.getElementById('globeGrid').offsetHeight;
-  //   console.log(width < height ? width : height);
-  //   return width < height ? width : height;
-  // };
-
   /**
    * Gets the minimum dimension of the browser window.
    */
   const getMinDimension = () => {
     // console.log("dimension calculated");
-    return window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth;
+    return Math.min(windowSize.height, windowSize.width);
   };
 
   /**
@@ -238,6 +271,12 @@ function Dashboard() {
     setAnchorEl(null);
   };
 
+  const onAccountMenuClicked = (index) => {
+    if(index === 1){
+      invalidateAuth();
+    }
+  };
+
  // Use effect hook.
   useEffect(() => {
     getUserLandmarks();
@@ -246,7 +285,27 @@ function Dashboard() {
     const interval = setInterval(() => {
       getSubsolarPoint();
     }, 2 * 60000);
-    return () => clearInterval(interval);
+
+    function handleResize() {
+      // Set window width/height to state
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+    
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+    
+    // Call handler right away so state gets updated with initial window size
+    handleResize();
+    
+    // Remove event listener on cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearInterval(interval);
+    };
+    // return () => clearInterval(interval);
   }, []);
 
   /**
@@ -255,51 +314,50 @@ function Dashboard() {
   const getDashboardContent = () => {
     if(isAuth){
       return (
-        <Grid container spacing={0}>
-          <Grid item xs={1} style={{ padding: 60, height:"90vh" }}>
-            <ZoomSlider scale={scale} handleChangeScale={handleChangeScale}/>
-          </Grid>
-          <Grid item xs={7} style={{ padding: 60, height:"90vh" }}>
+        <Grid container spacing={0} style={{width: `calc(100% - ${drawerWidth}px)`, marginLeft: drawerWidth}}>
+          <Grid item align='center' style={{ padding: "1vh", height:"100vh", flexGrow: 1}}>
             {isLandmarksLoaded && isPathsLoaded && isSubSolarLoaded ? 
-              <Globe scale={scale * getMinDimension()*0.8/2} 
+              <Globe scale={scale * getMinDimension()*0.98/2} 
               paths={paths} 
               landmarks={landmarks} 
               landmarkHandler={setCurrentLandmark} 
-              size={getMinDimension()*0.8} 
+              size={getMinDimension()*0.98} 
               tempPath={tempPath}
               tempLandmark={tempLandmark}
               currentLandmark={currentLandmark}
               editLandmark={editLandmark}
               subSolarCoordinates={subSolarCoordinates}
               setScale={setScale}/> : 
-              <Skeleton variant="circle" width={getMinDimension()*0.8} height={getMinDimension()*0.8}/>
+              <Skeleton variant="circle" width={"98vh"} height={"98vh"}/>
             }
           </Grid>
-          <Grid item xs={4} style={{ padding: 60, height:"90vh" }} align="left">
-            <AppBar position="static">
-              <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs example" variant="fullWidth">
-                <Tab style={{ minWidth: 25 }} icon={<InfoIcon/>}/>
-                <Tab style={{ minWidth: 25 }} icon={<RoomIcon/>}/>
-                <Tab style={{ minWidth: 25 }} icon={<TimelineIcon/>}/>
-              </Tabs>
-            </AppBar>
-            <LandmarkInfo currentLandmark={currentLandmark} 
-              value={tabValue} 
-              index={0} 
-              setEditLandmark={setEditLandmark} 
-              updateLandmarks={updateLandmarks} 
-              invalidateAuth={invalidateAuth} 
-              deleteLandmark={deleteLandmark}/>
-            <NewLandmarkTab setLandmarks={setLandmarks} 
-              value={tabValue} 
-              index={1} 
-              setTempLandmark={setTempLandmark} 
-              invalidateAuth={invalidateAuth}/>
-            <NewPathTab setPaths={setPaths} 
-              value={tabValue} 
-              index={2} 
-              setTempPath={newPathHandler} 
-              invalidateAuth={invalidateAuth}/>
+          <Grid item xs={4} align="left">
+            <Paper elevation={1} square className={classes.rightPanel}>
+              <AppBar position="static">
+                <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs example" variant="fullWidth">
+                  <Tab style={{ minWidth: 25 }} icon={<InfoIcon/>}/>
+                  <Tab style={{ minWidth: 25 }} icon={<RoomIcon/>}/>
+                  <Tab style={{ minWidth: 25 }} icon={<TimelineIcon/>}/>
+                </Tabs>
+              </AppBar>
+              <LandmarkInfo currentLandmark={currentLandmark} 
+                value={tabValue} 
+                index={0} 
+                setEditLandmark={setEditLandmark} 
+                updateLandmarks={updateLandmarks} 
+                invalidateAuth={invalidateAuth} 
+                deleteLandmark={deleteLandmark}/>
+              <NewLandmarkTab setLandmarks={setLandmarks} 
+                value={tabValue} 
+                index={1} 
+                setTempLandmark={setTempLandmark} 
+                invalidateAuth={invalidateAuth}/>
+              <NewPathTab setPaths={setPaths} 
+                value={tabValue} 
+                index={2} 
+                setTempPath={newPathHandler} 
+                invalidateAuth={invalidateAuth}/>
+            </Paper>
           </Grid>
         </Grid>
       );
@@ -310,39 +368,54 @@ function Dashboard() {
   };
 
   return (
-    <div className="App">
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6">
-            Wanderlust
-          </Typography>
-          <IconButton>
-            <AccountCircle
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
-                color="inherit"/>
-          </IconButton>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={open}
-            onClose={handleClose}>
-            <MenuItem onClick={handleClose}>Preferences</MenuItem>
-            <MenuItem onClick={invalidateAuth}>Logout</MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
+    <div className="App" className={classes.root}>
+      <Drawer 
+        variant="persistent"
+        anchor="left"
+        open={true} 
+        classes={{
+          paper: classes.drawerPaper,
+        }}>
+        <Typography className={classes.toolbar}>
+          Wanderlust
+        </Typography>
+        <Divider/>
+        <Typography className={classes.toolbarMenu}>
+          Landmark
+        </Typography>
+        <List>
+          {['New Landmark', 'Edit Landmark'].map((text, index) => (
+            <ListItem button key={text}>
+              <ListItemIcon>{index === 1 ? <EditIcon/> : <AddIcon/>}</ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItem>
+          ))}
+        </List>
+        <Divider/>
+        <Typography className={classes.toolbarMenu}>
+          Path
+        </Typography>
+        <List>
+          {['New Path', 'Edit Path'].map((text, index) => (
+            <ListItem button key={text}>
+              <ListItemIcon>{index === 1 ? <EditIcon/> : <AddIcon/>}</ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItem>
+          ))}
+        </List>
+        <Divider/>
+        <Typography className={classes.toolbarMenu}>
+          Account
+        </Typography>
+        <List>
+          {['Preferences', 'Log Out'].map((text, index) => (
+            <ListItem button key={text}>
+              <ListItemIcon>{index === 1 ? <ExitToAppIcon/> : <PaletteIcon/>}</ListItemIcon>
+              <ListItemText primary={text} onClick={() => onAccountMenuClicked(index)}/>
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
       {getDashboardContent()}
     </div>
   );
