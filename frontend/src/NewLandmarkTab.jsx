@@ -130,7 +130,7 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
   };
 
   return (
-    <form hidden={value !== index}>
+    <form hidden={value !== index} style={{margin: "20px"}}>
       <Typography variant="h5">
         Create a New Landmark
       </Typography>
