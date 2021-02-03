@@ -297,7 +297,7 @@ function LandmarkInfo({ currentLandmark, value, index, setEditLandmark, updateLa
     };
 
     return (
-        <div hidden={value !== index}>
+        <div hidden={value !== index} style={{margin: "20px"}}>
             
             <Typography variant="h5">
                 Landmark Information
