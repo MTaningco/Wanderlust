@@ -189,7 +189,7 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
   };
 
   return (
-    <form hidden={value !== index}>
+    <form hidden={value !== index} style={{margin: "20px"}}>
       <Typography variant="h5">
         Create a New Path
       </Typography>
