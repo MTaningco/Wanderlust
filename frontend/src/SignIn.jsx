@@ -3,8 +3,19 @@ import { Button, TextField, Typography, Toolbar, Grid, CircularProgress } from "
 import React, { Component, useState, useRef, useEffect } from "react";
 import {  Redirect, Link } from "react-router-dom";
 import Image from './landing.png'; // Import using relative path
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+  link: {
+      color: "#7096ff", 
+      textDecoration: "none", 
+      fontSize: "17px", 
+      fontWeight: "bold"
+  },
+}));
 
 function SignIn() {
+  const classes = useStyles();
   //States
   const [isTokenValid, setIsTokenValid] = useState(false);
   const [username, setUsername] = useState("");
@@ -128,6 +139,9 @@ function SignIn() {
                   value={password}
                   onChange={handlePasswordChange}
                 />
+                <br/>
+                <br/>
+                <br/>
                 <Button
                   fullWidth
                   variant="contained"
@@ -138,7 +152,8 @@ function SignIn() {
                   {!isProcessing && 'Sign In'}
                 </Button>
               </form>
-              <Link to="/signUp">Don't have an account? Sign up</Link>
+              <br/>
+              <Link to="/signUp" className={classes.link}>Don't have an account? Sign up</Link>
             </Grid>
           </Grid>
           
