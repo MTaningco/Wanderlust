@@ -1,9 +1,63 @@
 //Imports from libraries
-import { Button, TextField, Typography } from "@material-ui/core";
+import { Button, Container, Grid, TextField, Typography } from "@material-ui/core";
 import React, { Component, useState, useRef, useEffect } from "react";
 import {  Redirect, Link } from "react-router-dom";
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import CheckIcon from '@material-ui/icons/Check';
+import ClearIcon from '@material-ui/icons/Clear';
+import SignalCellular0BarIcon from '@material-ui/icons/SignalCellular0Bar';
+import SignalCellular1BarIcon from '@material-ui/icons/SignalCellular1Bar';
+import SignalCellular2BarIcon from '@material-ui/icons/SignalCellular2Bar';
+import SignalCellular3BarIcon from '@material-ui/icons/SignalCellular3Bar';
+import SignalCellular4BarIcon from '@material-ui/icons/SignalCellular4Bar';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: "column",
+    alignItems: 'center',
+    maxWidth: '700px',
+    marginTop: '30%'
+  },
+  form: {
+    width: '100%'
+  },
+  link: {
+      color: "#7096ff", 
+      textDecoration: "none", 
+      fontSize: "17px", 
+      fontWeight: "bold"
+  },
+  checkIcon: {
+    color: "green"
+  },
+  clearIcon: {
+    color: "red"
+  },
+  hint: {
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: "15px"
+  },
+  veryWeakStrength: {
+    color: "red"
+  },
+  weakStrength: {
+    color: "orange"
+  },
+  fairStrength: {
+    color: "yellow"
+  },
+  goodStrength: {
+    color: "lime"
+  },
+  strongStrength: {
+    color: "green"
+  }
+}));
 
 function SignUp() {
+  const classes = useStyles();
   //States
   // const [isTokenValid, setIsTokenValid] = useState(false);
   const [username, setUsername] = useState("");
@@ -70,6 +124,21 @@ function SignUp() {
        strengths++;
     return strengthMagnitude(strengths);
   }
+
+  const renderPasswordStrength = value => {
+    switch(value){
+      case 'Very Weak':
+        return (<SignalCellular0BarIcon className={classes.veryWeakStrength}/>);
+      case 'Weak':
+        return (<SignalCellular1BarIcon className={classes.weakStrength}/>);
+      case 'Fair':
+        return (<SignalCellular2BarIcon className={classes.fairStrength}/>);
+      case 'Good':
+        return (<SignalCellular3BarIcon className={classes.goodStrength}/>);
+      default:
+        return (<SignalCellular4BarIcon className={classes.strongStrength}/>);
+    }
+  };
 
   /**
    * Handles the username change.
@@ -162,60 +231,82 @@ function SignUp() {
   // }, []);
 
   return (
-    <div>
-      <Typography component="h1" variant="h5">
-        Sign Up
-      </Typography>
-      <form>
-        <TextField
-          variant="outlined"
-          margin="normal"
-          required
-          fullWidth
-          id="email"
-          label="Email"
-          autoComplete="email"
-          autoFocus
-          value={email}
-          onChange={handleEmailChange}
-        />
-        <TextField
-          variant="outlined"
-          margin="normal"
-          required
-          fullWidth
-          id="username"
-          label="Username"
-          autoComplete="username"
-          value={username}
-          onChange={handleUsernameChange}
-        />
-        Username Status: {isUsernameTaken ? "Taken" : "Available"}
-        <TextField
-          variant="outlined"
-          margin="normal"
-          required
-          fullWidth
-          label="Password"
-          type="password"
-          id="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={handlePasswordChange}
-        />
-        Password Strength: {strengthIndicator(password)}
-        <Button
-          // type="submit"
-          fullWidth
-          variant="contained"
-          color="secondary"
-          onClick={handleSignUp}
-        >
+    <Container maxWidth="xs">
+      <div className={classes.root}>
+        <Typography component="h1" variant="h5">
           Sign Up
-        </Button>
-      </form>
-      <Link to="/">Back to sign in screen</Link>
-    </div>
+        </Typography>
+        <form className={classes.form}>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email"
+            autoComplete="email"
+            autoFocus
+            value={email}
+            onChange={handleEmailChange}
+            className={classes.textField}
+          />
+          <br/>
+          <br/>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="username"
+            label="Username"
+            autoComplete="username"
+            value={username}
+            onChange={handleUsernameChange}
+            className={classes.textField}
+          />
+          <br/>
+          <Typography className={classes.hint}>
+            Username Status: {isUsernameTaken ? "Taken" : "Available"}
+            {isUsernameTaken ? <ClearIcon className={classes.clearIcon}/> : <CheckIcon className={classes.checkIcon}/>}
+          </Typography>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={handlePasswordChange}
+            className={classes.textField}
+          />
+          <br/>
+          <Typography className={classes.hint}>
+            Password Strength: {strengthIndicator(password)}
+            {renderPasswordStrength(strengthIndicator(password))}
+          </Typography>
+          <br/>
+          <Button
+            // type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            onClick={handleSignUp}
+            className={classes.textField}
+          >
+            Sign Up
+          </Button>
+        </form>
+        <br/>
+        <Grid container justify="flex-start">
+          <Grid item>
+            <Link className={classes.link} to="/">Back to sign in screen</Link>
+          </Grid>
+        </Grid>
+      </div>
+    </Container>
   );
 }
 
