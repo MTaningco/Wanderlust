@@ -6,22 +6,17 @@ import LandmarkInfo from './LandmarkInfo';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import NewLandmarkTab from './NewLandmarkTab';
-import NewPathTab from './NewPathTab';
+import OtherFeatureTab from './OtherFeatureTab';
 import InfoIcon from '@material-ui/icons/Info';
-import RoomIcon from '@material-ui/icons/Room';
-import TimelineIcon from '@material-ui/icons/Timeline';
-// import ZoomSlider from './ZoomSlider';
 import {  Redirect } from "react-router-dom";
-// import AccountCircle from '@material-ui/icons/AccountCircle';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-// import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import PaletteIcon from '@material-ui/icons/Palette';
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -72,6 +67,7 @@ function Dashboard() {
     width: undefined,
     height: undefined,
   });
+  const [drawerValue, setDrawerValue] = useState(0);
 
   const [currentLandmark, setCurrentLandmark] = useState([{
     landmark_uid: -1,
@@ -101,9 +97,9 @@ function Dashboard() {
    * @param {*} event - the event of the scale change
    * @param {number} newValue - the value used to change the scale
    */
-  const handleChangeScale = (event, newValue) => {
-    setScale(newValue);
-  };
+  // const handleChangeScale = (event, newValue) => {
+  //   setScale(newValue);
+  // };
 
   /**
    * Gets the minimum dimension of the browser window.
@@ -277,6 +273,11 @@ function Dashboard() {
     }
   };
 
+  const changeDrawerFeatureHandler = (value) => {
+    setDrawerValue(value);
+    setTabValue(1);
+  }
+
  // Use effect hook.
   useEffect(() => {
     getUserLandmarks();
@@ -336,8 +337,7 @@ function Dashboard() {
               <AppBar position="static">
                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs example" variant="fullWidth">
                   <Tab style={{ minWidth: 25 }} icon={<InfoIcon/>}/>
-                  <Tab style={{ minWidth: 25 }} icon={<RoomIcon/>}/>
-                  <Tab style={{ minWidth: 25 }} icon={<TimelineIcon/>}/>
+                  <Tab style={{ minWidth: 25 }} icon={<MoreHorizIcon/>}/>
                 </Tabs>
               </AppBar>
               <LandmarkInfo currentLandmark={currentLandmark} 
@@ -347,16 +347,14 @@ function Dashboard() {
                 updateLandmarks={updateLandmarks} 
                 invalidateAuth={invalidateAuth} 
                 deleteLandmark={deleteLandmark}/>
-              <NewLandmarkTab setLandmarks={setLandmarks} 
-                value={tabValue} 
+              <OtherFeatureTab value={tabValue} 
                 index={1} 
-                setTempLandmark={setTempLandmark} 
-                invalidateAuth={invalidateAuth}/>
-              <NewPathTab setPaths={setPaths} 
-                value={tabValue} 
-                index={2} 
-                setTempPath={newPathHandler} 
-                invalidateAuth={invalidateAuth}/>
+                drawerValue={drawerValue}
+                invalidateAuth={invalidateAuth}
+                setLandmarks={setLandmarks}
+                setTempLandmark={setTempLandmark}
+                setPaths={setPaths}
+                newPathHandler={newPathHandler}  />
             </Paper>
           </Grid>
         </Grid>
@@ -385,7 +383,7 @@ function Dashboard() {
         </Typography>
         <List>
           {['New Landmark', 'Edit Landmark'].map((text, index) => (
-            <ListItem button key={text}>
+            <ListItem button key={text} onClick={() => changeDrawerFeatureHandler(index)}>
               <ListItemIcon>{index === 1 ? <EditIcon/> : <AddIcon/>}</ListItemIcon>
               <ListItemText primary={text} />
             </ListItem>
@@ -397,7 +395,7 @@ function Dashboard() {
         </Typography>
         <List>
           {['New Path', 'Edit Path'].map((text, index) => (
-            <ListItem button key={text}>
+            <ListItem button key={text} onClick={() => changeDrawerFeatureHandler(index + 2)}>
               <ListItemIcon>{index === 1 ? <EditIcon/> : <AddIcon/>}</ListItemIcon>
               <ListItemText primary={text} />
             </ListItem>
