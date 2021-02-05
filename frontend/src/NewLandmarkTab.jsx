@@ -83,6 +83,15 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
     }
   }
 
+  const sortLandmarks = (a, b) => {  
+    if (a["name"] > b["name"]) {    
+        return 1;    
+    } else if (a["name"] < b["name"]) {    
+        return -1;    
+    }    
+    return 0;  
+  }
+
   /**
    * Handles the add landmark event.
    */
@@ -112,13 +121,16 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
         setLandmarkDescription("");
         setTimeout(() => {
           setIsProcessing(false);
-          setLandmarks(prevArray => [...prevArray, {
-            id: `landmark_${res.landmark_uid}`,
-            path_uid: res.landmark_uid,
-            name: landmarkName,
-            description: landmarkDescription,
-            coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
-          }]);
+          setLandmarks(prevArray => {
+            var newArray = [...prevArray, {
+              id: `landmark_${res.landmark_uid}`,
+              path_uid: res.landmark_uid,
+              name: landmarkName,
+              description: landmarkDescription,
+              coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
+            }];
+            return newArray.sort(sortLandmarks);
+          });
           setTempLandmark([{
             coordinates: [0, 0],
             isVisible: false
