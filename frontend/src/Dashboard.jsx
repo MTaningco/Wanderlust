@@ -17,6 +17,7 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import PaletteIcon from '@material-ui/icons/Palette';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import ListIcon from '@material-ui/icons/List';
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -118,6 +119,11 @@ function Dashboard() {
     setTabValue(newValue);
   };
 
+  const toInformationTab = (landmark) => {
+    setTabValue(0);
+    setCurrentLandmark([{...landmark, isVisible: true}]);
+  };
+
   /**
    * Gets the user's paths from the database.
    */
@@ -137,6 +143,15 @@ function Dashboard() {
     });
   };
 
+  const sortLandmarks = (a, b) => {  
+    if (a["name"] > b["name"]) {    
+        return 1;    
+    } else if (a["name"] < b["name"]) {    
+        return -1;    
+    }    
+    return 0;  
+  }
+
   /**
    * Gets the user's landmarks from the database.
    */
@@ -148,6 +163,7 @@ function Dashboard() {
     })
     .then(res => res.json())
     .then(res => {
+      res.sort(sortLandmarks);
       setLandmarks(res);
       setIsLandmarksLoaded(true);
     })
@@ -333,7 +349,7 @@ function Dashboard() {
             }
           </Grid>
           <Grid item xs={4} align="left">
-            <Paper elevation={1} square className={classes.rightPanel}>
+            <Paper elevation={0} square className={classes.rightPanel}>
               <AppBar position="static">
                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs example" variant="fullWidth">
                   <Tab style={{ minWidth: 25 }} icon={<InfoIcon/>}/>
@@ -342,11 +358,7 @@ function Dashboard() {
               </AppBar>
               <LandmarkInfo currentLandmark={currentLandmark} 
                 value={tabValue} 
-                index={0} 
-                setEditLandmark={setEditLandmark} 
-                updateLandmarks={updateLandmarks} 
-                invalidateAuth={invalidateAuth} 
-                deleteLandmark={deleteLandmark}/>
+                index={0}/>
               <OtherFeatureTab value={tabValue} 
                 index={1} 
                 drawerValue={drawerValue}
@@ -354,7 +366,12 @@ function Dashboard() {
                 setLandmarks={setLandmarks}
                 setTempLandmark={setTempLandmark}
                 setPaths={setPaths}
-                newPathHandler={newPathHandler}  />
+                newPathHandler={newPathHandler}
+                setEditLandmark={setEditLandmark} 
+                updateLandmarks={updateLandmarks}  
+                deleteLandmark={deleteLandmark} 
+                landmarks={landmarks}
+                toInformationTab={toInformationTab}/>
             </Paper>
           </Grid>
         </Grid>
@@ -382,9 +399,9 @@ function Dashboard() {
           Landmark
         </Typography>
         <List>
-          {['New Landmark', 'Edit Landmark'].map((text, index) => (
+          {['New Landmark', 'Landmark List'].map((text, index) => (
             <ListItem button key={text} onClick={() => changeDrawerFeatureHandler(index)}>
-              <ListItemIcon>{index === 1 ? <EditIcon/> : <AddIcon/>}</ListItemIcon>
+              <ListItemIcon>{index === 1 ? <ListIcon/> : <AddIcon/>}</ListItemIcon>
               <ListItemText primary={text} />
             </ListItem>
           ))}
@@ -394,9 +411,9 @@ function Dashboard() {
           Path
         </Typography>
         <List>
-          {['New Path', 'Edit Path'].map((text, index) => (
+          {['New Path', 'Path List'].map((text, index) => (
             <ListItem button key={text} onClick={() => changeDrawerFeatureHandler(index + 2)}>
-              <ListItemIcon>{index === 1 ? <EditIcon/> : <AddIcon/>}</ListItemIcon>
+              <ListItemIcon>{index === 1 ? <ListIcon/> : <AddIcon/>}</ListItemIcon>
               <ListItemText primary={text} />
             </ListItem>
           ))}
