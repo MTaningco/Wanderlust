@@ -3,8 +3,9 @@ import React, { Component, useState, useRef, useEffect } from "react";
 import NewLandmarkTab from './NewLandmarkTab';
 import NewPathTab from './NewPathTab';
 import EditLandmarksTab from './EditLandmarksTab';
+import EditPathsTab from './EditPathsTab';
 
-function OtherFeatureTab({value, index, drawerValue, invalidateAuth, setLandmarks, setTempLandmark, setPaths, newPathHandler, setEditLandmark, updateLandmarks, deleteLandmark, landmarks, toInformationTab}) {
+function OtherFeatureTab({value, index, drawerValue, invalidateAuth, setLandmarks, setTempLandmark, setPaths, newPathHandler, setEditLandmark, updateLandmarks, deleteLandmark, landmarks, toInformationTab, paths, setEditPath, editPath}) {
   return (
     <div hidden={value !== index}>
       <NewLandmarkTab setLandmarks={setLandmarks} 
@@ -25,6 +26,14 @@ function OtherFeatureTab({value, index, drawerValue, invalidateAuth, setLandmark
         index={2} 
         setTempPath={newPathHandler} 
         invalidateAuth={invalidateAuth}/>
+      <EditPathsTab
+        value={drawerValue} 
+        index={3} 
+        invalidateAuth={invalidateAuth} 
+        setEditPath={setEditPath} 
+        updateLandmarks={updateLandmarks}
+        paths={paths}
+        editPath={editPath}/>
     </div>
   );
 }

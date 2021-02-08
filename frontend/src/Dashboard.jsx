@@ -90,6 +90,13 @@ function Dashboard() {
     coordinates: [0, 0],
     isVisible: false
   }]);
+  const [editPath, setEditPath] = useState({
+    type: "LineString",
+    coordinates: [],
+    id: "",
+    path_uid: -1,
+    isAirPlane: true
+  });
 
   // const clientHeight = document.getElementById('globeGrid').clientHeight;
 
@@ -344,7 +351,8 @@ function Dashboard() {
               currentLandmark={currentLandmark}
               editLandmark={editLandmark}
               subSolarCoordinates={subSolarCoordinates}
-              setScale={setScale}/> : 
+              setScale={setScale}
+              editPath={editPath}/> : 
               <Skeleton variant="circle" width={"98vh"} height={"98vh"}/>
             }
           </Grid>
@@ -363,6 +371,7 @@ function Dashboard() {
                 index={1} 
                 drawerValue={drawerValue}
                 invalidateAuth={invalidateAuth}
+                landmarks={landmarks}
                 setLandmarks={setLandmarks}
                 setTempLandmark={setTempLandmark}
                 setPaths={setPaths}
@@ -370,8 +379,10 @@ function Dashboard() {
                 setEditLandmark={setEditLandmark} 
                 updateLandmarks={updateLandmarks}  
                 deleteLandmark={deleteLandmark} 
-                landmarks={landmarks}
-                toInformationTab={toInformationTab}/>
+                toInformationTab={toInformationTab}
+                paths={paths}
+                setEditPath={setEditPath}
+                editPath={editPath}/>
             </Paper>
           </Grid>
         </Grid>

@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
     }
   }));
 
-function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLandmark, currentLandmark, editLandmark, subSolarCoordinates, setScale}) {
+function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLandmark, currentLandmark, editLandmark, subSolarCoordinates, setScale, editPath}) {
     
     const classes = useStyles();
     
@@ -664,6 +664,29 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .raise();
     };
 
+    const drawEditPath = (svg, isDayTime) => {
+        //format of one element of data
+        // {
+        //     type: "LineString",
+        //     coordinates: [],
+        //     id: "",
+        //     path_uid: -1,
+        //     isAirPlane: true
+        // }
+        svg
+            .selectAll(".editPath")
+            .data([editPath])
+            .join("path")
+            .attr("class", "editPath")
+            .attr("fill-opacity","0")
+            .attr("stroke", feature => feature.isAirPlane ? "orange" : "orange")
+            .style("stroke-dasharray", feature => feature.isAirPlane ? ("15, 3") : ("3", "3"))
+            .attr("stroke-opacity", feature => 1)
+            .attr("stroke-width", feature => 1)
+            .attr("d", feature =>pathGenerator(feature))
+            .raise();
+    };
+
     const mouseWheelHandler = (event) => {
         setScale(prev => {
             let newVal = prev - event.deltaY/110;
@@ -728,6 +751,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         drawArcs(svg, isDaylight);
         drawTempPath(svg, isDaylight);
         drawTempLandmark(svg, isDaylight);
+        drawEditPath(svg, isDaylight);
         drawEditLandmark(svg, isDaylight);
         drawLandmarks(svg, isDaylight);
 
@@ -807,6 +831,18 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             }, 800);
         }
     }, [editLandmark])
+
+    useEffect(() => {
+        if(!isInitialLoad){
+            console.log("edit path");
+            setIsLoading(true);
+            setRenderText("Rendering edited path...");
+            setTimeout(() => {
+                drawGlobe(oldCoordinates, scale, false);
+                setIsLoading(false);
+            }, 800);
+        }
+    }, [editPath.coordinates, editPath.isAirPlane])
 
     useEffect(() => {
         if(!isInitialLoad){
