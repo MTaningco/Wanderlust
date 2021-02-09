@@ -13,7 +13,7 @@ import Switch from '@material-ui/core/Switch';
 import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import CommuteIcon from '@material-ui/icons/Commute';
 
-function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmarks, paths, editPath}) {
+function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmarks, paths, editPath, deletePath}) {
 
   //States
   const [isEdit, setIsEdit] = useState(false);
@@ -172,32 +172,37 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
   /**
    * Handles deleting the landmark.
    */
-  const handleDeletePath = (landmark) => {
-    // let isConfirmed = window.confirm(`Are you sure you want to delete this landmark?\n\n${landmark.name}\nlongitude:${landmark.coordinates[0]}\nlatitude:${landmark.coordinates[1]}\n\n${landmark.description}`);
-    // if(isConfirmed){
-    //   setIsProcessing(true);
-    //   const body = {
-    //     landmark_uid: landmark.landmark_uid
-    //   };
-    //   fetch(`/landmarks`, {
-    //     method: "DELETE",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       'authorization' : `Bearer ${localStorage.getItem('token')}`
-    //     },
-    //     body: JSON.stringify(body)
-    //   })
-    //   .then(res => res.json())
-    //   .then(res => {
-    //     setIsProcessing(false);
-    //     // deleteLandmark(currentLandmark[0].landmark_uid);
-    //     setIsEdit(false);
-    //     setTimeout(() => {
-    //       deleteLandmark(landmark.landmark_uid);
-    //     }, 500);
-    //   })
-    //   .catch(err => invalidateAuth());
-    // }
+  const handleDeletePath = (path, index) => {
+    let isConfirmed = window.confirm(`Are you sure you want to delete this path?\n\nname:\n${path.path_name === null ? "None" : path.path_name}\ncoordinates:\n${path.coordinates.map((element, index) => {
+      return `${index + 1}. (${element[0]}, ${element[1]})\n`;
+    }).join("")}`);
+    if(isConfirmed){
+      setIsProcessing(true);
+      setIsProcessing(false);
+      setIsEdit(false);
+      deletePath(index);
+      // const body = {
+      //   landmark_uid: landmark.landmark_uid
+      // };
+      // fetch(`/landmarks`, {
+      //   method: "DELETE",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     'authorization' : `Bearer ${localStorage.getItem('token')}`
+      //   },
+      //   body: JSON.stringify(body)
+      // })
+      // .then(res => res.json())
+      // .then(res => {
+      //   setIsProcessing(false);
+      //   // deleteLandmark(currentLandmark[0].landmark_uid);
+      //   setIsEdit(false);
+      //   setTimeout(() => {
+      //     deleteLandmark(landmark.landmark_uid);
+      //   }, 500);
+      // })
+      // .catch(err => invalidateAuth());
+    }
   };
 
   const getEditPathContent = () => {
@@ -285,7 +290,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
               <IconButton color="primary" onClick={() => handleEditPathMode(element)}>
                 <EditIcon/>
               </IconButton>
-              <IconButton color="secondary" onClick={() => handleDeletePath(element)}>
+              <IconButton color="secondary" onClick={() => handleDeletePath(element, index)}>
                 <DeleteIcon />
               </IconButton>
               <Typography variant="h6">

@@ -260,6 +260,18 @@ function Dashboard() {
     }
   };
 
+  const deletePath = (index) => {
+    let pathsCopy = [...paths];
+    pathsCopy.splice(index, 1);
+    setPaths(pathsCopy);
+    var editPath = [{
+      type: "LineString",
+      coordinates: [],
+      isAirPlane: false
+    }];
+    setEditPath(editPath);
+  };
+
   /**
    * Handles a new path called by the NewPathTab.
    * @param {*} newPath - the new temp path to compare against the previous state
@@ -382,7 +394,8 @@ function Dashboard() {
                 toInformationTab={toInformationTab}
                 paths={paths}
                 setEditPath={setEditPath}
-                editPath={editPath}/>
+                editPath={editPath}
+                deletePath={deletePath}/>
             </Paper>
           </Grid>
         </Grid>
