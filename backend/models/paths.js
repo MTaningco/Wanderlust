@@ -57,7 +57,16 @@ var Paths = {
       }
     }
     callback(output);
-  }
+  },
+
+  delete : async function(userUID, pathUID, callback){
+    const queryResult = await pool.query(`
+      delete from PathInfo
+      where path_uid = $1 and user_uid = $2
+      returning *
+    `, [pathUID, userUID]);
+    callback(queryResult.rows[0]);
+  },
 }
 
 module.exports = Paths;

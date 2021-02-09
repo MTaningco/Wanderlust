@@ -31,3 +31,16 @@ exports.createPath = function(req, res, next){
     }
   });
 }
+
+exports.deletePath = function(req, res, next){
+  jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
+    if(err){
+      res.status(401).send('Unauthorized');
+    }
+    else{
+      paths.delete(decoded.user_uid, req.body.path_uid, (rows) => {
+        res.json(rows);
+      });
+    }
+  });
+}
