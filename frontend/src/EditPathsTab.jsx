@@ -126,8 +126,8 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
         break;
       }
     }
-    if(isNodesPopulated){
-      console.log("original paths", paths);
+    if(isNodesPopulated && editPath.coordinates.length >= 2){
+      // console.log("original paths", paths);
       var index = -1;
       for(var i = 0; i < paths.length; i++){
         if(paths[i].path_uid === editPath.path_uid){
@@ -135,65 +135,55 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
           break;
         }
       }
+      
       setIsProcessing(true);
-      setIsEdit(false);
-      setIsProcessing(false);
-      setPaths(prevArray => {
-        console.log("original editpath", editPath);
-        var prevArrayCopy = [...prevArray];
-        var pathCopy = {...prevArrayCopy[index]};
-        console.log("pre pathCopy", pathCopy);
-        pathCopy.isAirPlane = editPath.isAirPlane;
-        pathCopy.path_name = editName;
-        pathCopy.coordinates = editPath.coordinates;
-        console.log("post pathcopy", pathCopy);
-        prevArrayCopy[index] = pathCopy;
-        prevArrayCopy.sort(sortPaths);
-        console.log("array to return", prevArrayCopy);
-        return prevArrayCopy;
-      });
-      setEditName("");
-      setEditPath(prevValue => {
-        var prevValueCopy = {...prevValue};
-        prevValueCopy.coordinates = [];
-        return prevValueCopy;
-      });
+      const body = {
+        path_uid: editPath.path_uid,
+        path_name: editName,
+        coordinates: editPath.coordinates,
+        is_airplane: editPath.isAirPlane
+      };
+      // console.log("this is the body to edit", body);
+      fetch(`/paths`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          'authorization' : `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(body)
+      })
+      .then(res => res.json())
+      .then(res => {
+        setIsEdit(false);
+        setIsProcessing(false);
+        setTimeout(() => {
+          setPaths(prevArray => {
+            console.log("original editpath", editPath);
+            var prevArrayCopy = [...prevArray];
+            var pathCopy = {...prevArrayCopy[index]};
+            console.log("pre pathCopy", pathCopy);
+            pathCopy.isAirPlane = editPath.isAirPlane;
+            pathCopy.path_name = editName;
+            pathCopy.coordinates = editPath.coordinates;
+            console.log("post pathcopy", pathCopy);
+            prevArrayCopy[index] = pathCopy;
+            prevArrayCopy.sort(sortPaths);
+            console.log("array to return", prevArrayCopy);
+            return prevArrayCopy;
+          });
+          setEditName("");
+          setEditPath(prevValue => {
+            var prevValueCopy = {...prevValue};
+            prevValueCopy.coordinates = [];
+            return prevValueCopy;
+          });
+        }, 500);
+      })
+      .catch(err => invalidateAuth());
     }
-    // if(editId !== -1 && editName !== "" && editLongitude !== "" && editLatitude !== ""){
-    //   setIsProcessing(true);
-    //   const body = {
-    //     landmark_uid: editId,
-    //     name: editName,
-    //     description: editDescription,
-    //     coordinates: [editLongitude, editLatitude]
-    //   };
-
-    //   fetch(`/landmarks`, {
-    //     method: "PUT",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       'authorization' : `Bearer ${localStorage.getItem('token')}`
-    //     },
-    //     body: JSON.stringify(body)
-    //   })
-    //   .then(res => res.json())
-    //   .then(res => {
-    //     setIsEdit(false);
-    //     setIsProcessing(false);
-    //     setTimeout(() => {
-    //       updateLandmarks({
-    //         landmark_uid: editId,
-    //         name: editName,
-    //         description: editDescription,
-    //         coordinates: [editLongitude, editLatitude]
-    //       })
-    //     }, 500);
-    //   })
-    //   .catch(err => invalidateAuth());
-    // }
-    // else{
-    //   alert('A field is missing! Cannot update landmark.')
-    // }
+    else{
+      alert('A field is missing! Cannot update landmark.')
+    }
   };
 
   /**
