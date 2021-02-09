@@ -34,7 +34,8 @@ function OtherFeatureTab({value, index, drawerValue, invalidateAuth, setLandmark
         updateLandmarks={updateLandmarks}
         paths={paths}
         editPath={editPath}
-        deletePath={deletePath}/>
+        deletePath={deletePath}
+        setPaths={setPaths}/>
     </div>
   );
 }

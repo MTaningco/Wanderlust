@@ -131,6 +131,25 @@ function Dashboard() {
     setCurrentLandmark([{...landmark, isVisible: true}]);
   };
 
+  const sortPaths = (a, b) => { 
+    if(a["path_name"] === null && b["path_name"] === null){
+      return 0;
+    }
+    else if(a["path_name"] === null){
+      return 1;
+    }
+    else if(b["path_name"] === null){
+      return -1;
+    }
+    else if(a["path_name"] > b["path_name"]){
+      return 1;
+    }
+    else if(a["path_name"] < b["path_name"]){
+      return -1;
+    }
+    return 0;  
+  }
+
   /**
    * Gets the user's paths from the database.
    */
@@ -142,6 +161,7 @@ function Dashboard() {
     })
     .then(res => res.json())
     .then(res => {
+      res.sort(sortPaths);
       setPaths(res);
       setIsPathsLoaded(true);
     })

@@ -13,7 +13,7 @@ import Switch from '@material-ui/core/Switch';
 import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import CommuteIcon from '@material-ui/icons/Commute';
 
-function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmarks, paths, editPath, deletePath}) {
+function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmarks, paths, editPath, deletePath, setPaths}) {
 
   //States
   const [isEdit, setIsEdit] = useState(false);
@@ -96,10 +96,69 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
     });
   };
 
+  const sortPaths = (a, b) => { 
+    if(a["path_name"] === null && b["path_name"] === null){
+      return 0;
+    }
+    else if(a["path_name"] === null){
+      return 1;
+    }
+    else if(b["path_name"] === null){
+      return -1;
+    }
+    else if(a["path_name"] > b["path_name"]){
+      return 1;
+    }
+    else if(a["path_name"] < b["path_name"]){
+      return -1;
+    }
+    return 0;  
+  }
+
   /**
    * Handles editing the landmark.
    */
-  const handleEditLandmark = () => {
+  const handleEditPath = () => {
+    var isNodesPopulated = true;
+    for(var i = 0; i < editPath.coordinates.length; i++){
+      if(editPath.coordinates[0] === "" || editPath.coordinates[1] === ""){
+        isNodesPopulated = false;
+        break;
+      }
+    }
+    if(isNodesPopulated){
+      console.log("original paths", paths);
+      var index = -1;
+      for(var i = 0; i < paths.length; i++){
+        if(paths[i].path_uid === editPath.path_uid){
+          index = i;
+          break;
+        }
+      }
+      setIsProcessing(true);
+      setIsEdit(false);
+      setIsProcessing(false);
+      setPaths(prevArray => {
+        console.log("original editpath", editPath);
+        var prevArrayCopy = [...prevArray];
+        var pathCopy = {...prevArrayCopy[index]};
+        console.log("pre pathCopy", pathCopy);
+        pathCopy.isAirPlane = editPath.isAirPlane;
+        pathCopy.path_name = editName;
+        pathCopy.coordinates = editPath.coordinates;
+        console.log("post pathcopy", pathCopy);
+        prevArrayCopy[index] = pathCopy;
+        prevArrayCopy.sort(sortPaths);
+        console.log("array to return", prevArrayCopy);
+        return prevArrayCopy;
+      });
+      setEditName("");
+      setEditPath(prevValue => {
+        var prevValueCopy = {...prevValue};
+        prevValueCopy.coordinates = [];
+        return prevValueCopy;
+      });
+    }
     // if(editId !== -1 && editName !== "" && editLongitude !== "" && editLatitude !== ""){
     //   setIsProcessing(true);
     //   const body = {
@@ -265,6 +324,11 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
 
         <Button variant="contained" color="primary" onClick={handleNewNode} fullWidth> 
           Add Node
+        </Button>
+
+        <Button variant="contained" color="primary" onClick={handleEditPath}>
+            {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
+            {!isProcessing && 'Finish Edit'}
         </Button>
         
         <Button variant="contained" color="secondary" onClick={handleCancelEdit}>
