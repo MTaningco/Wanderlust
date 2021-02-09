@@ -18,6 +18,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
   //States
   const [isEdit, setIsEdit] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [editName, setEditName] = useState("");
 
   /**
    * Handles a latitude field being changed.
@@ -80,7 +81,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
    * @param {*} event - the event for the name change
    */
   const handleNameChange = (event) => {
-    // setEditName(event.target.value);
+    setEditName(event.target.value);
   }
 
   /**
@@ -165,6 +166,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
   const handleEditPathMode = (path) => {
     setIsEdit(true);
     setEditPath(path);
+    setEditName(path.path_name);
   };
 
   /**
@@ -199,6 +201,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
   };
 
   const getEditPathContent = () => {
+    console.log(paths);
     return (
       <form>
         <FormControlLabel
@@ -216,7 +219,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
             id="standard-basic" 
             label="Path Name" 
             placeholder="Vancouver, BC, Canada to New York City, NY, USA" 
-            value={editPath.name}
+            value={editName}
             onChange={handleNameChange}
             fullWidth/>
         {
@@ -287,7 +290,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
               </IconButton>
               <Typography variant="h6">
                 {element.isAirPlane ? <AirplanemodeActiveIcon/> : <CommuteIcon/>} 
-                {element.id}
+                {element.path_name === null ? "Unnamed path" : element.path_name}
               </Typography>
             </Paper>
           );

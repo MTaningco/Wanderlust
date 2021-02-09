@@ -1,13 +1,13 @@
 var pool = require('./db');
 
 var Paths = {
-  create : async function(userUID, pathNodes, isAirplane, callback){
+  create : async function(userUID, pathNodes, isAirplane, path_name, callback){
     var isAirPlaneParam = isAirplane ? 't' : 'f';
     const pathInfoResult = await pool.query(`
-      insert into PathInfo(user_uid, is_airplane) 
-      values ($1, $2) 
+      insert into PathInfo(user_uid, is_airplane, path_name) 
+      values ($1, $2, $3) 
       returning *
-    `, [userUID, isAirPlaneParam]);
+    `, [userUID, isAirPlaneParam, path_name]);
     const pathNodesQuery = "insert into PathNodes(path_uid, path_order, latitude, longitude) values ";
 
     const path_uid = pathInfoResult.rows[0].path_uid;
@@ -27,7 +27,7 @@ var Paths = {
 
   getAll : async function(userUID, callback){
     const allPaths = await pool.query(`
-      select pn.path_uid, pi.is_airplane, pn.path_order, latitude, longitude 
+      select pn.path_uid, pi.is_airplane, pn.path_order, latitude, longitude, pi.path_name
       from pathinfo pi 
       join pathnodes pn on pi.path_uid = pn.path_uid 
       where user_uid = $1
@@ -44,7 +44,8 @@ var Paths = {
           coordinates: [[longitude, latitude]], 
           id:`path_${data[i].path_uid}`, 
           path_uid: data[i].path_uid, 
-          isAirPlane: data[i].is_airplane
+          isAirPlane: data[i].is_airplane,
+          path_name: data[i].path_name
         };
         output.push(currentPath);
       }

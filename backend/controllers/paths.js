@@ -25,7 +25,7 @@ exports.createPath = function(req, res, next){
       res.status(401).send('Unauthorized');
     }
     else{
-      paths.create(decoded.user_uid, req.body.coordinates, req.body.isAirPlane, (rows) => {
+      paths.create(decoded.user_uid, req.body.coordinates, req.body.isAirPlane, req.body.path_name, (rows) => {
         res.json(rows);
       });
     }

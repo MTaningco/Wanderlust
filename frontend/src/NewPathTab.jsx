@@ -1,7 +1,7 @@
 //Imports from libraries
 import React, { useState } from "react";
 import Typography from '@material-ui/core/Typography';
-import { Input, CircularProgress, Paper } from '@material-ui/core';
+import { Input, CircularProgress, Paper, TextField } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
@@ -16,6 +16,15 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
   const [nodes, setNodes] = useState([]);
   const [isAirplane, setIsAirplane] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [name, setName] = useState("");
+
+  /**
+   * Handles the name change of the edited landmark.
+   * @param {*} event - the event for the name change
+   */
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+  }
 
   /**
    * Handles creating a new node.
@@ -40,7 +49,8 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
       setIsProcessing(true);
       const body = {
         coordinates: [...nodes], 
-        isAirPlane: isAirplane
+        isAirPlane: isAirplane,
+        path_name: name
       }
   
       fetch(`/paths`, {
@@ -58,10 +68,12 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
           coordinates: [...nodes], 
           id:`path_${res.path_uid}`,
           path_uid: res.path_uid,
-          isAirPlane: isAirplane
+          isAirPlane: isAirplane,
+          path_name: name
         };
   
         setNodes([]);
+        setName("");
         setTimeout(() => {
           setIsProcessing(false);
           setPaths(prevArray => [...prevArray, newPath]);
@@ -204,6 +216,13 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
           />
         }
         label="Travel Type"/>
+      <TextField 
+          id="standard-basic" 
+          label="Path Name" 
+          placeholder="Vancouver, BC, Canada to New York City, NY, USA" 
+          value={name}
+          onChange={handleNameChange}
+          fullWidth/>
       <Paper style={{maxHeight: "50vh", overflow: 'auto'}}>
         {
           nodes.map((element, index) => {
