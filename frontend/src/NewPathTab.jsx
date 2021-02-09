@@ -64,7 +64,7 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
       }
     }
     
-    if(isNodesPopulated){
+    if(isNodesPopulated && nodes.length >= 2){
       setIsProcessing(true);
       const body = {
         coordinates: [...nodes], 
