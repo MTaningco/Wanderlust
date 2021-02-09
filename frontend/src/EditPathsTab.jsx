@@ -237,30 +237,28 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
     }).join("")}`);
     if(isConfirmed){
       setIsProcessing(true);
-      setIsProcessing(false);
-      setIsEdit(false);
-      deletePath(index);
-      // const body = {
-      //   landmark_uid: landmark.landmark_uid
-      // };
-      // fetch(`/landmarks`, {
-      //   method: "DELETE",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     'authorization' : `Bearer ${localStorage.getItem('token')}`
-      //   },
-      //   body: JSON.stringify(body)
-      // })
-      // .then(res => res.json())
-      // .then(res => {
-      //   setIsProcessing(false);
-      //   // deleteLandmark(currentLandmark[0].landmark_uid);
-      //   setIsEdit(false);
-      //   setTimeout(() => {
-      //     deleteLandmark(landmark.landmark_uid);
-      //   }, 500);
-      // })
-      // .catch(err => invalidateAuth());
+      
+      const body = {
+        path_uid: path.path_uid
+      };
+      fetch(`/paths`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          'authorization' : `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(body)
+      })
+      .then(res => res.json())
+      .then(res => {
+        console.log(res);
+        setIsProcessing(false);
+        setIsEdit(false);
+        setTimeout(() => {
+          deletePath(index);
+        }, 500);
+      })
+      .catch(err => invalidateAuth());
     }
   };
 
