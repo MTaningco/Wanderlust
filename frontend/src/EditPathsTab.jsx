@@ -223,6 +223,9 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
 
 
   const handleEditPathMode = (path) => {
+    if(isProcessing){
+      return;
+    }
     setIsEdit(true);
     setEditPath(path);
     setEditName(path.path_name);
@@ -232,6 +235,10 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
    * Handles deleting the landmark.
    */
   const handleDeletePath = (path, index) => {
+    if(isProcessing){
+      return;
+    }
+
     let isConfirmed = window.confirm(`Are you sure you want to delete this path?\n\nname:\n${path.path_name === null ? "None" : path.path_name}\ncoordinates:\n${path.coordinates.map((element, index) => {
       return `${index + 1}. (${element[0]}, ${element[1]})\n`;
     }).join("")}`);
@@ -347,13 +354,13 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
           return(
             <Paper style={{marginTop: "10px", marginBottom: "10px", padding:"10px"}}  elevation={2}>
               <IconButton>
-                <VisibilityIcon/>
+                {isProcessing ? <CircularProgress style={{color: "white"}}size={24} color='secondary' disableShrink /> : <VisibilityIcon />}
               </IconButton>
               <IconButton color="primary" onClick={() => handleEditPathMode(element)}>
-                <EditIcon/>
+                {isProcessing ? <CircularProgress size={24} color='primary' disableShrink /> : <EditIcon />}
               </IconButton>
               <IconButton color="secondary" onClick={() => handleDeletePath(element, index)}>
-                <DeleteIcon />
+                {isProcessing ? <CircularProgress size={24} color='secondary' disableShrink /> : <DeleteIcon />}
               </IconButton>
               <Typography variant="h6">
                 {element.isAirPlane ? <AirplanemodeActiveIcon/> : <CommuteIcon/>} 
