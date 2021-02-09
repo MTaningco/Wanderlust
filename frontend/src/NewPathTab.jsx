@@ -33,6 +33,25 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
     setNodes(prevArray => [...prevArray, ["", ""]]);
   }
 
+  const sortPaths = (a, b) => { 
+    if(a["path_name"] === null && b["path_name"] === null){
+      return 0;
+    }
+    else if(a["path_name"] === null){
+      return 1;
+    }
+    else if(b["path_name"] === null){
+      return -1;
+    }
+    else if(a["path_name"] > b["path_name"]){
+      return 1;
+    }
+    else if(a["path_name"] < b["path_name"]){
+      return -1;
+    }
+    return 0;  
+  }
+
   /**
    * Handles creating a new path.
    */
@@ -76,7 +95,10 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
         setName("");
         setTimeout(() => {
           setIsProcessing(false);
-          setPaths(prevArray => [...prevArray, newPath]);
+          setPaths(prevArray => {
+            var newArray = [...prevArray, newPath];
+            return newArray.sort(sortPaths);
+          });
           setTempPath([{
             type: "LineString",
             coordinates: [],
