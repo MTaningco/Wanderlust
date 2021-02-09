@@ -44,3 +44,16 @@ exports.deletePath = function(req, res, next){
     }
   });
 }
+
+exports.updatePath = function(req, res, next){
+  jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
+    if(err){
+      res.status(401).send('Unauthorized');
+    }
+    else{
+      paths.update(decoded.user_uid, req.body.path_uid, req.body.path_name, req.body.is_airplane, req.body.coordinates, (rows) => {
+        res.json(rows);
+      });
+    }
+  });
+}

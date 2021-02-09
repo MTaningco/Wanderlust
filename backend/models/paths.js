@@ -2,6 +2,7 @@ var pool = require('./db');
 
 var Paths = {
   create : async function(userUID, pathNodes, isAirplane, path_name, callback){
+    //TODO: change this to be a transaction
     var isAirPlaneParam = isAirplane ? 't' : 'f';
     const pathInfoResult = await pool.query(`
       insert into PathInfo(user_uid, is_airplane, path_name) 
@@ -27,9 +28,9 @@ var Paths = {
 
   getAll : async function(userUID, callback){
     const allPaths = await pool.query(`
-      select pn.path_uid, pi.is_airplane, pn.path_order, latitude, longitude, pi.path_name
+      select pi.path_uid, pi.is_airplane, pn.path_order, latitude, longitude, pi.path_name
       from pathinfo pi 
-      join pathnodes pn on pi.path_uid = pn.path_uid 
+      left join pathnodes pn on pi.path_uid = pn.path_uid 
       where user_uid = $1
       order by pn.path_uid, pn.path_order asc`, [userUID]);
       
@@ -67,6 +68,46 @@ var Paths = {
     `, [pathUID, userUID]);
     callback(queryResult.rows[0]);
   },
+
+  update : async function(userUID, pathUID, pathName, isAirPlane, coordinates, callback){
+    // const queryCheck = await pool.query(`select * from PathInfo where path_uid = $1 and user_uid = $2`, [pathUID, userUID]);
+    // if(queryCheck.rows[0]){
+
+    // }
+    //TODO: change this to be a transaction
+    const queryResult = await pool.query(`
+      update PathInfo
+      set path_name = $1, is_airplane = $2
+      where path_uid = $3 and user_uid = $4
+      returning *
+    `, [pathName, isAirPlane, pathUID, userUID]);
+    const queryResult1 = await pool.query(`
+      delete from PathNodes
+      where path_uid = $1 and exists(
+        select * from PathInfo 
+        pi left join PathNodes pn on pi.path_uid = pn.path_uid 
+        where pi.path_uid = $2 and pi.user_uid = $3
+      )
+      returning *
+    `, [pathUID, pathUID, userUID]);
+    // console.log(queryResult1.rows[0]);
+    if(queryResult1.rows[0]){
+      const pathNodesQuery = "insert into PathNodes(path_uid, path_order, latitude, longitude) values ";
+      
+      var nodesAsQueryArray = [];
+      var parametersArray = [];
+      for(var i = 0; i < coordinates.length; i++){
+        nodesAsQueryArray.push(`($${i * 4 + 1}, $${i * 4 + 2}, $${i * 4 + 3}, $${i * 4 + 4})`);
+        parametersArray.push(pathUID);
+        parametersArray.push(i);
+        parametersArray.push(coordinates[i][1]);
+        parametersArray.push(coordinates[i][0]);
+      }
+      var nodesAsQuery = nodesAsQueryArray.join(', ');
+      await pool.query(pathNodesQuery + nodesAsQuery, parametersArray);
+    }
+    callback(queryResult.rows[0]);
+  }
 }
 
 module.exports = Paths;

@@ -6,5 +6,6 @@ var tokenHeader = require('../controllers/tokenHeader');
 router.get('/', tokenHeader.verifyToken, pathController.getAllPaths);
 router.post('/', tokenHeader.verifyToken, pathController.createPath);
 router.delete('/', tokenHeader.verifyToken, pathController.deletePath);
+router.put('/', tokenHeader.verifyToken, pathController.updatePath);
 
 module.exports = router;
