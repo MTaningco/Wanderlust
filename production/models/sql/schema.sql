@@ -6,7 +6,7 @@ create table AppUsers (
   password varchar(100) not null,
   username varchar(100) unique not null
 );
-//TODO: create description for pathinfo
+
 create table PathInfo (
   path_uid serial primary key,
   user_uid int not null,
