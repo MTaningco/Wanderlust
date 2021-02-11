@@ -1,6 +1,14 @@
 var pool = require('./db');
 
 var Paths = {
+  /**
+   * Creates a new path.
+   * @param {number} userUID - the unique id of the user
+   * @param {number[][]} pathNodes - the coordinates of the path
+   * @param {boolean} isAirplane - the boolean for an airplane state
+   * @param {string} path_name - the name of the path
+   * @param {*} callback - the callback function that processes the new path
+   */
   create : async function(userUID, pathNodes, isAirplane, path_name, callback){
     //TODO: change this to be a transaction
     var isAirPlaneParam = isAirplane ? 't' : 'f';
@@ -26,6 +34,11 @@ var Paths = {
     callback(pathInfoResult.rows[0]);
   },
 
+  /**
+   * Gets all paths of a user.
+   * @param {number} userUID - the unique id of the user
+   * @param {*} callback - the callback function that processes the paths
+   */
   getAll : async function(userUID, callback){
     const allPaths = await pool.query(`
       select pi.path_uid, pi.is_airplane, pn.path_order, latitude, longitude, pi.path_name
@@ -60,6 +73,12 @@ var Paths = {
     callback(output);
   },
 
+  /**
+   * Deletes a path.
+   * @param {number} userUID - the unique id of the user
+   * @param {number} pathUID - the unique id of the path
+   * @param {*} callback - the callback function that processes the deleted path
+   */
   delete : async function(userUID, pathUID, callback){
     const queryResult = await pool.query(`
       delete from PathInfo
@@ -69,11 +88,21 @@ var Paths = {
     callback(queryResult.rows[0]);
   },
 
+  /**
+   * Updates a path.
+   * @param {number} userUID - the unique id of the user
+   * @param {number} pathUID - the unique id of the path
+   * @param {string} pathName - the name of the path
+   * @param {boolean} isAirPlane - the boolean for an airplane state
+   * @param {number[][]} coordinates - the coordinates of the path
+   * @param {*} callback - the callback function that processes the updated path
+   */
   update : async function(userUID, pathUID, pathName, isAirPlane, coordinates, callback){
     // const queryCheck = await pool.query(`select * from PathInfo where path_uid = $1 and user_uid = $2`, [pathUID, userUID]);
     // if(queryCheck.rows[0]){
 
     // }
+    //TODO: check if user and path exists together
     //TODO: change this to be a transaction
     const queryResult = await pool.query(`
       update PathInfo
