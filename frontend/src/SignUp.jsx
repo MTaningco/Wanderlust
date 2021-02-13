@@ -11,6 +11,10 @@ import SignalCellular2BarIcon from '@material-ui/icons/SignalCellular2Bar';
 import SignalCellular3BarIcon from '@material-ui/icons/SignalCellular3Bar';
 import SignalCellular4BarIcon from '@material-ui/icons/SignalCellular4Bar';
 
+/**
+ * Styles used for the component.
+ * @param  {*} theme - the theme of the application
+ */
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -125,6 +129,10 @@ function SignUp() {
     return strengthMagnitude(strengths);
   }
 
+  /**
+   * Renders the content for the password strength.
+   * @param {number} value - the numerical strength indicator of a password
+   */
   const renderPasswordStrength = value => {
     switch(value){
       case 'Very Weak':

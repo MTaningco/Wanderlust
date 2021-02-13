@@ -1,10 +1,6 @@
 //Imports from libraries
 import React, { Component, useState, useRef, useEffect } from "react";
 import Typography from '@material-ui/core/Typography';
-// import Button from '@material-ui/core/Button';
-// import EditIcon from '@material-ui/icons/Edit';
-// import DeleteIcon from '@material-ui/icons/Delete';
-// import { CircularProgress, FormControl, Input, InputLabel, TextField } from "@material-ui/core";
 
 function LandmarkInfo({ currentLandmark, value, index}) {
     /**
@@ -48,7 +44,6 @@ function LandmarkInfo({ currentLandmark, value, index}) {
 
     return (
         <div hidden={value !== index} style={{margin: "20px"}}>
-            
             <Typography variant="h5">
                 Landmark Information
             </Typography>

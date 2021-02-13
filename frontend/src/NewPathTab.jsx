@@ -33,6 +33,11 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
     setNodes(prevArray => [...prevArray, ["", ""]]);
   }
 
+  /**
+   * Returns the sort order that two paths should be in.
+   * @param {*} a - the first path argument
+   * @param {*} b - the second path argument
+   */
   const sortPaths = (a, b) => { 
     if(a["path_name"] === null && b["path_name"] === null){
       return 0;

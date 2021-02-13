@@ -20,6 +20,10 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import ListIcon from '@material-ui/icons/List';
 const drawerWidth = 240;
 
+/**
+ * Styles used for the component.
+ * @param  {*} theme - the theme of the application
+ */
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -49,7 +53,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Dashboard() {
-  // const classes = useStyles();
   const classes = useStyles();
   //States
   const [scale, setScale] = useState(1);
@@ -98,27 +101,15 @@ function Dashboard() {
     isAirPlane: true
   });
 
-  // const clientHeight = document.getElementById('globeGrid').clientHeight;
-
-  /**
-   * Handles the scale change.
-   * @param {*} event - the event of the scale change
-   * @param {number} newValue - the value used to change the scale
-   */
-  // const handleChangeScale = (event, newValue) => {
-  //   setScale(newValue);
-  // };
-
   /**
    * Gets the minimum dimension of the browser window.
    */
   const getMinDimension = () => {
-    // console.log("dimension calculated");
     return Math.min(windowSize.height, windowSize.width);
   };
 
   /**
-   * Handle's the tab change.
+   * Handles the tab change.
    * @param {*} event - the event of the tab change
    * @param {number} newValue - the value used to change the tab
    */
@@ -126,11 +117,20 @@ function Dashboard() {
     setTabValue(newValue);
   };
 
+  /**
+   * Handles switching to the information tab.
+   * @param {*} landmark  - the current landmark
+   */
   const toInformationTab = (landmark) => {
     setTabValue(0);
     setCurrentLandmark([{...landmark, isVisible: true}]);
   };
 
+  /**
+   * Returns the order that the paths should be in.
+   * @param {*} a - the first path argument
+   * @param {*} b - the second path argument
+   */
   const sortPaths = (a, b) => { 
     if(a["path_name"] === null && b["path_name"] === null){
       return 0;
@@ -170,6 +170,11 @@ function Dashboard() {
     });
   };
 
+  /**
+   * Returns the order that the landmarks should be in.
+   * @param {*} a - the first landmark argument
+   * @param {*} b - the second landmark argument
+   */
   const sortLandmarks = (a, b) => {  
     if (a["name"] > b["name"]) {    
         return 1;    
@@ -280,6 +285,10 @@ function Dashboard() {
     }
   };
 
+  /**
+   * Handles deleting the path
+   * @param {*} index - the index of the path
+   */
   const deletePath = (index) => {
     let pathsCopy = [...paths];
     pathsCopy.splice(index, 1);
@@ -314,20 +323,20 @@ function Dashboard() {
     }
   };
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
+  /**
+   * Handles clicking the account items.
+   * @param {*} index - the index that was selected
+   */
   const onAccountMenuClicked = (index) => {
     if(index === 1){
       invalidateAuth();
     }
   };
 
+  /**
+   * Handles changing the tab to the other feature tab.
+   * @param {*} value 
+   */
   const changeDrawerFeatureHandler = (value) => {
     setDrawerValue(value);
     setTabValue(1);

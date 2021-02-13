@@ -83,6 +83,11 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
     }
   }
 
+  /**
+   * Returns the sort order that two landmarks should be in.
+   * @param {*} a - the first landmark argument
+   * @param {*} b - the second landmark argument
+   */
   const sortLandmarks = (a, b) => {  
     if (a["name"] > b["name"]) {    
         return 1;    

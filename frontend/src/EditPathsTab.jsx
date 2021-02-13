@@ -94,6 +94,11 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
     });
   };
 
+  /**
+   * Returns the sort order that paths should be.
+   * @param {*} a - the first path argument
+   * @param {*} b - the second path argument
+   */
   const sortPaths = (a, b) => { 
     if(a["path_name"] === null && b["path_name"] === null){
       return 0;
@@ -209,7 +214,10 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
     });
   }
 
-
+  /**
+   * Handles changing the mode to edit.
+   * @param {*} path - the path to edit
+   */
   const handleEditPathMode = (path) => {
     if(isProcessing){
       return;
@@ -257,6 +265,9 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
     }
   };
 
+  /**
+   * Gets the edit path content.
+   */
   const getEditPathContent = () => {
     console.log(paths);
     return (

@@ -19,6 +19,10 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 
+/**
+ * Styles used for the component.
+ * @param  {*} theme - the theme of the application
+ */
 const useStyles = makeStyles((theme) => ({
     root: {
       justifyContent:'center',
@@ -327,6 +331,12 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         //     .attr("d", feature => pathGenerator(feature));
     };
 
+    /**
+     * Draws the land outline.
+     * @param {*} svg - the svg used to draw the land outline
+     * @param {boolean} isCoarse - the parameter for fine detail or coarse detail
+     * @param {boolean} isDaylight - the parameter for night time styles
+     */
     const drawLandOutline = (svg, isCoarse, isDaylight) => {
         //Using local json data that is of type Topology
         const land = isCoarse ? landCoarse.features : landFine.features;
@@ -385,6 +395,12 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         });
     };
 
+    /**
+     * Draws the lake outline.
+     * @param {*} svg - the svg used to draw the lake outline
+     * @param {boolean} isCoarse - the parameter for fine detail or coarse detail
+     * @param {boolean} isDaylight - the parameter for night time styles
+     */
     const drawLakesOutline = (svg, isCoarse, isDaylight) => {
         const lakes = isCoarse ? lakesCoarse.features :lakesFine.features;
         svg
@@ -664,6 +680,11 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .raise();
     };
 
+    /**
+     * Draws the current modified path.
+     * @param {} svg - the svg used to draw the current modified path
+     * @param {boolean} isDaylight - the parameter used for night time styles
+     */
     const drawEditPath = (svg, isDayTime) => {
         //format of one element of data
         // {
@@ -687,6 +708,10 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .raise();
     };
 
+    /**
+     * Handles the mouse wheel event.
+     * @param {*} event - the event triggered
+     */
     const mouseWheelHandler = (event) => {
         setScale(prev => {
             let newVal = prev - event.deltaY/110;
@@ -694,6 +719,10 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         });
     };
 
+    /**
+     * Draws the scale.
+     * @param {*} svg - the svg used to draw the scale
+     */
     const drawScale = (svg) => {
 
         var lineGenerator = d3.line();
@@ -758,10 +787,16 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         drawScale(svg);
     };
 
+    /**
+     * Handles the zoom in event.
+     */
     const zoomInHandler = () => {
         setScale(prevVal => Math.min(prevVal + 1, 25.484));
     }
 
+    /**
+     * Handles the zoom out event.
+     */
     const zoomOutHandler = () => {
         setScale(prevVal => Math.max(prevVal - 1, 1));
     }

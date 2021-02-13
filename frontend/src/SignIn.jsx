@@ -5,6 +5,10 @@ import {  Redirect, Link } from "react-router-dom";
 import Image from './landing.png'; // Import using relative path
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 
+/**
+ * Styles used for the component.
+ * @param  {*} theme - the theme of the application
+ */
 const useStyles = makeStyles((theme) => ({
   link: {
       color: "#7096ff", 

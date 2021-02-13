@@ -138,6 +138,10 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
     setIsEdit(false);
   };
 
+  /**
+   * Handles changing to the edit landmark mode.
+   * @param {*} landmark - the landmark to edit
+   */
   const handleEditLandmarkMode = (landmark) => {
     setIsEdit(true);
     setEditId(landmark.landmark_uid);
@@ -173,7 +177,6 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
       .then(res => res.json())
       .then(res => {
         setIsProcessing(false);
-        // deleteLandmark(currentLandmark[0].landmark_uid);
         setIsEdit(false);
         setTimeout(() => {
           deleteLandmark(landmark.landmark_uid);
@@ -183,6 +186,9 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
     }
   };
 
+  /**
+   * Gets the landmark content.
+   */
   const getEditLandmarkContent = () => {
     return (
       <form>
@@ -265,9 +271,6 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
               <Typography variant="h6">
                 {element.name}
               </Typography>
-              {/* <Typography style={{fontSize: "14px"}}>
-                {element.description}
-              </Typography> */}
             </Paper>
           );
         })

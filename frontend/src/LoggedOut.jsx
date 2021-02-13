@@ -1,6 +1,5 @@
 //Imports from libraries
 import React, { Component, useState, useRef, useEffect } from "react";
-// import AppBar from '@material-ui/core/AppBar';
 import { Typography, Toolbar, Grid } from "@material-ui/core";
 import {
   Link
@@ -8,6 +7,10 @@ import {
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 
+/**
+ * Styles used for the component.
+ * @param  {*} theme - the theme of the application
+ */
 const useStyles = makeStyles((theme) => ({
     link: {
         padding: 60, 
