@@ -63,7 +63,9 @@ const useStyles = makeStyles((theme) => ({
     }
   }));
 
-function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLandmark, currentLandmark, editLandmark, subSolarCoordinates, setScale, editPath}) {
+const QUARTER_DIAMETER = 12742/4.0;
+
+function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark, currentLandmark, editLandmark, subSolarCoordinates, editPath}) {
     
     const classes = useStyles();
     
@@ -76,6 +78,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
     const [isLoading, setIsLoading] = useState(false);
     const [renderText, setRenderText] = useState("");
     const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const [scale, setScale] = useState(1);
 
     //Constants
     const svgRef = useRef();
@@ -130,7 +133,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             setIsLoading(true);
             setRenderText("Rendering full resolution...");
             setTimeout(() => {
-                drawGlobe(oldCoordinates, scale, false);
+                drawGlobe(oldCoordinates, false);
                 setIsLoading(false);
             }, 400);
         }
@@ -183,7 +186,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             // console.log("mouse move", e);
             // console.log("drawing the globe coarse");
             var currentMouseCoordinates = [event.screenX, event.screenY];
-            var scalingFactor = 3.0 * scale/200.0;
+            var scalingFactor = 3.0 * getRealScale()/200.0;
             var movedCoordinates = [oldCoordinates[0] + (currentMouseCoordinates[0] - mouseCoordinates[0])/scalingFactor, oldCoordinates[1] - (currentMouseCoordinates[1] - mouseCoordinates[1])/scalingFactor];
             movedCoordinates[1] = movedCoordinates[1] < -90 ? -90 :
                 movedCoordinates[1] > 90 ?  90 : movedCoordinates[1];
@@ -191,7 +194,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             setNewCoordinates(movedCoordinates);
             setIsMove(true);
             setIsDrag(true);
-            drawGlobe(movedCoordinates, scale, true);
+            drawGlobe(movedCoordinates, true);
             console.log("mouse moved while dragged");
         }
     };
@@ -747,7 +750,7 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
             .attr("dy", size * 0.98)
             .style("text-anchor", "middle")
             .style("fill", "white")
-            .text(`${Math.ceil(12742/4.0/(scale/size*2) * 100)/100} km`).raise();
+            .text(`${Math.ceil(QUARTER_DIAMETER/scale * 100)/100} km`).raise();
     }
 
     /**
@@ -756,9 +759,9 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
      * @param {number} scaleParams - the scale parameter to scale the globe
      * @param {boolean} isCoarse - the parameter for fine detail or coarse detail
      */
-    const drawGlobe = (rotateParams, scaleParams, isCoarse) => {
+    const drawGlobe = (rotateParams, isCoarse) => {
         const svg = d3.select(svgRef.current);
-        projection.rotate(rotateParams).scale(scaleParams);
+        projection.rotate(rotateParams).scale(getRealScale());
 
         var isDaylight = false;
         
@@ -787,6 +790,10 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         drawScale(svg);
     };
 
+    const getRealScale = () => {
+        return scale * size/2.0;
+    }
+
     /**
      * Handles the zoom in event.
      */
@@ -801,117 +808,81 @@ function Globe({size, scale, paths, landmarks, landmarkHandler, tempPath, tempLa
         setScale(prevVal => Math.max(prevVal - 1, 1));
     }
 
+    const renderExternalUpdate = (message, isCoarse) => {
+        setIsLoading(true);
+        setRenderText(message);
+        setTimeout(() => {
+            drawGlobe(oldCoordinates, isCoarse);
+            setIsLoading(false);
+        }, 800);
+    }
+
     //Use effect hook.
     useEffect(() => {
-            drawGlobe(oldCoordinates, scale, true);
+            drawGlobe(oldCoordinates, true);
             setIsMove(true);
     }, [scale])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("subsolar");
-            setIsLoading(true);
-            setRenderText("Updating earth shadow...");
-            setTimeout(() => {
-                drawGlobe(oldCoordinates, scale, isDrag);
-                setIsLoading(false);
-            }, 800);
+            renderExternalUpdate("Updating earth shadow...", isDrag);
         }
     }, [subSolarCoordinates])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("current landmark");
-            setIsLoading(true);
-            setRenderText("Rendering clicked landmark...");
-            setTimeout(() => {
-                drawGlobe(oldCoordinates, scale, false);
-                setIsLoading(false);
-            }, 800);
+            renderExternalUpdate("Rendering clicked landmark...", false);
         }
     }, [currentLandmark])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("else");
-            setIsLoading(true);
-            setRenderText("Rendering for resized window...");
-            setTimeout(() => {
-                drawGlobe(oldCoordinates, scale, false);
-                setIsLoading(false);
-            }, 800);
+            renderExternalUpdate("Rendering for resized window...", false);
         }
     }, [size])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("templandmark");
-            setIsLoading(true);
-            setRenderText("Rendering new landmark...");
-            setTimeout(() => {
-                drawGlobe(oldCoordinates, scale, false);
-                setIsLoading(false);
-            }, 800);
+            renderExternalUpdate("Rendering new landmark...", false);
         }
     }, [tempLandmark])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("edit landmark");
-            setIsLoading(true);
-            setRenderText("Rendering edited landmark...");
-            setTimeout(() => {
-                drawGlobe(oldCoordinates, scale, false);
-                setIsLoading(false);
-            }, 800);
+            renderExternalUpdate("Rendering edited landmark...", false);
         }
     }, [editLandmark])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("edit path");
-            setIsLoading(true);
-            setRenderText("Rendering edited path...");
-            setTimeout(() => {
-                drawGlobe(oldCoordinates, scale, false);
-                setIsLoading(false);
-            }, 800);
+            renderExternalUpdate("Rendering edited path...", false);
         }
     }, [editPath.coordinates, editPath.isAirPlane])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("new path");
-            setIsLoading(true);
-            setRenderText("Rendering new path...");
-            setTimeout(() => {
-                drawGlobe(oldCoordinates, scale, false);
-                setIsLoading(false);
-            }, 800);
+            renderExternalUpdate("Rendering new path...", false);
         }
     }, [tempPath])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("paths");
-            setIsLoading(true);
-            setRenderText("Updating paths...");
-            setTimeout(() => {
-                drawGlobe(oldCoordinates, scale, false);
-                setIsLoading(false);
-            }, 800);
+            renderExternalUpdate("Updating paths...", false);
         }
     }, [paths])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("else");
-            setIsLoading(true);
-            setRenderText("Updating landmarks...");
-            setTimeout(() => {
-                drawGlobe(oldCoordinates, scale, false);
-                setIsLoading(false);
-            }, 800);
+            renderExternalUpdate("Updating landmarks...", false);
         }
     }, [landmarks])
 

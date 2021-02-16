@@ -382,7 +382,7 @@ function Dashboard() {
         <Grid container spacing={0} style={{width: `calc(100% - ${drawerWidth}px)`, marginLeft: drawerWidth}}>
           <Grid item align='center' style={{ padding: "1vh", height:"100vh", flexGrow: 1}}>
             {isLandmarksLoaded && isPathsLoaded && isSubSolarLoaded ? 
-              <Globe scale={scale * getMinDimension()*0.98/2} 
+              <Globe
               paths={paths} 
               landmarks={landmarks} 
               landmarkHandler={setCurrentLandmark} 
@@ -392,7 +392,6 @@ function Dashboard() {
               currentLandmark={currentLandmark}
               editLandmark={editLandmark}
               subSolarCoordinates={subSolarCoordinates}
-              setScale={setScale}
               editPath={editPath}/> : 
               <Skeleton variant="circle" width={"98vh"} height={"98vh"}/>
             }
