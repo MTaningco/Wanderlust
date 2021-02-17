@@ -217,7 +217,7 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
         <TextField 
             id="standard-basic" 
             label="Landmark Name" 
-            placeholder="ie. Vancouver, BC, Canada" 
+            placeholder="e.g. Vancouver, BC, Canada" 
             value={editName}
             onChange={handleNameChange}
             fullWidth/>

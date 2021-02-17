@@ -176,7 +176,7 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
       <TextField 
         id="standard-basic" 
         label="Landmark Name" 
-        placeholder="ie. Vancouver, BC, Canada" 
+        placeholder="e.g. Vancouver, BC, Canada" 
         value={landmarkName}
         onChange={handleNameChange} 
         fullWidth/>

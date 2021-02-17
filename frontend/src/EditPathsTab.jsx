@@ -286,7 +286,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmark
         <TextField 
             id="standard-basic" 
             label="Path Name" 
-            placeholder="Vancouver, BC, Canada to New York City, NY, USA" 
+            placeholder="e.g. LAX - HKG or California Trip 1" 
             value={editName}
             onChange={handleNameChange}
             fullWidth/>

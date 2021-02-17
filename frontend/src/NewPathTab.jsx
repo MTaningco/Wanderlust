@@ -246,7 +246,7 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
       <TextField 
           id="standard-basic" 
           label="Path Name" 
-          placeholder="Vancouver, BC, Canada to New York City, NY, USA" 
+          placeholder="e.g. LAX - HKG or California Trip 1" 
           value={name}
           onChange={handleNameChange}
           fullWidth/>
