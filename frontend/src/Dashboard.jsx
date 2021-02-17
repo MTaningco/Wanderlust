@@ -342,6 +342,13 @@ function Dashboard() {
     setTabValue(1);
   }
 
+  const currentLandmarkHandler = (landmarkArray) => {
+    if(landmarkArray[0].landmark_uid != -1){
+      setTabValue(0);
+    }
+    setCurrentLandmark(landmarkArray);
+  }
+
  // Use effect hook.
   useEffect(() => {
     getUserLandmarks();
@@ -385,7 +392,7 @@ function Dashboard() {
               <Globe
               paths={paths} 
               landmarks={landmarks} 
-              landmarkHandler={setCurrentLandmark} 
+              landmarkHandler={currentLandmarkHandler} 
               size={getMinDimension()*0.98} 
               tempPath={tempPath}
               tempLandmark={tempLandmark}
