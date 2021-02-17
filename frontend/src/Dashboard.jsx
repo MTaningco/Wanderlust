@@ -55,15 +55,14 @@ const useStyles = makeStyles((theme) => ({
 function Dashboard() {
   const classes = useStyles();
   //States
-  const [scale, setScale] = useState(1);
   const [tabValue, setTabValue] = useState(0);
 
   const [isAuth, setIsAuth] = useState(true);
   const [paths, setPaths] = useState([]);
   const [landmarks, setLandmarks] = useState([]);
   const [subSolarCoordinates, setSubSolarCoordinates] = useState([0, 0]);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
+  // const [anchorEl, setAnchorEl] = React.useState(null);
+  // const open = Boolean(anchorEl);
   const [isPathsLoaded, setIsPathsLoaded] = useState(false);
   const [isLandmarksLoaded, setIsLandmarksLoaded] = useState(false);
   const [isSubSolarLoaded, setIsSubsolarLoaded] = useState(false);
@@ -73,13 +72,13 @@ function Dashboard() {
   });
   const [drawerValue, setDrawerValue] = useState(0);
 
-  const [currentLandmark, setCurrentLandmark] = useState([{
+  const [currentLandmark, setCurrentLandmark] = useState({
     landmark_uid: -1,
     name: "",
     description: "",
     coordinates: [0, 0],
     isVisible: false
-  }]);
+  });
   const [tempPath, setTempPath] = useState([{
     type: "LineString", 
     coordinates: [],
@@ -123,7 +122,7 @@ function Dashboard() {
    */
   const toInformationTab = (landmark) => {
     setTabValue(0);
-    setCurrentLandmark([{...landmark, isVisible: true}]);
+    setCurrentLandmark({...landmark, isVisible: true});
   };
 
   /**
@@ -240,18 +239,17 @@ function Dashboard() {
 
         items[i] = itemToUpdate;
 
-        setLandmarks(items);
-        setCurrentLandmark([{
-          landmark_uid: landmark.landmark_uid,
-          name: landmark.name,
-          description: landmark.description,
-          coordinates: landmark.coordinates,
-          isVisible: true
-        }]);
+        if(landmark.landmark_uid == currentLandmark.landmark_uid){
+          setCurrentLandmark(prevVal => {
+            const prevValCopy = {...landmark, isVisible: true};
+            return prevValCopy;
+          });
+        }
         setEditLandmark([{
           coordinates: [0, 0],
           isVisible: false
         }]);
+        setLandmarks(items);
       }
     }
   };
@@ -270,18 +268,14 @@ function Dashboard() {
     }
     if(index !== -1){
       items.splice(index, 1);
+      if(currentLandmark.landmark_uid == landmark_uid){
+        setCurrentLandmark(prevVal => {
+          const prevValCopy = {...prevVal};
+          prevValCopy.isVisible = false;
+          return prevValCopy;
+        });
+      }
       setLandmarks(items);
-      setCurrentLandmark([{
-        landmark_uid: -1,
-        name: "",
-        description: "",
-        coordinates: [0, 0],
-        isVisible: false
-      }]);
-      setEditLandmark([{
-        coordinates: [0, 0],
-        isVisible: false
-      }]);
     }
   };
 
@@ -342,11 +336,15 @@ function Dashboard() {
     setTabValue(1);
   }
 
-  const currentLandmarkHandler = (landmarkArray) => {
-    if(landmarkArray[0].landmark_uid != -1){
+  const currentLandmarkHandler = (isVisible, landmark) => {
+    if(isVisible){
       setTabValue(0);
     }
-    setCurrentLandmark(landmarkArray);
+    setCurrentLandmark(prevVal => {
+      const prevValCopy = isVisible ? {...landmark} : {...prevVal};
+      prevValCopy.isVisible = isVisible;
+      return prevValCopy;
+    });
   }
 
  // Use effect hook.

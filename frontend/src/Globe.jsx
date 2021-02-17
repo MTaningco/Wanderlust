@@ -132,7 +132,9 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
             
             setIsLoading(true);
             setRenderText("Rendering full resolution...");
+            // console.log("redrawing globe for idle, this is the current landmark", currentLandmark);
             setTimeout(() => {
+                // console.log("timeout done for redrawing globe for idle, this is the current landmark", currentLandmark);
                 drawGlobe(oldCoordinates, false);
                 setIsLoading(false);
             }, 400);
@@ -230,14 +232,8 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
             .attr("fill", isDaylight ? "#dde" : "#1c458c")
             .attr("d", feature => pathGenerator(feature))
             .on("click", (mouseEvent, item) => {
-                if(currentLandmark[0].isVisible){
-                    landmarkHandler([{
-                        landmark_uid: -1,
-                        name: "",
-                        description: "",
-                        coordinates: [0, 0],
-                        isVisible: false
-                    }]);
+                if(currentLandmark.isVisible){
+                    landmarkHandler(false, null);
                 }
             } );
     };
@@ -260,14 +256,8 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
             .attr("stroke-width", isDaylight ? 1 : 0.3)
             .attr("d", feature => pathGenerator(feature))
             .on("click", (mouseEvent, item) => {
-                if(currentLandmark[0].isVisible){
-                    landmarkHandler([{
-                        landmark_uid: -1,
-                        name: "",
-                        description: "",
-                        coordinates: [0, 0],
-                        isVisible: false
-                    }]);
+                if(currentLandmark.isVisible){
+                    landmarkHandler(false, null);
                 }
             } )
             .raise();
@@ -292,14 +282,8 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
         .attr("stroke-width", 0.5)
         .attr("d", feature => pathGenerator(feature))
         .on("click", (mouseEvent, item) => {
-            if(currentLandmark[0].isVisible){
-                landmarkHandler([{
-                    landmark_uid: -1,
-                    name: "",
-                    description: "",
-                    coordinates: [0, 0],
-                    isVisible: false
-                }]);
+            if(currentLandmark.isVisible){
+                landmarkHandler(false, null);
             }
         } )
         .raise();
@@ -354,14 +338,8 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
         // .attr("stroke-opacity", "0.8")
         .attr("d", feature => pathGenerator(feature))
         .on("click", (mouseEvent, item) => {
-            if(currentLandmark[0].isVisible){
-                landmarkHandler([{
-                    landmark_uid: -1,
-                    name: "",
-                    description: "",
-                    coordinates: [0, 0],
-                    isVisible: false
-                }]);
+            if(currentLandmark.isVisible){
+                landmarkHandler(false, null);
             }
         } )
         .raise();
@@ -386,14 +364,8 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
         .attr("d", feature => pathGenerator(feature))
         .raise()
         .on("click", (mouseEvent, item) => {
-            if(currentLandmark[0].isVisible){
-                landmarkHandler([{
-                    landmark_uid: -1,
-                    name: "",
-                    description: "",
-                    coordinates: [0, 0],
-                    isVisible: false
-                }]);
+            if(currentLandmark.isVisible){
+                landmarkHandler(false, null);
             }
         });
     };
@@ -417,14 +389,8 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
         .attr("d", feature => pathGenerator(feature))
         .raise()
         .on("click", (mouseEvent, item) => {
-            if(currentLandmark[0].isVisible){
-                landmarkHandler([{
-                    landmark_uid: -1,
-                    name: "",
-                    description: "",
-                    coordinates: [0, 0],
-                    isVisible: false
-                }]);
+            if(currentLandmark.isVisible){
+                landmarkHandler(false, null);
             }
         });
     };
@@ -490,13 +456,7 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
                 .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
             } )
             .on("click", (mouseEvent, item) => {
-                landmarkHandler([{
-                    landmark_uid: item.landmark_uid,
-                    name: item.name,
-                    description: item.description,
-                    coordinates: item.coordinates,
-                    isVisible: true
-                }]);
+                landmarkHandler(true, item);
             })
             .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)())).raise();
     };
@@ -507,9 +467,10 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
      * @param {boolean} isDaylight - the parameter used for night time styles
      */
     const drawCurrentLandmark = (svg, isDaylight) => {
+        console.log("this is the current landmark from draw landmark", currentLandmark);
         svg
             .selectAll(".currentLandmark")
-            .data(currentLandmark)
+            .data([currentLandmark])
             .join("path")
             .attr("class", "currentLandmark")
             .attr("id", landmark => `current_${landmark.landmark_uid}`)
@@ -538,14 +499,8 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
             .attr("fill-opacity",opacity)
             .attr("d", data => pathGenerator(circle.center([nightLongitude, nightLatitude]).radius(data)())).raise()
             .on("click", (mouseEvent, item) => {
-                if(currentLandmark[0].isVisible){
-                    landmarkHandler([{
-                        landmark_uid: -1,
-                        name: "",
-                        description: "",
-                        coordinates: [0, 0],
-                        isVisible: false
-                    }]);
+                if(currentLandmark.isVisible){
+                    landmarkHandler(false, null);
                 }
             });
     }
@@ -618,14 +573,8 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
         .attr("stroke-width", feature => feature.isAirPlane ? 0.8 : 0.2)
         .attr("d", feature =>pathGenerator(feature)).raise()
         .on("click", (mouseEvent, item) => {
-            if(currentLandmark[0].isVisible){
-                landmarkHandler([{
-                    landmark_uid: -1,
-                    name: "",
-                    description: "",
-                    coordinates: [0, 0],
-                    isVisible: false
-                }]);
+            if(currentLandmark.isVisible){
+                landmarkHandler(false, null);
             }
         } )
         .raise();
@@ -642,14 +591,8 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
             .style("stroke-dasharray", feature => feature.isAirPlane ? ("15, 3") : ("3", "3"))
             .attr("d", feature =>pathGenerator(feature)).raise()
             .on("click", (mouseEvent, item) => {
-                if(currentLandmark[0].isVisible){
-                    landmarkHandler([{
-                        landmark_uid: -1,
-                        name: "",
-                        description: "",
-                        coordinates: [0, 0],
-                        isVisible: false
-                    }]);
+                if(currentLandmark.isVisible){
+                    landmarkHandler(false, null);
                 }
             } )
             .raise();
@@ -835,10 +778,10 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
 
     useEffect(() => {
         if(!isInitialLoad){
-            console.log("current landmark");
+            console.log("current landmark updated", currentLandmark);
             renderExternalUpdate("Rendering clicked landmark...", true);
         }
-    }, [currentLandmark])
+    }, [currentLandmark.isVisible, currentLandmark.coordinates])
 
     useEffect(() => {
         if(!isInitialLoad){

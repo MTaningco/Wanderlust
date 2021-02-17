@@ -7,17 +7,16 @@ function LandmarkInfo({ currentLandmark, value, index}) {
      * Gets the landmark information.
      */
     const getLandmarkInfoContent = () => {
-        const landmark = currentLandmark[0];
-        if (landmark.isVisible) {
-            var description = landmark.description;
+        if (currentLandmark.isVisible) {
+            var description = currentLandmark.description;
             var descriptionArray = description.split("\n");
             return (
                 <div>
                     <Typography variant="h4">
-                        {landmark.name}
+                        {currentLandmark.name}
                     </Typography>
                     <Typography variant="h6" paragraph>
-                        Latitude: {landmark.coordinates[1]}, Longitude: {landmark.coordinates[0]}
+                        Latitude: {currentLandmark.coordinates[1]}, Longitude: {currentLandmark.coordinates[0]}
                     </Typography>
                     {
                         descriptionArray.map(element => {
