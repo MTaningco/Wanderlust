@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
         left: "15%",
         bottom: '30px',
     }
-  }));
+}));
 
 const QUARTER_DIAMETER = 12742/4.0;
 
@@ -172,7 +172,7 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
         onIdle: handleOnIdle,
         onActive: handleOnActive,
         onAction: handleOnAction,
-        events: ['mouseup', 'mousewheel'],
+        events: ['mouseup', 'mousewheel', 'keydown'],
         debounce: 500
     })
 
@@ -814,7 +814,10 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
         setTimeout(() => {
             drawGlobe(oldCoordinates, isCoarse);
             setIsLoading(false);
-        }, 800);
+            if(isCoarse){
+                setIsMove(true);
+            }
+        }, isCoarse ? 100 : 800);
     }
 
     //Use effect hook.
@@ -833,7 +836,7 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
     useEffect(() => {
         if(!isInitialLoad){
             console.log("current landmark");
-            renderExternalUpdate("Rendering clicked landmark...", false);
+            renderExternalUpdate("Rendering clicked landmark...", true);
         }
     }, [currentLandmark])
 
@@ -847,28 +850,28 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
     useEffect(() => {
         if(!isInitialLoad){
             console.log("templandmark");
-            renderExternalUpdate("Rendering new landmark...", false);
+            renderExternalUpdate("Rendering new landmark...", true);
         }
     }, [tempLandmark])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("edit landmark");
-            renderExternalUpdate("Rendering edited landmark...", false);
+            renderExternalUpdate("Rendering edited landmark...", true);
         }
     }, [editLandmark])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("edit path");
-            renderExternalUpdate("Rendering edited path...", false);
+            renderExternalUpdate("Rendering edited path...", true);
         }
     }, [editPath.coordinates, editPath.isAirPlane])
 
     useEffect(() => {
         if(!isInitialLoad){
             console.log("new path");
-            renderExternalUpdate("Rendering new path...", false);
+            renderExternalUpdate("Rendering new path...", true);
         }
     }, [tempPath])
 
