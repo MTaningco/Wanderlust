@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
 
 const QUARTER_DIAMETER = 12742/4.0;
 
-function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark, currentLandmark, editLandmark, subSolarCoordinates, editPath}) {
+function Globe({size, paths, landmarks, landmarkHandler, tempPath, newLandmark, currentLandmark, editLandmark, subSolarCoordinates, editPath}) {
     
     const classes = useStyles();
     
@@ -517,11 +517,11 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
         //     isVisible: false
         //   }
         svg
-            .selectAll(".tempLandmark")
-            .data(tempLandmark)
+            .selectAll(".newLandmark")
+            .data([newLandmark])
             .join("path")
-            .attr("class", "tempLandmark")
-            .attr("id", `tempLandmark`)
+            .attr("class", "newLandmark")
+            .attr("id", `newLandmark`)
             .style("fill", "red")
             .attr("fill-opacity","0.5")
             .attr("visibility", landmark => landmark.isVisible ? "visible" : "hidden")
@@ -792,10 +792,10 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, tempLandmark,
 
     useEffect(() => {
         if(!isInitialLoad){
-            console.log("templandmark");
+            console.log("newLandmark", newLandmark);
             renderExternalUpdate("Rendering new landmark...", true);
         }
-    }, [tempLandmark])
+    }, [newLandmark])
 
     useEffect(() => {
         if(!isInitialLoad){

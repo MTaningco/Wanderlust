@@ -84,10 +84,10 @@ function Dashboard() {
     coordinates: [],
     isAirPlane: true
   }]);
-  const [tempLandmark, setTempLandmark] = useState([{
+  const [newLandmark, setNewLandmark] = useState({
     coordinates: [0, 0],
     isVisible: false
-  }]);
+  });
   const [editLandmark, setEditLandmark] = useState([{
     coordinates: [0, 0],
     isVisible: false
@@ -393,7 +393,7 @@ function Dashboard() {
               landmarkHandler={currentLandmarkHandler} 
               size={getMinDimension()*0.98} 
               tempPath={tempPath}
-              tempLandmark={tempLandmark}
+              newLandmark={newLandmark}
               currentLandmark={currentLandmark}
               editLandmark={editLandmark}
               subSolarCoordinates={subSolarCoordinates}
@@ -418,7 +418,7 @@ function Dashboard() {
                 invalidateAuth={invalidateAuth}
                 landmarks={landmarks}
                 setLandmarks={setLandmarks}
-                setTempLandmark={setTempLandmark}
+                setNewLandmark={setNewLandmark}
                 setPaths={setPaths}
                 newPathHandler={newPathHandler}
                 setEditLandmark={setEditLandmark} 

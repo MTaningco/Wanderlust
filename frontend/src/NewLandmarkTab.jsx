@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
-function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidateAuth}) {
+function NewLandmarkTab({setLandmarks, value, index, setNewLandmark, invalidateAuth}) {
 
   //States
   const [landmarkName, setLandmarkName] = useState("");
@@ -37,21 +37,20 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
    */
   const handleLatitudeChange = (event) => {
     if(event.target.value === ""){
-      var newTempLandmark = [{
-        coordinates: [0, 0],
-        isVisible: false
-      }];
-
-      setTempLandmark(newTempLandmark);
+      setNewLandmark(prevVal => {
+        const prevValCopy = {...prevVal}
+        prevValCopy.isVisible = false;
+        return prevValCopy
+      });
     }
     if(Math.abs(event.target.value) <= 90){
       setLandmarkLatitude(parseFloat(event.target.value));
-      var newTempLandmark = [{
+      var newTempLandmark = {
         coordinates: [landmarkLongitude, parseFloat(event.target.value)],
         isVisible: true
-      }];
+      };
       if(landmarkLongitude !== "" && event.target.value !== ""){
-        setTempLandmark(newTempLandmark);
+        setNewLandmark(newTempLandmark);
       }
     }
   }
@@ -62,23 +61,22 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
    */
   const handleLongitudeChange = (event) => {
     if(event.target.value === ""){
-      var newTempLandmark = [{
-        coordinates: [0, 0],
-        isVisible: false
-      }];
-
-      setTempLandmark(newTempLandmark);
+      setNewLandmark(prevVal => {
+        const prevValCopy = {...prevVal}
+        prevValCopy.isVisible = false;
+        return prevValCopy
+      });
     }
     if(Math.abs(event.target.value) <= 180){
       setLandmarkLongitude(parseFloat(event.target.value));
 
-      var newTempLandmark = [{
+      var newTempLandmark = {
         coordinates: [parseFloat(event.target.value), landmarkLatitude],
         isVisible: true
-      }];
+      };
 
       if(event.target.value !== "" && landmarkLatitude !== ""){
-        setTempLandmark(newTempLandmark);
+        setNewLandmark(newTempLandmark);
       }
     }
   }
@@ -136,10 +134,11 @@ function NewLandmarkTab({setLandmarks, value, index, setTempLandmark, invalidate
             }];
             return newArray.sort(sortLandmarks);
           });
-          setTempLandmark([{
-            coordinates: [0, 0],
-            isVisible: false
-          }]);
+          setNewLandmark(prevVal => {
+            const prevValCopy = {...prevVal}
+            prevValCopy.isVisible = false;
+            return prevValCopy
+          });
         }, 500);
       })
       .catch(err => invalidateAuth());//TODO: check if processing needs to be set to false here
