@@ -31,7 +31,6 @@ function OtherFeatureTab({value, index, drawerValue, invalidateAuth, setLandmark
         index={3} 
         invalidateAuth={invalidateAuth} 
         setEditPath={setEditPath} 
-        updateLandmarks={updateLandmarks}
         paths={paths}
         editPath={editPath}
         deletePath={deletePath}

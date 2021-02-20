@@ -88,10 +88,10 @@ function Dashboard() {
     coordinates: [0, 0],
     isVisible: false
   });
-  const [editLandmark, setEditLandmark] = useState([{
+  const [editLandmark, setEditLandmark] = useState({
     coordinates: [0, 0],
     isVisible: false
-  }]);
+  });
   const [editPath, setEditPath] = useState({
     type: "LineString",
     coordinates: [],
@@ -245,10 +245,11 @@ function Dashboard() {
             return prevValCopy;
           });
         }
-        setEditLandmark([{
-          coordinates: [0, 0],
-          isVisible: false
-        }]);
+        setEditLandmark(prevVal => {
+          const prevValCopy = {...prevVal};
+          prevValCopy.isVisible = false;
+          return prevValCopy;
+        });
         setLandmarks(items);
       }
     }

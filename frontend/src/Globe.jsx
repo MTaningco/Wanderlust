@@ -541,7 +541,7 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, newLandmark, 
         //   }
         svg
             .selectAll(".editLandmark")
-            .data(editLandmark)
+            .data([editLandmark])
             .join("path")
             .attr("class", "editLandmark")
             .attr("id", landmark => `edit`)

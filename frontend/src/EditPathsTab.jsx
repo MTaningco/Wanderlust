@@ -11,7 +11,7 @@ import Switch from '@material-ui/core/Switch';
 import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import CommuteIcon from '@material-ui/icons/Commute';
 
-function EditPathsTab({value, index, invalidateAuth, setEditPath, updateLandmarks, paths, editPath, deletePath, setPaths}) {
+function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPath, deletePath, setPaths}) {
 
   //States
   const [isEdit, setIsEdit] = useState(false);

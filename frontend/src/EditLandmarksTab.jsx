@@ -25,21 +25,20 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
    */
   const handleLatitudeChange = (event) => {
     if(event.target.value === ""){
-      var editLandmark = [{
-        coordinates: [0, 0],
-        isVisible: false
-      }];
-      setEditLandmark(editLandmark);
+      setEditLandmark(prevVal => {
+        const prevValCopy = {...prevVal};
+        prevValCopy.isVisible = false;
+        return prevValCopy;
+      });
     }
 
     if(Math.abs(event.target.value) <= 90){
       setEditLatitude(event.target.value);
-      var editLandmark = [{
-        coordinates: [editLongitude, parseFloat(event.target.value)],
-        isVisible: true
-      }];
       if(editLongitude !== "" && event.target.value !== ""){
-        setEditLandmark(editLandmark);
+        setEditLandmark({
+          coordinates: [editLongitude, parseFloat(event.target.value)],
+          isVisible: true
+        });
       }
     }
   }
@@ -50,21 +49,20 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
    */
   const handleLongitudeChange = (event) => {
     if(event.target.value === ""){
-      var editLandmark = [{
-        coordinates: [0, 0],
-        isVisible: false
-      }];
-      setEditLandmark(editLandmark);
+      setEditLandmark(prevVal => {
+        const prevValCopy = {...prevVal};
+        prevValCopy.isVisible = false;
+        return prevValCopy;
+      });
     }
 
     if(Math.abs(event.target.value) <= 180){
       setEditLongitude(event.target.value);
-      var editLandmark = [{
-        coordinates: [parseFloat(event.target.value), editLatitude],
-        isVisible: true
-      }];
       if(editLatitude !== "" && event.target.value !== ""){
-        setEditLandmark(editLandmark);
+        setEditLandmark({
+          coordinates: [parseFloat(event.target.value), editLatitude],
+          isVisible: true
+        });
       }
     }
   }
@@ -130,11 +128,11 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
    * Handles canceling out of the edit mode.
    */
   const handleCancelEdit = () => {
-    var editLandmark = [{
-      coordinates: [0, 0],
-      isVisible: false
-    }];
-    setEditLandmark(editLandmark);
+    setEditLandmark(prevVal => {
+      const prevValCopy = {...prevVal};
+      prevValCopy.isVisible = false;
+      return prevValCopy;
+    });
     setIsEdit(false);
   };
 
@@ -149,11 +147,10 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
     setEditDescription(landmark.description);
     setEditLongitude(landmark.coordinates[0]);
     setEditLatitude(landmark.coordinates[1]);
-    var editLandmark = [{
-        coordinates: [landmark.coordinates[0], landmark.coordinates[1]],
-        isVisible: true
-    }];
-    setEditLandmark(editLandmark);
+    setEditLandmark({
+      coordinates: [landmark.coordinates[0], landmark.coordinates[1]],
+      isVisible: true
+    });
   };
 
   /**
