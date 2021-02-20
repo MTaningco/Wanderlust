@@ -109,10 +109,10 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
     else if(b["path_name"] === null){
       return -1;
     }
-    else if(a["path_name"] > b["path_name"]){
+    else if(a["path_name"].toLowerCase() > b["path_name"].toLowerCase()){
       return 1;
     }
-    else if(a["path_name"] < b["path_name"]){
+    else if(a["path_name"].toLowerCase() < b["path_name"].toLowerCase()){
       return -1;
     }
     return 0;  
