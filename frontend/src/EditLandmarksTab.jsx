@@ -18,6 +18,7 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
   const [editDescription, setEditDescription] = useState("");
   const [editLongitude, setEditLongitude] = useState("");
   const [editLatitude, setEditLatitude] = useState("");
+  const [editIndex, setEditIndex] = useState(-1);
 
   /**
    * Handles the latitude change of the edited landmark.
@@ -114,7 +115,8 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
             name: editName,
             description: editDescription,
             coordinates: [editLongitude, editLatitude]
-          })
+          }, editIndex);
+          setEditIndex(-1);
         }, 500);
       })
       .catch(err => invalidateAuth());
@@ -134,19 +136,21 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
       return prevValCopy;
     });
     setIsEdit(false);
+    setEditIndex(-1);
   };
 
   /**
    * Handles changing to the edit landmark mode.
    * @param {*} landmark - the landmark to edit
    */
-  const handleEditLandmarkMode = (landmark) => {
+  const handleEditLandmarkMode = (landmark, index) => {
     setIsEdit(true);
     setEditId(landmark.landmark_uid);
     setEditName(landmark.name);
     setEditDescription(landmark.description);
     setEditLongitude(landmark.coordinates[0]);
     setEditLatitude(landmark.coordinates[1]);
+    setEditIndex(index);
     setEditLandmark({
       coordinates: [landmark.coordinates[0], landmark.coordinates[1]],
       isVisible: true
@@ -156,7 +160,7 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
   /**
    * Handles deleting the landmark.
    */
-  const handleDeleteLandmark = (landmark) => {
+  const handleDeleteLandmark = (landmark, index) => {
     let isConfirmed = window.confirm(`Are you sure you want to delete this landmark?\n\n${landmark.name}\nlongitude:${landmark.coordinates[0]}\nlatitude:${landmark.coordinates[1]}\n\n${landmark.description}`);
     if(isConfirmed){
       setIsProcessing(true);
@@ -176,7 +180,7 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
         setIsProcessing(false);
         setIsEdit(false);
         setTimeout(() => {
-          deleteLandmark(landmark.landmark_uid);
+          deleteLandmark(landmark.landmark_uid, index);
         }, 500);
       })
       .catch(err => invalidateAuth());
@@ -259,10 +263,10 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
               <IconButton onClick={() => toInformationTab(element)}>
                 <InfoIcon/>
               </IconButton>
-              <IconButton color="primary" onClick={() => handleEditLandmarkMode(element)}>
+              <IconButton color="primary" onClick={() => handleEditLandmarkMode(element, index)}>
                 <EditIcon/>
               </IconButton>
-              <IconButton color="secondary" onClick={() => handleDeleteLandmark(element)}>
+              <IconButton color="secondary" onClick={() => handleDeleteLandmark(element, index)}>
                 <DeleteIcon />
               </IconButton>
               <Typography variant="h6">

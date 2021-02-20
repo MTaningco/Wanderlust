@@ -227,57 +227,43 @@ function Dashboard() {
    * Updates the front end landmark.
    * @param {*} landmark - the landmark to be updated
    */
-  const updateLandmarks = (landmark) => {
+  const updateLandmarks = (landmark, index) => {
     let items = [...landmarks];
-    for(var i = 0; i < items.length; i++){
-      if(items[i].landmark_uid === landmark.landmark_uid){
-        let itemToUpdate = {...items[i]};
+    
+    let itemToUpdate = {...items[index]};
 
-        itemToUpdate.name = landmark.name;
-        itemToUpdate.description = landmark.description;
-        itemToUpdate.coordinates = landmark.coordinates;
+    itemToUpdate.name = landmark.name;
+    itemToUpdate.description = landmark.description;
+    itemToUpdate.coordinates = landmark.coordinates;
 
-        items[i] = itemToUpdate;
+    items[index] = itemToUpdate;
 
-        if(landmark.landmark_uid == currentLandmark.landmark_uid){
-          setCurrentLandmark(prevVal => {
-            const prevValCopy = {...landmark, isVisible: true};
-            return prevValCopy;
-          });
-        }
-        setEditLandmark(prevVal => {
-          const prevValCopy = {...prevVal};
-          prevValCopy.isVisible = false;
-          return prevValCopy;
-        });
-        setLandmarks(items);
-      }
+    if(landmark.landmark_uid == currentLandmark.landmark_uid){
+      setCurrentLandmark({...landmark, isVisible: true});
     }
+    setEditLandmark(prevVal => {
+      const prevValCopy = {...prevVal};
+      prevValCopy.isVisible = false;
+      return prevValCopy;
+    });
+    setLandmarks(items.sort(sortLandmarks));
   };
 
   /**
    * Deletes the frontend landmark.
    * @param {number} landmark_uid - the landmark UID to be deleted.
    */
-  const deleteLandmark = (landmark_uid) => {
+  const deleteLandmark = (landmark_uid, index) => {
     let items = [...landmarks];
-    var index = -1;
-    for(var i = 0; i < items.length; i++){
-      if(items[i].landmark_uid === landmark_uid){
-        index = i;
-      }
+    items.splice(index, 1);
+    if(currentLandmark.landmark_uid == landmark_uid){
+      setCurrentLandmark(prevVal => {
+        const prevValCopy = {...prevVal};
+        prevValCopy.isVisible = false;
+        return prevValCopy;
+      });
     }
-    if(index !== -1){
-      items.splice(index, 1);
-      if(currentLandmark.landmark_uid == landmark_uid){
-        setCurrentLandmark(prevVal => {
-          const prevValCopy = {...prevVal};
-          prevValCopy.isVisible = false;
-          return prevValCopy;
-        });
-      }
-      setLandmarks(items);
-    }
+    setLandmarks(items);
   };
 
   /**
