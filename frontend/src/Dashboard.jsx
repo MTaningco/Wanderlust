@@ -175,9 +175,9 @@ function Dashboard() {
    * @param {*} b - the second landmark argument
    */
   const sortLandmarks = (a, b) => {  
-    if (a["name"] > b["name"]) {    
+    if (a["name"].toLowerCase() > b["name"].toLowerCase()) {    
         return 1;    
-    } else if (a["name"] < b["name"]) {    
+    } else if (a["name"].toLowerCase() < b["name"].toLowerCase()) {    
         return -1;    
     }    
     return 0;  
