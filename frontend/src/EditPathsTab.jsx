@@ -17,6 +17,8 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
   const [isEdit, setIsEdit] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [editName, setEditName] = useState("");
+  const [editId, setEditId] = useState(-1);
+  const [editIndex, setEditIndex] = useState(-1);
 
   /**
    * Handles a latitude field being changed.
@@ -130,23 +132,14 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
       }
     }
     if(isNodesPopulated && editPath.coordinates.length >= 2){
-      // console.log("original paths", paths);
-      var index = -1;
-      for(var i = 0; i < paths.length; i++){
-        if(paths[i].path_uid === editPath.path_uid){
-          index = i;
-          break;
-        }
-      }
-      
       setIsProcessing(true);
       const body = {
-        path_uid: editPath.path_uid,
+        path_uid: editId,
         path_name: editName,
         coordinates: editPath.coordinates,
         is_airplane: editPath.isAirPlane
       };
-      // console.log("this is the body to edit", body);
+      
       fetch(`/paths`, {
         method: "PUT",
         headers: {
@@ -160,25 +153,23 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
         setIsEdit(false);
         setIsProcessing(false);
         setTimeout(() => {
-          setPaths(prevArray => {
-            console.log("original editpath", editPath);
-            var prevArrayCopy = [...prevArray];
-            var pathCopy = {...prevArrayCopy[index]};
-            console.log("pre pathCopy", pathCopy);
-            pathCopy.isAirPlane = editPath.isAirPlane;
-            pathCopy.path_name = editName;
-            pathCopy.coordinates = editPath.coordinates;
-            console.log("post pathcopy", pathCopy);
-            prevArrayCopy[index] = pathCopy;
-            prevArrayCopy.sort(sortPaths);
-            console.log("array to return", prevArrayCopy);
-            return prevArrayCopy;
-          });
           setEditName("");
+          setEditId(-1);
+          setEditIndex(-1);
           setEditPath(prevValue => {
             var prevValueCopy = {...prevValue};
             prevValueCopy.coordinates = [];
             return prevValueCopy;
+          });
+          setPaths(prevArray => {
+            var prevArrayCopy = [...prevArray];
+            var pathCopy = {...prevArrayCopy[editIndex]};
+            pathCopy.isAirPlane = editPath.isAirPlane;
+            pathCopy.path_name = editName;
+            pathCopy.coordinates = editPath.coordinates;
+            prevArrayCopy[editIndex] = pathCopy;
+            prevArrayCopy.sort(sortPaths);
+            return prevArrayCopy;
           });
         }, 500);
       })
@@ -192,14 +183,15 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
   /**
    * Handles canceling out of the edit mode.
    */
-  const handleCancelEdit = (path) => {
-    var editPath = [{
-      type: "LineString",
-      coordinates: [],
-      isAirPlane: false
-    }];
-    setEditPath(editPath);
+  const handleCancelEdit = () => {
     setIsEdit(false);
+    setEditId(-1);
+    setEditIndex(-1);
+    setEditPath(prevVal => {
+      const prevValCopy = {...prevVal};
+      prevValCopy.coordinates = [];
+      return prevValCopy;
+    });
   };
 
   /**
@@ -218,13 +210,15 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
    * Handles changing the mode to edit.
    * @param {*} path - the path to edit
    */
-  const handleEditPathMode = (path) => {
+  const handleEditPathMode = (path, index) => {
     if(isProcessing){
       return;
     }
     setIsEdit(true);
-    setEditPath(path);
     setEditName(path.path_name);
+    setEditId(path.path_uid);
+    setEditIndex(index);
+    setEditPath(path);
   };
 
   /**
@@ -242,7 +236,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
       setIsProcessing(true);
       
       const body = {
-        path_uid: path.path_uid
+        path_uid: editId
       };
       fetch(`/paths`, {
         method: "DELETE",
@@ -355,7 +349,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
               <IconButton>
                 {isProcessing ? <CircularProgress style={{color: "white"}}size={24} color='secondary' disableShrink /> : <MyLocationIcon />}
               </IconButton>
-              <IconButton color="primary" onClick={() => handleEditPathMode(element)}>
+              <IconButton color="primary" onClick={() => handleEditPathMode(element, index)}>
                 {isProcessing ? <CircularProgress size={24} color='primary' disableShrink /> : <EditIcon />}
               </IconButton>
               <IconButton color="secondary" onClick={() => handleDeletePath(element, index)}>

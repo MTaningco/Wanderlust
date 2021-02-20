@@ -95,8 +95,6 @@ function Dashboard() {
   const [editPath, setEditPath] = useState({
     type: "LineString",
     coordinates: [],
-    id: "",
-    path_uid: -1,
     isAirPlane: true
   });
 

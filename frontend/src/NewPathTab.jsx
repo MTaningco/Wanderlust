@@ -100,15 +100,15 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
         setName("");
         setTimeout(() => {
           setIsProcessing(false);
-          setPaths(prevArray => {
-            var newArray = [...prevArray, newPath];
-            return newArray.sort(sortPaths);
-          });
           setTempPath([{
             type: "LineString",
             coordinates: [],
             isAirPlane: isAirplane
           }]);
+          setPaths(prevArray => {
+            var newArray = [...prevArray, newPath];
+            return newArray.sort(sortPaths);
+          });
         }, 500);
       })
       .catch(err => invalidateAuth());
