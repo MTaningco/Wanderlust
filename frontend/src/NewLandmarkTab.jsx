@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 
-function NewLandmarkTab({setLandmarks, value, index, setNewLandmark, invalidateAuth}) {
+function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNewLandmark}) {
 
   //States
   const [landmarkName, setLandmarkName] = useState("");
@@ -37,20 +37,13 @@ function NewLandmarkTab({setLandmarks, value, index, setNewLandmark, invalidateA
    */
   const handleLatitudeChange = (event) => {
     if(event.target.value === ""){
-      setNewLandmark(prevVal => {
-        const prevValCopy = {...prevVal}
-        prevValCopy.isVisible = false;
-        return prevValCopy
-      });
+      updateNewLandmark(false, null);
     }
     if(Math.abs(event.target.value) <= 90){
       setLandmarkLatitude(parseFloat(event.target.value));
-      var newTempLandmark = {
-        coordinates: [landmarkLongitude, parseFloat(event.target.value)],
-        isVisible: true
-      };
+
       if(landmarkLongitude !== "" && event.target.value !== ""){
-        setNewLandmark(newTempLandmark);
+        updateNewLandmark(true, [landmarkLongitude, parseFloat(event.target.value)]);
       }
     }
   }
@@ -61,38 +54,15 @@ function NewLandmarkTab({setLandmarks, value, index, setNewLandmark, invalidateA
    */
   const handleLongitudeChange = (event) => {
     if(event.target.value === ""){
-      setNewLandmark(prevVal => {
-        const prevValCopy = {...prevVal}
-        prevValCopy.isVisible = false;
-        return prevValCopy
-      });
+      updateNewLandmark(false, null);
     }
     if(Math.abs(event.target.value) <= 180){
       setLandmarkLongitude(parseFloat(event.target.value));
 
-      var newTempLandmark = {
-        coordinates: [parseFloat(event.target.value), landmarkLatitude],
-        isVisible: true
-      };
-
       if(event.target.value !== "" && landmarkLatitude !== ""){
-        setNewLandmark(newTempLandmark);
+        updateNewLandmark(true, [parseFloat(event.target.value), landmarkLatitude]);
       }
     }
-  }
-
-  /**
-   * Returns the sort order that two landmarks should be in.
-   * @param {*} a - the first landmark argument
-   * @param {*} b - the second landmark argument
-   */
-  const sortLandmarks = (a, b) => {  
-    if (a["name"].toLowerCase() > b["name"].toLowerCase()) {    
-        return 1;    
-    } else if (a["name"].toLowerCase() < b["name"].toLowerCase()) {    
-        return -1;    
-    }    
-    return 0;  
   }
 
   /**
@@ -124,20 +94,12 @@ function NewLandmarkTab({setLandmarks, value, index, setNewLandmark, invalidateA
         setLandmarkDescription("");
         setTimeout(() => {
           setIsProcessing(false);
-          setLandmarks(prevArray => {
-            var newArray = [...prevArray, {
-              id: `landmark_${res.landmark_uid}`,
-              path_uid: res.landmark_uid,
-              name: landmarkName,
-              description: landmarkDescription,
-              coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
-            }];
-            return newArray.sort(sortLandmarks);
-          });
-          setNewLandmark(prevVal => {
-            const prevValCopy = {...prevVal}
-            prevValCopy.isVisible = false;
-            return prevValCopy
+          createLandmark({
+            id: `landmark_${res.landmark_uid}`,
+            path_uid: res.landmark_uid,
+            name: landmarkName,
+            description: landmarkDescription,
+            coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
           });
         }, 500);
       })

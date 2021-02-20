@@ -332,6 +332,31 @@ function Dashboard() {
     });
   }
 
+  const createLandmark = (landmark) => {
+    setLandmarks(prevArray => {
+      var newArray = [...prevArray, landmark];
+      return newArray.sort(sortLandmarks);
+    });
+    setNewLandmark(prevVal => {
+      const prevValCopy = {...prevVal}
+      prevValCopy.isVisible = false;
+      return prevValCopy
+    });
+  }
+
+  const updateNewLandmark = (isVisible, coordinates) => {
+    if(!isVisible){
+      setNewLandmark(prevVal => {
+        const prevValCopy = {...prevVal}
+        prevValCopy.isVisible = false;
+        return prevValCopy;
+      });
+    }
+    else{
+      setNewLandmark({coordinates: coordinates, isVisible: true});
+    }
+  }
+
  // Use effect hook.
   useEffect(() => {
     getUserLandmarks();
@@ -402,8 +427,6 @@ function Dashboard() {
                 drawerValue={drawerValue}
                 invalidateAuth={invalidateAuth}
                 landmarks={landmarks}
-                setLandmarks={setLandmarks}
-                setNewLandmark={setNewLandmark}
                 setPaths={setPaths}
                 newPathHandler={newPathHandler}
                 setEditLandmark={setEditLandmark} 
@@ -413,7 +436,9 @@ function Dashboard() {
                 paths={paths}
                 setEditPath={setEditPath}
                 editPath={editPath}
-                deletePath={deletePath}/>
+                deletePath={deletePath}
+                createLandmark={createLandmark}
+                updateNewLandmark={updateNewLandmark}/>
             </Paper>
           </Grid>
         </Grid>
