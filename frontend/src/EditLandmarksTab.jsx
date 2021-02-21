@@ -8,7 +8,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import MyLocationIcon from '@material-ui/icons/MyLocation';
 import InfoIcon from '@material-ui/icons/Info';
 
-function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, updateLandmarks, deleteLandmark, landmarks, toInformationTab}) {
+function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteLandmark, landmarks, toInformationTab, updateEditLandmark}) {
 
   //States
   const [isEdit, setIsEdit] = useState(false);
@@ -26,20 +26,13 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
    */
   const handleLatitudeChange = (event) => {
     if(event.target.value === ""){
-      setEditLandmark(prevVal => {
-        const prevValCopy = {...prevVal};
-        prevValCopy.isVisible = false;
-        return prevValCopy;
-      });
+      updateEditLandmark(false, null);
     }
 
     if(Math.abs(event.target.value) <= 90){
       setEditLatitude(event.target.value);
       if(editLongitude !== "" && event.target.value !== ""){
-        setEditLandmark({
-          coordinates: [editLongitude, parseFloat(event.target.value)],
-          isVisible: true
-        });
+        updateEditLandmark(true, [editLongitude, parseFloat(event.target.value)]);
       }
     }
   }
@@ -50,20 +43,13 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
    */
   const handleLongitudeChange = (event) => {
     if(event.target.value === ""){
-      setEditLandmark(prevVal => {
-        const prevValCopy = {...prevVal};
-        prevValCopy.isVisible = false;
-        return prevValCopy;
-      });
+      updateEditLandmark(false, null);
     }
 
     if(Math.abs(event.target.value) <= 180){
       setEditLongitude(event.target.value);
       if(editLatitude !== "" && event.target.value !== ""){
-        setEditLandmark({
-          coordinates: [parseFloat(event.target.value), editLatitude],
-          isVisible: true
-        });
+        updateEditLandmark(true, [parseFloat(event.target.value), editLatitude]);
       }
     }
   }
@@ -110,7 +96,7 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
         setIsEdit(false);
         setIsProcessing(false);
         setTimeout(() => {
-          updateLandmarks({
+          updateLandmark({
             landmark_uid: editId,
             name: editName,
             description: editDescription,
@@ -130,11 +116,7 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
    * Handles canceling out of the edit mode.
    */
   const handleCancelEdit = () => {
-    setEditLandmark(prevVal => {
-      const prevValCopy = {...prevVal};
-      prevValCopy.isVisible = false;
-      return prevValCopy;
-    });
+    updateEditLandmark(false, null);
     setIsEdit(false);
     setEditIndex(-1);
   };
@@ -151,10 +133,7 @@ function EditLandmarksTab({value, index, invalidateAuth, setEditLandmark, update
     setEditLongitude(landmark.coordinates[0]);
     setEditLatitude(landmark.coordinates[1]);
     setEditIndex(index);
-    setEditLandmark({
-      coordinates: [landmark.coordinates[0], landmark.coordinates[1]],
-      isVisible: true
-    });
+    updateEditLandmark(true, [landmark.coordinates[0], landmark.coordinates[1]]);
   };
 
   /**

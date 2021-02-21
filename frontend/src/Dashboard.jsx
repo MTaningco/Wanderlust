@@ -225,7 +225,7 @@ function Dashboard() {
    * Updates the front end landmark.
    * @param {*} landmark - the landmark to be updated
    */
-  const updateLandmarks = (landmark, index) => {
+  const updateLandmark = (landmark, index) => {
     let items = [...landmarks];
     
     let itemToUpdate = {...items[index]};
@@ -357,6 +357,19 @@ function Dashboard() {
     }
   }
 
+  const updateEditLandmark = (isVisible, coordinates) => {
+    if(!isVisible){
+      setEditLandmark(prevVal => {
+        const prevValCopy = {...prevVal};
+        prevValCopy.isVisible = false;
+        return prevValCopy;
+      });
+    }
+    else{
+      setEditLandmark({coordinates: coordinates, isVisible: true});
+    }
+  }
+
  // Use effect hook.
   useEffect(() => {
     getUserLandmarks();
@@ -429,8 +442,7 @@ function Dashboard() {
                 landmarks={landmarks}
                 setPaths={setPaths}
                 newPathHandler={newPathHandler}
-                setEditLandmark={setEditLandmark} 
-                updateLandmarks={updateLandmarks}  
+                updateLandmark={updateLandmark}  
                 deleteLandmark={deleteLandmark} 
                 toInformationTab={toInformationTab}
                 paths={paths}
@@ -438,7 +450,8 @@ function Dashboard() {
                 editPath={editPath}
                 deletePath={deletePath}
                 createLandmark={createLandmark}
-                updateNewLandmark={updateNewLandmark}/>
+                updateNewLandmark={updateNewLandmark}
+                updateEditLandmark={updateEditLandmark}/>
             </Paper>
           </Grid>
         </Grid>

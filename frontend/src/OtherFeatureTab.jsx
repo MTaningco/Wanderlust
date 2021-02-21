@@ -5,7 +5,7 @@ import NewPathTab from './NewPathTab';
 import EditLandmarksTab from './EditLandmarksTab';
 import EditPathsTab from './EditPathsTab';
 
-function OtherFeatureTab({value, index, drawerValue, invalidateAuth, setPaths, newPathHandler, setEditLandmark, updateLandmarks, deleteLandmark, landmarks, toInformationTab, paths, setEditPath, editPath, deletePath, createLandmark, updateNewLandmark}) {
+function OtherFeatureTab({value, index, drawerValue, invalidateAuth, setPaths, newPathHandler, updateLandmark, deleteLandmark, landmarks, toInformationTab, paths, setEditPath, editPath, deletePath, createLandmark, updateNewLandmark, updateEditLandmark}) {
   return (
     <div hidden={value !== index}>
       <NewLandmarkTab 
@@ -18,11 +18,11 @@ function OtherFeatureTab({value, index, drawerValue, invalidateAuth, setPaths, n
         value={drawerValue} 
         index={1} 
         invalidateAuth={invalidateAuth} 
-        setEditLandmark={setEditLandmark} 
-        updateLandmarks={updateLandmarks} 
-        deleteLandmark={deleteLandmark}
+        toInformationTab={toInformationTab}
         landmarks={landmarks}
-        toInformationTab={toInformationTab}/>
+        updateLandmark={updateLandmark} 
+        updateEditLandmark={updateEditLandmark}
+        deleteLandmark={deleteLandmark}/>
       <NewPathTab setPaths={setPaths} 
         value={drawerValue} 
         index={2} 
