@@ -85,10 +85,7 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
    * Handles deleting a node.
    * @param {*} event - the button event
    */
-  const handleDeleteNode = (event) => {
-    var idArray = event.target.parentElement.id.split("_");
-    var index = parseInt(idArray[1]);
-
+  const handleDeleteNode = (index) => {
     var newNodes = [...nodes];
     newNodes.splice(index, 1);
 
@@ -124,10 +121,7 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
    * Handles a latitude field being changed.
    * @param {*} event - the text event 
    */
-  const onElementLatitudeChange = (event) => {
-    var idArray = event.target.id.split("_");
-    var index = parseInt(idArray[1]);
-
+  const onElementLatitudeChange = (event, index) => {
     var newElements = [...nodes];
     let item = {...newElements[index]};
 
@@ -148,10 +142,7 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
    * Handles a longitude field being changed.
    * @param {*} event - the text event
    */
-  const onElementLongitudeChange = (event) => {
-    var idArray = event.target.id.split("_");
-    var index = parseInt(idArray[1]);
-
+  const onElementLongitudeChange = (event, index) => {
     var newElements = [...nodes];
     let item = {...newElements[index]};
 
@@ -233,7 +224,7 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
                     placeholder="Enter value between -90 to 90" 
                     name="Latitude"
                     value={element[1]}
-                    onChange={onElementLatitudeChange} />
+                    onChange={(event) => onElementLatitudeChange(event, index)} />
                 </FormControl>
                 <FormControl fullWidth>
                 <InputLabel htmlFor={longitudeId}>Longitude</InputLabel>
@@ -243,9 +234,9 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
                   placeholder="Enter value between -180 to 180" 
                   name="Longitude"
                   value={element[0]}
-                  onChange={onElementLongitudeChange} />
+                  onChange={(event) => onElementLongitudeChange(event, index)} />
                 </FormControl>
-                <Button variant="contained" color="secondary" onClick={handleDeleteNode} fullWidth id={deleteBtnId}>
+                <Button variant="contained" color="secondary" onClick={() => handleDeleteNode(index)} fullWidth id={deleteBtnId}>
                   Delete Node {index + 1}
                 </Button>
               </form>
