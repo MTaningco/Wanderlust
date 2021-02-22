@@ -79,11 +79,11 @@ function Dashboard() {
     coordinates: [0, 0],
     isVisible: false
   });
-  const [tempPath, setTempPath] = useState([{
+  const [newPath, setNewPath] = useState({
     type: "LineString", 
     coordinates: [],
     isAirPlane: true
-  }]);
+  });
   const [newLandmark, setNewLandmark] = useState({
     coordinates: [0, 0],
     isVisible: false
@@ -281,28 +281,6 @@ function Dashboard() {
   };
 
   /**
-   * Handles a new path called by the NewPathTab.
-   * @param {*} newPath - the new temp path to compare against the previous state
-   */
-  const newPathHandler = (newPath) => {
-    let isSameLength = newPath[0].coordinates.length === tempPath[0].coordinates.length;
-    let isAirPlaneSame = newPath[0].isAirPlane === tempPath[0].isAirPlane;
-    let isCoordinatesSame = true;
-    if(isSameLength){
-      for(var i = 0; i < newPath[0].coordinates.length; i++){
-        if(newPath[0].coordinates[i][0] !== tempPath[0].coordinates[i][0] || newPath[0].coordinates[i][1] !== tempPath[0].coordinates[i][1]){
-          isCoordinatesSame = false;
-          break;
-        }
-      }
-    }
-    
-    if(!isSameLength || !isAirPlaneSame || !isCoordinatesSame){
-      setTempPath(newPath);
-    }
-  };
-
-  /**
    * Handles clicking the account items.
    * @param {*} index - the index that was selected
    */
@@ -333,14 +311,14 @@ function Dashboard() {
   }
 
   const createLandmark = (landmark) => {
-    setLandmarks(prevArray => {
-      var newArray = [...prevArray, landmark];
-      return newArray.sort(sortLandmarks);
-    });
     setNewLandmark(prevVal => {
       const prevValCopy = {...prevVal}
       prevValCopy.isVisible = false;
       return prevValCopy
+    });
+    setLandmarks(prevArray => {
+      var newArray = [...prevArray, landmark];
+      return newArray.sort(sortLandmarks);
     });
   }
 
@@ -368,6 +346,22 @@ function Dashboard() {
     else{
       setEditLandmark({coordinates: coordinates, isVisible: true});
     }
+  }
+
+  const createPath = (path) => {
+    setNewPath(prevVal => {
+      const prevValCopy = {...prevVal};
+      prevValCopy.coordinates = []
+      return prevValCopy;
+    });
+    setPaths(prevArray => {
+      var newArray = [...prevArray, path];
+      return newArray.sort(sortPaths);
+    });
+  }
+
+  const updateNewPath = (path) => {
+    setNewPath(path);
   }
 
  // Use effect hook.
@@ -415,7 +409,7 @@ function Dashboard() {
               landmarks={landmarks} 
               landmarkHandler={currentLandmarkHandler} 
               size={getMinDimension()*0.98} 
-              tempPath={tempPath}
+              newPath={newPath}
               newLandmark={newLandmark}
               currentLandmark={currentLandmark}
               editLandmark={editLandmark}
@@ -439,19 +433,20 @@ function Dashboard() {
                 index={1} 
                 drawerValue={drawerValue}
                 invalidateAuth={invalidateAuth}
-                landmarks={landmarks}
-                setPaths={setPaths}
-                newPathHandler={newPathHandler}
-                updateLandmark={updateLandmark}  
-                deleteLandmark={deleteLandmark} 
                 toInformationTab={toInformationTab}
+                landmarks={landmarks}
                 paths={paths}
-                setEditPath={setEditPath}
                 editPath={editPath}
+                setPaths={setPaths}
+                setEditPath={setEditPath}
                 deletePath={deletePath}
                 createLandmark={createLandmark}
                 updateNewLandmark={updateNewLandmark}
-                updateEditLandmark={updateEditLandmark}/>
+                updateLandmark={updateLandmark}  
+                deleteLandmark={deleteLandmark} 
+                updateEditLandmark={updateEditLandmark}
+                updateNewPath={updateNewPath}
+                createPath={createPath}/>
             </Paper>
           </Grid>
         </Grid>

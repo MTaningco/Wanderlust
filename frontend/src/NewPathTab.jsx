@@ -10,7 +10,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import CommuteIcon from '@material-ui/icons/Commute';
 
-function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
+function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
 
   //NewPathTab states
   const [nodes, setNodes] = useState([]);
@@ -31,30 +31,6 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
    */
   const handleNewNode = () => {
     setNodes(prevArray => [...prevArray, ["", ""]]);
-  }
-
-  /**
-   * Returns the sort order that two paths should be in.
-   * @param {*} a - the first path argument
-   * @param {*} b - the second path argument
-   */
-  const sortPaths = (a, b) => { 
-    if(a["path_name"] === null && b["path_name"] === null){
-      return 0;
-    }
-    else if(a["path_name"] === null){
-      return 1;
-    }
-    else if(b["path_name"] === null){
-      return -1;
-    }
-    else if(a["path_name"].toLowerCase() > b["path_name"].toLowerCase()){
-      return 1;
-    }
-    else if(a["path_name"].toLowerCase() < b["path_name"].toLowerCase()){
-      return -1;
-    }
-    return 0;  
   }
 
   /**
@@ -87,27 +63,17 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
       })
       .then(res => res.json())
       .then(res => {
-        let newPath = {
-          type: "LineString", 
-          coordinates: [...nodes], 
-          id:`path_${res.path_uid}`,
-          path_uid: res.path_uid,
-          isAirPlane: isAirplane,
-          path_name: name
-        };
-  
         setNodes([]);
         setName("");
         setTimeout(() => {
           setIsProcessing(false);
-          setTempPath([{
-            type: "LineString",
-            coordinates: [],
-            isAirPlane: isAirplane
-          }]);
-          setPaths(prevArray => {
-            var newArray = [...prevArray, newPath];
-            return newArray.sort(sortPaths);
+          createPath({
+            type: "LineString", 
+            coordinates: [...nodes], 
+            id:`path_${res.path_uid}`,
+            path_uid: res.path_uid,
+            isAirPlane: isAirplane,
+            path_name: name
           });
         }, 500);
       })
@@ -149,11 +115,9 @@ function NewPathTab({setPaths, value, index, setTempPath, invalidateAuth}) {
       var lat = node[1];
       var long = node[0];
 
-      if(lat !== "" && long !== ""){
-        newTempPath.coordinates.push(node);
-      }
+      newTempPath.coordinates.push([long !== "" ? long : 0, lat !== "" ? lat : 0])
     }
-    setTempPath([newTempPath]);
+    updateNewPath(newTempPath);
   };
 
   /**

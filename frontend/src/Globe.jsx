@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
 
 const QUARTER_DIAMETER = 12742/4.0;
 
-function Globe({size, paths, landmarks, landmarkHandler, tempPath, newLandmark, currentLandmark, editLandmark, subSolarCoordinates, editPath}) {
+function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, currentLandmark, editLandmark, subSolarCoordinates, editPath}) {
     
     const classes = useStyles();
     
@@ -610,12 +610,13 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, newLandmark, 
         //     coordinates: [],
         //     isAirPlane: true
         //   }
-        // console.log(tempPath);
+        // console.log(newPath);
+        console.log(newPath)
         svg
-            .selectAll(".tempPath")
-            .data(tempPath)
+            .selectAll(".newPath")
+            .data([newPath])
             .join("path")
-            .attr("class", "tempPath")
+            .attr("class", "newPath")
             // .transition()
             .attr("fill-opacity","0")
             .attr("stroke", feature => feature.isAirPlane ? "red" : "red")
@@ -816,7 +817,7 @@ function Globe({size, paths, landmarks, landmarkHandler, tempPath, newLandmark, 
             console.log("new path");
             renderExternalUpdate("Rendering new path...", true);
         }
-    }, [tempPath])
+    }, [newPath])
 
     useEffect(() => {
         if(!isInitialLoad){
