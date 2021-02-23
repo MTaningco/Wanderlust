@@ -271,13 +271,12 @@ function Dashboard() {
   const deletePath = (index) => {
     let pathsCopy = [...paths];
     pathsCopy.splice(index, 1);
+    setEditPath(prevVal => {
+      const prevValCopy = {...prevVal};
+      prevValCopy.coordinates = [];
+      return prevValCopy;
+    });
     setPaths(pathsCopy);
-    var editPath = [{
-      type: "LineString",
-      coordinates: [],
-      isAirPlane: false
-    }];
-    setEditPath(editPath);
   };
 
   /**
@@ -364,6 +363,33 @@ function Dashboard() {
     setNewPath(path);
   }
 
+  const updatePath = (path, index) => {
+    setEditPath(prevValue => {
+      var prevValueCopy = {...prevValue};
+      prevValueCopy.coordinates = [];
+      return prevValueCopy;
+    });
+    setPaths(prevArray => {
+      var prevArrayCopy = [...prevArray];
+      var pathCopy = {...prevArrayCopy[index]};
+      pathCopy.isAirPlane = path.isAirPlane;
+      pathCopy.path_name = path.path_name;
+      pathCopy.coordinates = path.coordinates;
+      prevArrayCopy[index] = pathCopy;
+      prevArrayCopy.sort(sortPaths);
+      return prevArrayCopy;
+    });
+  };
+
+  const updateEditPath = (coordinates, isAirPlane) => {
+    setEditPath(prevVal => {
+      const prevValCopy = {...prevVal};
+      prevValCopy.coordinates = coordinates;
+      prevValCopy.isAirPlane = isAirPlane;
+      return prevValCopy;
+    });
+  };
+
  // Use effect hook.
   useEffect(() => {
     getUserLandmarks();
@@ -436,9 +462,6 @@ function Dashboard() {
                 toInformationTab={toInformationTab}
                 landmarks={landmarks}
                 paths={paths}
-                editPath={editPath}
-                setPaths={setPaths}
-                setEditPath={setEditPath}
                 deletePath={deletePath}
                 createLandmark={createLandmark}
                 updateNewLandmark={updateNewLandmark}
@@ -446,7 +469,9 @@ function Dashboard() {
                 deleteLandmark={deleteLandmark} 
                 updateEditLandmark={updateEditLandmark}
                 updateNewPath={updateNewPath}
-                createPath={createPath}/>
+                createPath={createPath}
+                updatePath={updatePath}
+                updateEditPath={updateEditPath}/>
             </Paper>
           </Grid>
         </Grid>

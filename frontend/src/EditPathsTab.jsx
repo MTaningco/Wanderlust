@@ -11,7 +11,7 @@ import Switch from '@material-ui/core/Switch';
 import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import CommuteIcon from '@material-ui/icons/Commute';
 
-function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPath, deletePath, setPaths}) {
+function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePath, updateEditPath}) {
 
   //States
   const [isEdit, setIsEdit] = useState(false);
@@ -19,26 +19,28 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
   const [editName, setEditName] = useState("");
   const [editId, setEditId] = useState(-1);
   const [editIndex, setEditIndex] = useState(-1);
+  const [nodes, setNodes] = useState([]);
+  const [isAirPlane, setIsAirPlane] = useState(false);
 
   /**
    * Handles a latitude field being changed.
    * @param {*} event - the text event 
    */
   const onElementLatitudeChange = (event, index) => {
-    setEditPath(prevValue => {
-      var currentEditPathCopy = {...prevValue};
-      var coordinatesCopy = [...currentEditPathCopy.coordinates];
-      var coordinateCopy = [...coordinatesCopy[index]];
-      if(Math.abs(parseFloat(event.target.value)) <= 90){
-        coordinateCopy[1] = parseFloat(event.target.value);
-      }
-      else if(event.target.value === ""){
-        coordinateCopy[1] = "";
-      }
-      coordinatesCopy[index] = coordinateCopy;
-      currentEditPathCopy.coordinates = coordinatesCopy;
-      return currentEditPathCopy;
-    });
+    var newElements = [...nodes];
+    let item = {...newElements[index]};
+
+    if(Math.abs(parseFloat(event.target.value)) <= 90){
+      item[1] = parseFloat(event.target.value);
+    }
+    else if(event.target.value === ""){
+      item[1] = event.target.value;
+    }
+    
+    newElements[index] = item;
+
+    setNodes(newElements);
+    updateEditPath(newElements, isAirPlane);
   };
 
   /**
@@ -46,20 +48,20 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
    * @param {*} event - the text event
    */
   const onElementLongitudeChange = (event, index) => {
-    setEditPath(prevValue => {
-      var currentEditPathCopy = {...prevValue};
-      var coordinatesCopy = [...currentEditPathCopy.coordinates];
-      var coordinateCopy = [...coordinatesCopy[index]];
-      if(Math.abs(parseFloat(event.target.value)) <= 180){
-        coordinateCopy[0] = parseFloat(event.target.value);
-      }
-      else if(event.target.value === ""){
-        coordinateCopy[0] = "";
-      }
-      coordinatesCopy[index] = coordinateCopy;
-      currentEditPathCopy.coordinates = coordinatesCopy;
-      return currentEditPathCopy;
-    });
+    var newElements = [...nodes];
+    let item = {...newElements[index]};
+
+    if(Math.abs(parseFloat(event.target.value)) <= 180){
+      item[0] = parseFloat(event.target.value);
+    }
+    else if(event.target.value === ""){
+      item[0] = event.target.value;
+    }
+
+    newElements[index] = item;
+    
+    setNodes(newElements);
+    updateEditPath(newElements, isAirPlane);
   };
 
   /**
@@ -67,13 +69,10 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
    * @param {*} event - the button event
    */
   const handleDeleteNode = (event, index) => {
-    setEditPath(prevValue => {
-      var currentEditPathCopy = {...prevValue};
-      var coordinatesCopy = [...currentEditPathCopy.coordinates];
-      coordinatesCopy.splice(index, 1);
-      currentEditPathCopy.coordinates = coordinatesCopy;
-      return currentEditPathCopy;
-    });
+    var newNodes = [...nodes];
+    newNodes.splice(index, 1);
+    setNodes(newNodes);
+    updateEditPath(newNodes, isAirPlane);
   };
 
   /**
@@ -89,55 +88,28 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
    * @param {*} event - the switch event
    */
   const handleSwitchChange = (event) => {
-    setEditPath(prevValue => {
-      var prevValueCopy = {...prevValue};
-      prevValueCopy.isAirPlane = event.target.checked;
-      return prevValueCopy;
-    });
+    setIsAirPlane(event.target.checked);
+    updateEditPath(nodes, event.target.checked);
   };
-
-  /**
-   * Returns the sort order that paths should be.
-   * @param {*} a - the first path argument
-   * @param {*} b - the second path argument
-   */
-  const sortPaths = (a, b) => { 
-    if(a["path_name"] === null && b["path_name"] === null){
-      return 0;
-    }
-    else if(a["path_name"] === null){
-      return 1;
-    }
-    else if(b["path_name"] === null){
-      return -1;
-    }
-    else if(a["path_name"].toLowerCase() > b["path_name"].toLowerCase()){
-      return 1;
-    }
-    else if(a["path_name"].toLowerCase() < b["path_name"].toLowerCase()){
-      return -1;
-    }
-    return 0;  
-  }
 
   /**
    * Handles editing the landmark.
    */
   const handleEditPath = () => {
     var isNodesPopulated = true;
-    for(var i = 0; i < editPath.coordinates.length; i++){
-      if(editPath.coordinates[0] === "" || editPath.coordinates[1] === ""){
+    for(var i = 0; i < nodes.length; i++){
+      if(nodes[i][0] === "" || nodes[i][1] === ""){
         isNodesPopulated = false;
         break;
       }
     }
-    if(isNodesPopulated && editPath.coordinates.length >= 2){
+    if(isNodesPopulated && nodes.length >= 2){
       setIsProcessing(true);
       const body = {
         path_uid: editId,
         path_name: editName,
-        coordinates: editPath.coordinates,
-        is_airplane: editPath.isAirPlane
+        coordinates: nodes,
+        is_airplane: isAirPlane
       };
       
       fetch(`/paths`, {
@@ -156,21 +128,11 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
           setEditName("");
           setEditId(-1);
           setEditIndex(-1);
-          setEditPath(prevValue => {
-            var prevValueCopy = {...prevValue};
-            prevValueCopy.coordinates = [];
-            return prevValueCopy;
-          });
-          setPaths(prevArray => {
-            var prevArrayCopy = [...prevArray];
-            var pathCopy = {...prevArrayCopy[editIndex]};
-            pathCopy.isAirPlane = editPath.isAirPlane;
-            pathCopy.path_name = editName;
-            pathCopy.coordinates = editPath.coordinates;
-            prevArrayCopy[editIndex] = pathCopy;
-            prevArrayCopy.sort(sortPaths);
-            return prevArrayCopy;
-          });
+          updatePath({
+            coordinates: nodes,
+            isAirPlane: isAirPlane,
+            path_name: editName
+          }, editIndex);
         }, 500);
       })
       .catch(err => invalidateAuth());
@@ -187,23 +149,14 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
     setIsEdit(false);
     setEditId(-1);
     setEditIndex(-1);
-    setEditPath(prevVal => {
-      const prevValCopy = {...prevVal};
-      prevValCopy.coordinates = [];
-      return prevValCopy;
-    });
+    updateEditPath([], isAirPlane);
   };
 
   /**
    * Handles creating a new node.
    */
   const handleNewNode = () => {
-    setEditPath(prevValue => {
-      var prevValCopy = {...prevValue};
-      var coordinatesCopy = [...prevValCopy.coordinates, ["",""]];
-      prevValCopy.coordinates = coordinatesCopy;
-      return prevValCopy;
-    });
+    setNodes(prevVal => [...prevVal, ["", ""]]);
   }
 
   /**
@@ -218,7 +171,9 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
     setEditName(path.path_name);
     setEditId(path.path_uid);
     setEditIndex(index);
-    setEditPath(path);
+    setNodes(path.coordinates);
+    setIsAirPlane(path.isAirPlane);
+    updateEditPath(path.coordinates, path.isAirPlane);
   };
 
   /**
@@ -236,7 +191,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
       setIsProcessing(true);
       
       const body = {
-        path_uid: editId
+        path_uid: path.path_uid
       };
       fetch(`/paths`, {
         method: "DELETE",
@@ -263,13 +218,13 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
    * Gets the edit path content.
    */
   const getEditPathContent = () => {
-    console.log(paths);
+    // console.log(paths);
     return (
       <form>
         <FormControlLabel
           control={
             <Switch 
-              checked={editPath.isAirPlane} 
+              checked={isAirPlane} 
               onChange={handleSwitchChange} 
               name="checkedA" 
               checkedIcon={<AirplanemodeActiveIcon/>}
@@ -285,7 +240,7 @@ function EditPathsTab({value, index, invalidateAuth, setEditPath, paths, editPat
             onChange={handleNameChange}
             fullWidth/>
         {
-          editPath.coordinates.map((element, index) => {
+          nodes.map((element, index) => {
             var latId = `nodeLatitude1_${index}`;
             var longitudeId = `nodeLongitude_${index}`;
             var deleteBtnId = `deleteBtn_${index}`;
