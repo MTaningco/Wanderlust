@@ -6,6 +6,12 @@ dotenv.config();
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'default';
 
+/**
+ * Gets all landmarks of a user.
+ * @param {*} req - the request body, containing the token
+ * @param {*} res - the result body, containing the returned landmarks
+ * @param {*} next - the next function to execute
+ */
 exports.getAllLandmarks = function(req, res, next){
   jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
     if(err){
@@ -19,6 +25,12 @@ exports.getAllLandmarks = function(req, res, next){
   });
 }; 
 
+/**
+ * Updates a landmark.
+ * @param {*} req - the request body, containing the token and updated landmark attributes
+ * @param {*} res - the result body, containing the returned landmark
+ * @param {*} next - the next function to execute
+ */
 exports.updateLandmark = function(req, res, next){
   jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
     if(err){
@@ -32,6 +44,12 @@ exports.updateLandmark = function(req, res, next){
   });
 }
 
+/**
+ * Deletes a landmark.
+ * @param {*} req - the request body, containing the token and unique landmark id
+ * @param {*} res - the result body, containing the returned landmark
+ * @param {*} next - the next function to execute
+ */
 exports.deleteLandmark = function(req, res, next){
   jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
     if(err){
@@ -46,6 +64,12 @@ exports.deleteLandmark = function(req, res, next){
   });
 }
 
+/**
+ * Creates a landmark.
+ * @param {*} req - the request body, containing the token and new landmark attributes
+ * @param {*} res - the result body, containing the returned landmark
+ * @param {*} next - the next function to execute
+ */
 exports.createLandmark = function(req, res, next){
   jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
     if(err){

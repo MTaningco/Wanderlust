@@ -3,14 +3,13 @@ var router = express.Router();
 var users = require('../controllers/users');
 var tokenHeader = require('../controllers/tokenHeader');
 
-//post to make a new account
-router.post('/create', users.createUser);
-
-//post to check if the account is properly authenticated
-router.post('/login', users.login);
-
+/* GET if a username exists */
 router.get('/exists', users.exists);
-
+/* POST a new user */
+router.post('/create', users.createUser);
+/* POST login credientials */
+router.post('/login', users.login);
+/* POST if a token is valid */
 router.post('/checkToken', tokenHeader.verifyToken, users.verify);
 
 module.exports = router;
