@@ -1,6 +1,15 @@
 var pool = require('./db');
 
 var Landmarks = {
+  /**
+   * Creates a new landmark.
+   * @param {number} userUID - the unique id of the user
+   * @param {string} landmarkName - the name for the new landmark
+   * @param {string} landmarkDescription - the description for the new landmark
+   * @param {number} latitude - the latitude for the new landmark
+   * @param {number} longitude - the longitude for the new landmark
+   * @param {*} callback - the callback function that processes the new landmark
+   */
   create : async function(userUID, landmarkName, landmarkDescription, latitude, longitude, callback){
     const queryResult = await pool.query(`
       insert into Landmarks(user_uid, landmark_name, landmark_description, longitude, latitude) 
@@ -10,6 +19,16 @@ var Landmarks = {
     callback(queryResult.rows[0]);
   },
 
+  /**
+   * Updates the landmark.
+   * @param {number} userUID - the unique id of the user
+   * @param {number} landmarkUID - the unique id of the landmark
+   * @param {string} landmarkName - the name for the updated landmark
+   * @param {string} landmarkDescription - the description for the updated landmark
+   * @param {number} latitude - the latitude for the updated landmark
+   * @param {number} longitude - the longitude for the updated landmark
+   * @param {*} callback - the callback function that processes the udpated landmark
+   */
   update : async function(userUID, landmarkUID, landmarkName, landmarkDescription, latitude, longitude, callback){
     const queryResult = await pool.query(`
       update Landmarks
@@ -20,6 +39,12 @@ var Landmarks = {
     callback(queryResult.rows[0]);
   },
 
+  /**
+   * Deletes the landmark.
+   * @param {number} userUID - the unique id of the user
+   * @param {number} landmarkUID - the unique id of the landmark
+   * @param {*} callback - the callback function that processes the deleted landmark
+   */
   delete : async function(userUID, landmarkUID, callback){
     const queryResult = await pool.query(`
       delete from Landmarks
@@ -29,6 +54,11 @@ var Landmarks = {
     callback(queryResult.rows[0]);
   },
 
+  /**
+   * Gets all landmarks of a user.
+   * @param {number} userUID - the unique id of the user
+   * @param {*} callback - the callback function that processes the landmarks
+   */
   getAll : async function(userUID, callback){
     const allLandmarks = await pool.query(`
       select landmark_uid, landmark_name, landmark_description, longitude, latitude 

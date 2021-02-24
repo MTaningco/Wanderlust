@@ -6,6 +6,12 @@ dotenv.config();
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'default';
 
+/**
+ * Gets all paths of a user.
+ * @param {*} req - the request body, containing the token
+ * @param {*} res - the result body, containing the returned paths
+ * @param {*} next - the next function to execute
+ */
 exports.getAllPaths = function(req, res, next){
   jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
     if(err){
@@ -19,6 +25,12 @@ exports.getAllPaths = function(req, res, next){
   });
 }; 
 
+/**
+ * Creates a path.
+ * @param {*} req - the request body, containing the token and new path attributes
+ * @param {*} res - the result body, containing the returned path
+ * @param {*} next - the next function to execute
+ */
 exports.createPath = function(req, res, next){
   jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
     if(err){
@@ -32,6 +44,12 @@ exports.createPath = function(req, res, next){
   });
 }
 
+/**
+ * Deletes a path.
+ * @param {*} req - the request body, containing the token and unique path id
+ * @param {*} res - the result body, containing the returned path
+ * @param {*} next - the next function to execute
+ */
 exports.deletePath = function(req, res, next){
   jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
     if(err){
@@ -45,6 +63,12 @@ exports.deletePath = function(req, res, next){
   });
 }
 
+/**
+ * Updates a path.
+ * @param {*} req - the request body, containing the token and updated path attributes
+ * @param {*} res - the result body, containing the returned path
+ * @param {*} next - the next function to execute
+ */
 exports.updatePath = function(req, res, next){
   jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
     if(err){

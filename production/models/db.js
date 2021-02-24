@@ -17,6 +17,7 @@ const devConfig = {
   database: DB_NAME 
 };
 
+//Heroku Configuration
 const prodConfig = {
   connectionString : process.env.DATABASE_URL || 'default'
 }

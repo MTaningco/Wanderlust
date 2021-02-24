@@ -4,6 +4,13 @@ var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 var Users = {
+  /**
+   * Creates a user.
+   * @param {*} email - the email of the new user
+   * @param {*} password - the password of the new user
+   * @param {*} username - the username of the new user
+   * @param {*} callback - the callback function that processes the new user
+   */
   createUser : async function(email, password, username, callback){
     // Hash the email
     bcrypt.hash(email, saltRounds, async function(err, hashedEmail) {
@@ -24,6 +31,12 @@ var Users = {
     });
   },
 
+  /**
+   * Gets a user based on credentials.
+   * @param {*} username - the username of the user
+   * @param {*} password - the password of the user
+   * @param {*} callback - the callback function that processes the result
+   */
   getUser : async function(username, password, callback){
     const dbPassword = await pool.query(`
       select user_uid, username, password 
@@ -41,6 +54,11 @@ var Users = {
     }
   },
 
+  /**
+   * Checks if a username exists.
+   * @param {*} username - the username to check
+   * @param {*} callback - the callback function that processes the result
+   */
   exists : async function(username, callback){
     // console.log(username);
     const dbPassword = await pool.query(`
