@@ -120,7 +120,7 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
         placeholder="Enter value between -90 to 90" 
         name="Latitude"
         value={landmarkLatitude}
-        onChange={handleLatitudeChange} />
+        onChange={handleLatitudeChange}/>
       </FormControl>
       <br/>
       <FormControl fullWidth>
@@ -131,7 +131,7 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
         placeholder="Enter value between -180 to 180" 
         name="Longitude"
         value={landmarkLongitude}
-        onChange={handleLongitudeChange} />
+        onChange={handleLongitudeChange}/>
       </FormControl>
       <br/>
       <TextField 

@@ -19,15 +19,16 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
   const [editName, setEditName] = useState("");
   const [editId, setEditId] = useState(-1);
   const [editIndex, setEditIndex] = useState(-1);
-  const [nodes, setNodes] = useState([]);
+  const [coordinates, setCoordinates] = useState([]);
   const [isAirPlane, setIsAirPlane] = useState(false);
 
   /**
    * Handles a latitude field being changed.
    * @param {*} event - the text event 
+   * @param {number} index - the index of the node
    */
   const onElementLatitudeChange = (event, index) => {
-    var newElements = [...nodes];
+    var newElements = [...coordinates];
     let item = {...newElements[index]};
 
     if(Math.abs(parseFloat(event.target.value)) <= 90){
@@ -39,16 +40,17 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
     
     newElements[index] = item;
 
-    setNodes(newElements);
+    setCoordinates(newElements);
     updateEditPath(newElements, isAirPlane);
   };
 
   /**
    * Handles a longitude field being changed.
    * @param {*} event - the text event
+   * @param {number} index - the index of the node
    */
   const onElementLongitudeChange = (event, index) => {
-    var newElements = [...nodes];
+    var newElements = [...coordinates];
     let item = {...newElements[index]};
 
     if(Math.abs(parseFloat(event.target.value)) <= 180){
@@ -60,18 +62,18 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
 
     newElements[index] = item;
     
-    setNodes(newElements);
+    setCoordinates(newElements);
     updateEditPath(newElements, isAirPlane);
   };
 
   /**
    * Handles deleting a node.
-   * @param {*} event - the button event
+   * @param {*} index - the index of the node
    */
-  const handleDeleteNode = (event, index) => {
-    var newNodes = [...nodes];
+  const handleDeleteNode = (index) => {
+    var newNodes = [...coordinates];
     newNodes.splice(index, 1);
-    setNodes(newNodes);
+    setCoordinates(newNodes);
     updateEditPath(newNodes, isAirPlane);
   };
 
@@ -89,7 +91,7 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
    */
   const handleSwitchChange = (event) => {
     setIsAirPlane(event.target.checked);
-    updateEditPath(nodes, event.target.checked);
+    updateEditPath(coordinates, event.target.checked);
   };
 
   /**
@@ -97,18 +99,18 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
    */
   const handleEditPath = () => {
     var isNodesPopulated = true;
-    for(var i = 0; i < nodes.length; i++){
-      if(nodes[i][0] === "" || nodes[i][1] === ""){
+    for(var i = 0; i < coordinates.length; i++){
+      if(coordinates[i][0] === "" || coordinates[i][1] === ""){
         isNodesPopulated = false;
         break;
       }
     }
-    if(isNodesPopulated && nodes.length >= 2){
+    if(isNodesPopulated && coordinates.length >= 2){
       setIsProcessing(true);
       const body = {
         path_uid: editId,
         path_name: editName,
-        coordinates: nodes,
+        coordinates: coordinates,
         is_airplane: isAirPlane
       };
       
@@ -129,7 +131,7 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
           setEditId(-1);
           setEditIndex(-1);
           updatePath({
-            coordinates: nodes,
+            coordinates: coordinates,
             isAirPlane: isAirPlane,
             path_name: editName
           }, editIndex);
@@ -156,12 +158,13 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
    * Handles creating a new node.
    */
   const handleNewNode = () => {
-    setNodes(prevVal => [...prevVal, ["", ""]]);
+    setCoordinates(prevVal => [...prevVal, ["", ""]]);
   }
 
   /**
    * Handles changing the mode to edit.
    * @param {*} path - the path to edit
+   * @param {number} index - the index of the path
    */
   const handleEditPathMode = (path, index) => {
     if(isProcessing){
@@ -171,13 +174,15 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
     setEditName(path.path_name);
     setEditId(path.path_uid);
     setEditIndex(index);
-    setNodes(path.coordinates);
+    setCoordinates(path.coordinates);
     setIsAirPlane(path.isAirPlane);
     updateEditPath(path.coordinates, path.isAirPlane);
   };
 
   /**
    * Handles deleting the landmark.
+   * @param {*} path - the path to delete
+   * @param {number} index - the index of the path
    */
   const handleDeletePath = (path, index) => {
     if(isProcessing){
@@ -233,14 +238,14 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
           }
           label="Travel Type"/>
         <TextField 
-            id="standard-basic" 
-            label="Path Name" 
-            placeholder="e.g. LAX - HKG or California Trip 1" 
-            value={editName}
-            onChange={handleNameChange}
-            fullWidth/>
+          id="standard-basic" 
+          label="Path Name" 
+          placeholder="e.g. LAX - HKG or California Trip 1" 
+          value={editName}
+          onChange={handleNameChange}
+          fullWidth/>
         {
-          nodes.map((element, index) => {
+          coordinates.map((element, index) => {
             var latId = `nodeLatitude1_${index}`;
             var longitudeId = `nodeLongitude_${index}`;
             var deleteBtnId = `deleteBtn_${index}`;
@@ -267,7 +272,7 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
                     value={element[0]}
                     onChange={(event) => onElementLongitudeChange(event, index)} />
                 </FormControl>
-                <Button variant="contained" color="secondary" onClick={(event) => handleDeleteNode(event, index)} fullWidth id={deleteBtnId}>
+                <Button variant="contained" color="secondary" onClick={() => handleDeleteNode(index)} fullWidth id={deleteBtnId}>
                   Delete Node {index + 1}
                 </Button>
               </Paper>
@@ -280,13 +285,13 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
         </Button>
 
         <Button variant="contained" color="primary" onClick={handleEditPath}>
-            {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
-            {!isProcessing && 'Finish Edit'}
+          {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
+          {!isProcessing && 'Finish Edit'}
         </Button>
         
         <Button variant="contained" color="secondary" onClick={handleCancelEdit}>
-            {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
-            {!isProcessing && 'Cancel Edit'}
+          {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
+          {!isProcessing && 'Cancel Edit'}
         </Button>
     </form>
     );

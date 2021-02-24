@@ -27,10 +27,10 @@ const useStyles = makeStyles((theme) => ({
     width: '100%'
   },
   link: {
-      color: "#7096ff", 
-      textDecoration: "none", 
-      fontSize: "17px", 
-      fontWeight: "bold"
+    color: "#7096ff", 
+    textDecoration: "none", 
+    fontSize: "17px", 
+    fontWeight: "bold"
   },
   checkIcon: {
     color: "green"
@@ -99,15 +99,15 @@ function SignUp() {
    */
   const strengthMagnitude = count => {
     if (count < 2)
-       return 'Very Weak';
+      return 'Very Weak';
     if (count < 3)
-       return 'Weak';
+      return 'Weak';
     if (count < 4)
-       return 'Fair';
+      return 'Fair';
     if (count < 5)
-       return 'Good';
+      return 'Good';
     if (count < 6)
-       return 'Strong';
+      return 'Strong';
   }
 
   /**
@@ -117,15 +117,15 @@ function SignUp() {
   const strengthIndicator = value => {
     let strengths = 0;
     if (value.length > 5)
-       strengths++;
+      strengths++;
     if (value.length > 7)
-       strengths++;
+      strengths++;
     if (hasNumber(value))
-       strengths++;
+      strengths++;
     if (hasSpecial(value))
-       strengths++;
+      strengths++;
     if (hasMixed(value))
-       strengths++;
+      strengths++;
     return strengthMagnitude(strengths);
   }
 
@@ -256,8 +256,7 @@ function SignUp() {
             autoFocus
             value={email}
             onChange={handleEmailChange}
-            className={classes.textField}
-          />
+            className={classes.textField}/>
           <br/>
           <br/>
           <TextField
@@ -270,8 +269,7 @@ function SignUp() {
             autoComplete="username"
             value={username}
             onChange={handleUsernameChange}
-            className={classes.textField}
-          />
+            className={classes.textField}/>
           <br/>
           <Typography className={classes.hint}>
             Username Status: {isUsernameTaken ? "Taken" : "Available"}
@@ -288,8 +286,7 @@ function SignUp() {
             autoComplete="current-password"
             value={password}
             onChange={handlePasswordChange}
-            className={classes.textField}
-          />
+            className={classes.textField}/>
           <br/>
           <Typography className={classes.hint}>
             Password Strength: {strengthIndicator(password)}
@@ -297,13 +294,11 @@ function SignUp() {
           </Typography>
           <br/>
           <Button
-            // type="submit"
             fullWidth
             variant="contained"
             color="primary"
             onClick={handleSignUp}
-            className={classes.textField}
-          >
+            className={classes.textField}>
             Sign Up
           </Button>
         </form>

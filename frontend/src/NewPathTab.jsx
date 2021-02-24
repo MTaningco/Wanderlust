@@ -13,7 +13,7 @@ import CommuteIcon from '@material-ui/icons/Commute';
 function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
 
   //NewPathTab states
-  const [nodes, setNodes] = useState([]);
+  const [coordinates, setCoordinates] = useState([]);
   const [isAirplane, setIsAirplane] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [name, setName] = useState("");
@@ -30,7 +30,7 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
    * Handles creating a new node.
    */
   const handleNewNode = () => {
-    setNodes(prevArray => [...prevArray, ["", ""]]);
+    setCoordinates(prevArray => [...prevArray, ["", ""]]);
   }
 
   /**
@@ -39,16 +39,16 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
   const handleNewPath = () => {
     var isNodesPopulated = true;
 
-    for(var i = 0; i < nodes.length; i++){
-      if(nodes[i][0] === "" || nodes[i][1] === ""){
+    for(var i = 0; i < coordinates.length; i++){
+      if(coordinates[i][0] === "" || coordinates[i][1] === ""){
         isNodesPopulated = false;
       }
     }
     
-    if(isNodesPopulated && nodes.length >= 2){
+    if(isNodesPopulated && coordinates.length >= 2){
       setIsProcessing(true);
       const body = {
-        coordinates: [...nodes], 
+        coordinates: [...coordinates], 
         isAirPlane: isAirplane,
         path_name: name
       }
@@ -63,13 +63,13 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
       })
       .then(res => res.json())
       .then(res => {
-        setNodes([]);
+        setCoordinates([]);
         setName("");
         setTimeout(() => {
           setIsProcessing(false);
           createPath({
             type: "LineString", 
-            coordinates: [...nodes], 
+            coordinates: [...coordinates], 
             id:`path_${res.path_uid}`,
             path_uid: res.path_uid,
             isAirPlane: isAirplane,
@@ -83,19 +83,19 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
 
   /**
    * Handles deleting a node.
-   * @param {*} event - the button event
+   * @param {*} index - the index of the node to delete
    */
   const handleDeleteNode = (index) => {
-    var newNodes = [...nodes];
+    var newNodes = [...coordinates];
     newNodes.splice(index, 1);
 
-    setNodes(newNodes);
+    setCoordinates(newNodes);
     updateTempPath(newNodes);
   };
 
   /**
    * Updates the temporary path.
-   * @param {*} newElements - the nodes used to show the temporary path
+   * @param {*} newElements - the coordinates used to show the temporary path
    * @param {*} newIsAirplane - (optional) the boolean airplane state
    */
   const updateTempPath = (newElements, newIsAirplane) => {
@@ -120,9 +120,10 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
   /**
    * Handles a latitude field being changed.
    * @param {*} event - the text event 
+   * @param {number} index - the index of the latitude to change
    */
   const onElementLatitudeChange = (event, index) => {
-    var newElements = [...nodes];
+    var newElements = [...coordinates];
     let item = {...newElements[index]};
 
     if(Math.abs(parseFloat(event.target.value)) <= 90){
@@ -134,16 +135,17 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
     
     newElements[index] = item;
 
-    setNodes(newElements);
+    setCoordinates(newElements);
     updateTempPath(newElements);
   };
 
   /**
    * Handles a longitude field being changed.
    * @param {*} event - the text event
+   * @param {number} index - the index of the node
    */
   const onElementLongitudeChange = (event, index) => {
-    var newElements = [...nodes];
+    var newElements = [...coordinates];
     let item = {...newElements[index]};
 
     if(Math.abs(parseFloat(event.target.value)) <= 180){
@@ -155,7 +157,7 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
 
     newElements[index] = item;
     
-    setNodes(newElements);
+    setCoordinates(newElements);
     updateTempPath(newElements);
   };
 
@@ -165,14 +167,14 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
    */
   const handleSwitchChange = (event) => {
     setIsAirplane(event.target.checked);
-    updateTempPath(nodes, event.target.checked);
+    updateTempPath(coordinates, event.target.checked);
   };
 
   /**
    * Gets the view for the finish button.
    */
   const getFinishButton = () => {
-    if(nodes.length >= 2){
+    if(coordinates.length >= 2){
       return(
         <Button variant="contained" color="secondary" onClick={handleNewPath} fullWidth>
           {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
@@ -194,20 +196,19 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
             onChange={handleSwitchChange} 
             name="checkedA" 
             checkedIcon={<AirplanemodeActiveIcon/>}
-            icon={<CommuteIcon/>}
-          />
+            icon={<CommuteIcon/>}/>
         }
         label="Travel Type"/>
       <TextField 
-          id="standard-basic" 
-          label="Path Name" 
-          placeholder="e.g. LAX - HKG or California Trip 1" 
-          value={name}
-          onChange={handleNameChange}
-          fullWidth/>
+        id="standard-basic" 
+        label="Path Name" 
+        placeholder="e.g. LAX - HKG or California Trip 1" 
+        value={name}
+        onChange={handleNameChange}
+        fullWidth/>
       <Paper style={{maxHeight: "50vh", overflow: 'auto'}}>
         {
-          nodes.map((element, index) => {
+          coordinates.map((element, index) => {
             var latId = `nodeLatitude_${index}`;
             var longitudeId = `nodeLongitude_${index}`;
             var deleteBtnId = `deleteBtn_${index}`;

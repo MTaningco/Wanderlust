@@ -124,6 +124,7 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
   /**
    * Handles changing to the edit landmark mode.
    * @param {*} landmark - the landmark to edit
+   * @param {number} index - the index of the landmark 
    */
   const handleEditLandmarkMode = (landmark, index) => {
     setIsEdit(true);
@@ -138,6 +139,8 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
 
   /**
    * Handles deleting the landmark.
+   * @param {*} landmark - the landmark to delete
+   * @param {number} index - the index of the landmark
    */
   const handleDeleteLandmark = (landmark, index) => {
     let isConfirmed = window.confirm(`Are you sure you want to delete this landmark?\n\n${landmark.name}\nlongitude:${landmark.coordinates[0]}\nlatitude:${landmark.coordinates[1]}\n\n${landmark.description}`);

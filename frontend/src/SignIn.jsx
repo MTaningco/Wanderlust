@@ -11,10 +11,10 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
  */
 const useStyles = makeStyles((theme) => ({
   link: {
-      color: "#7096ff", 
-      textDecoration: "none", 
-      fontSize: "17px", 
-      fontWeight: "bold"
+    color: "#7096ff", 
+    textDecoration: "none", 
+    fontSize: "17px", 
+    fontWeight: "bold"
   },
 }));
 
@@ -128,8 +128,7 @@ function SignIn() {
                   autoComplete="username"
                   autoFocus
                   value={username}
-                  onChange={handleUsernameChange}
-                />
+                  onChange={handleUsernameChange}/>
                 <TextField
                   variant="outlined"
                   margin="normal"
@@ -141,8 +140,7 @@ function SignIn() {
                   id="password"
                   autoComplete="current-password"
                   value={password}
-                  onChange={handlePasswordChange}
-                />
+                  onChange={handlePasswordChange} />
                 <br/>
                 <br/>
                 <br/>
@@ -150,8 +148,7 @@ function SignIn() {
                   fullWidth
                   variant="contained"
                   color="primary"
-                  onClick={handleSignIn}
-                >
+                  onClick={handleSignIn}>
                   {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
                   {!isProcessing && 'Sign In'}
                 </Button>
@@ -160,7 +157,6 @@ function SignIn() {
               <Link to="/signUp" className={classes.link}>Don't have an account? Sign up</Link>
             </Grid>
           </Grid>
-          
         </div>
       );
     }

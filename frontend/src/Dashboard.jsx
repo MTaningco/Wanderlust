@@ -298,6 +298,11 @@ function Dashboard() {
     setTabValue(1);
   }
 
+  /**
+   * Handles changing the currentLandmark object.
+   * @param {boolean} isVisible - the boolean to check if the currentLandmark is visible
+   * @param {*} landmark - the landmark properties
+   */
   const currentLandmarkHandler = (isVisible, landmark) => {
     if(isVisible){
       setTabValue(0);
@@ -309,6 +314,10 @@ function Dashboard() {
     });
   }
 
+  /**
+   * Creates a new landmark into the landmarks object.
+   * @param {*} landmark - the landmark information
+   */
   const createLandmark = (landmark) => {
     setNewLandmark(prevVal => {
       const prevValCopy = {...prevVal}
@@ -321,6 +330,11 @@ function Dashboard() {
     });
   }
 
+  /**
+   * Updates the new landmark object.
+   * @param {*} isVisible - the boolean to check if the new landmark is visible
+   * @param {*} coordinates - the coordinates of the new landmark
+   */
   const updateNewLandmark = (isVisible, coordinates) => {
     if(!isVisible){
       setNewLandmark(prevVal => {
@@ -334,6 +348,11 @@ function Dashboard() {
     }
   }
 
+  /**
+   * Updates the edit landmark object.
+   * @param {*} isVisible - the boolean to check if the edit landmark is visible
+   * @param {*} coordinates - the coordinates of the edit landmark
+   */
   const updateEditLandmark = (isVisible, coordinates) => {
     if(!isVisible){
       setEditLandmark(prevVal => {
@@ -347,6 +366,10 @@ function Dashboard() {
     }
   }
 
+  /**
+   * Creates a new path into the paths object.
+   * @param {*} path - the path properties
+   */
   const createPath = (path) => {
     setNewPath(prevVal => {
       const prevValCopy = {...prevVal};
@@ -359,10 +382,19 @@ function Dashboard() {
     });
   }
 
+  /**
+   * Updates the new path object.
+   * @param {*} path - the path properties
+   */
   const updateNewPath = (path) => {
     setNewPath(path);
   }
 
+  /**
+   * Updates a path in the paths object.
+   * @param {*} path - the path properties
+   * @param {*} index - the index of the path object
+   */
   const updatePath = (path, index) => {
     setEditPath(prevValue => {
       var prevValueCopy = {...prevValue};
@@ -381,6 +413,11 @@ function Dashboard() {
     });
   };
 
+  /**
+   * Updates the editPath object.
+   * @param {*} coordinates - the coordinates of the editPath
+   * @param {*} isAirPlane - the boolean to check if the path is an airplane type
+   */
   const updateEditPath = (coordinates, isAirPlane) => {
     setEditPath(prevVal => {
       const prevValCopy = {...prevVal};
