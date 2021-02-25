@@ -163,6 +163,7 @@ function Dashboard() {
       setIsPathsLoaded(true);
     })
     .catch((error) => {
+      console.log(error);
       invalidateAuth();
     });
   };
@@ -197,6 +198,7 @@ function Dashboard() {
       setIsLandmarksLoaded(true);
     })
     .catch((error) => {
+      console.log(error);
       invalidateAuth();
     });
   };
@@ -285,6 +287,7 @@ function Dashboard() {
    */
   const onAccountMenuClicked = (index) => {
     if(index === 1){
+      console.log("user logged out themselves");
       invalidateAuth();
     }
   };

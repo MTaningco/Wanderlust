@@ -103,7 +103,10 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
           });
         }, 500);
       })
-      .catch(err => invalidateAuth());//TODO: check if processing needs to be set to false here
+      .catch((error) => {
+        console.log(error);
+        invalidateAuth();
+      });//TODO: check if processing needs to be set to false here
     }
   };
 

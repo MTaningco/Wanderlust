@@ -137,7 +137,10 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
           }, editIndex);
         }, 500);
       })
-      .catch(err => invalidateAuth());
+      .catch((error) => {
+        console.log(error);
+        invalidateAuth();
+      });
     }
     else{
       alert('A field is missing! Cannot update landmark.')
@@ -215,7 +218,10 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
           deletePath(index);
         }, 500);
       })
-      .catch(err => invalidateAuth());
+      .catch((error) => {
+        console.log(error);
+        invalidateAuth();
+      });
     }
   };
 
