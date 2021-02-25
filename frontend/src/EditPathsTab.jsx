@@ -1,6 +1,6 @@
 //Imports from libraries
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Input, Typography, CircularProgress, Paper, FormControl, InputLabel, TextField } from '@material-ui/core';
+import { Input, Typography, CircularProgress, Paper, FormControl, InputLabel, TextField, Grid } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -10,8 +10,79 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import CommuteIcon from '@material-ui/icons/Commute';
+import CloseIcon from '@material-ui/icons/Close';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import AddIcon from '@material-ui/icons/Add';
+
+/**
+ * Styles used for the component.
+ * @param  {*} theme - the theme of the application
+ */
+const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: "20px", 
+    maxHeight: "calc(100vh - 50px)", 
+    overflow: 'auto'
+  },
+  nodeElement: {
+    position: 'relative',
+    marginTop: "10px", 
+    marginBottom: "10px", 
+    paddingTop: "20px",
+    paddingBottom: "20px",
+    paddingLeft: "10px",
+    paddingRight:"10px",
+    backgroundColor: "#525252"
+  },
+  deleteButton: {
+    position: 'absolute',
+    right: '10px',
+    top: '10px',
+    color: "white",
+    '&:hover': {
+      color: "white",
+      backgroundColor: 'gray',
+      boxShadow: 'none',
+    }
+  },
+  iconText: {
+    marginRight: "10px",
+    marginLeft: "10px"
+  },
+  addNode: {
+    marginBottom: "40px"
+  },
+  cancelButton: {
+    marginLeft: "10px", 
+    marginBottom: "50vh",
+  },
+  finishEditButton: {
+    marginRight: "10px", 
+    marginBottom: "50vh"
+  },
+  pathTypography : {
+    display: 'flex',
+    alignItems: 'center'
+  },
+  '@global': {
+    '*::-webkit-scrollbar': {
+    width: '10px'
+    },
+    '*::-webkit-scrollbar-track': {
+      '-webkit-box-shadow': 'inset 0 0 6px rgba(35, 39, 42, .7)',
+      '-webkit-border-radius': '10px'
+    },
+    '*::-webkit-scrollbar-thumb': {
+      '-webkit-border-radius': '10px',
+      'border-radius': '10px',
+      'background': '#858585' 
+    }
+  }
+}));
 
 function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePath, updateEditPath}) {
+    
+  const classes = useStyles();
 
   //States
   const [isEdit, setIsEdit] = useState(false);
@@ -254,9 +325,8 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
           coordinates.map((element, index) => {
             var latId = `nodeLatitude1_${index}`;
             var longitudeId = `nodeLongitude_${index}`;
-            var deleteBtnId = `deleteBtn_${index}`;
             return (
-              <Paper style={{marginTop: "10px", marginBottom: "10px", padding:"10px"}}  elevation={2}>
+              <Paper className={classes.nodeElement}  elevation={2}>
                 <Typography>Node {index + 1}</Typography>
                 <FormControl fullWidth>
                   <InputLabel htmlFor={latId}>Latitude</InputLabel>
@@ -278,42 +348,43 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
                     value={element[0]}
                     onChange={(event) => onElementLongitudeChange(event, index)} />
                 </FormControl>
-                <Button variant="contained" color="secondary" onClick={() => handleDeleteNode(index)} fullWidth id={deleteBtnId}>
-                  Delete Node {index + 1}
-                </Button>
+                <IconButton color="secondary" className={classes.deleteButton} onClick={() => handleDeleteNode(index)}>
+                  <CloseIcon/>
+                </IconButton>
               </Paper>
             );
           })
         }
 
-        <Button variant="contained" color="primary" onClick={handleNewNode} fullWidth> 
-          Add Node
+        <Button variant="contained" color="primary" onClick={handleNewNode} fullWidth className={classes.addNode}> 
+          <AddIcon className={classes.iconText}/> Add Node
         </Button>
 
-        <Button variant="contained" color="primary" onClick={handleEditPath}>
-          {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
-          {!isProcessing && 'Finish Edit'}
-        </Button>
-        
-        <Button variant="contained" color="secondary" onClick={handleCancelEdit}>
-          {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
-          {!isProcessing && 'Cancel Edit'}
-        </Button>
+        <Grid container justify="center">
+          <Button variant="contained" color="primary" onClick={handleEditPath} className={classes.finishEditButton}>
+            {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
+            {!isProcessing && 'Finish Edit'}
+          </Button>
+          <Button variant="outlined" color="white" onClick={handleCancelEdit} className={classes.cancelButton}>
+            {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
+            {!isProcessing && 'Cancel Edit'}
+          </Button>
+        </Grid>
     </form>
     );
   }
 
   return (
-    <Paper hidden={value !== index} square style={{padding: "20px", maxHeight: "calc(100vh - 50px)", overflow: 'auto'}} elevation={0}>
+    <Paper hidden={value !== index} square className={classes.root} elevation={0}>
       <Typography variant="h5">
         {isEdit ? "Edit Path" : "Path List"}
       </Typography>
       {
         !isEdit && paths.map((element, index) => {
           return(
-            <Paper style={{marginTop: "10px", marginBottom: "10px", padding:"10px"}}  elevation={2}>
+            <Paper className={classes.nodeElement} elevation={2}>
               <IconButton>
-                {isProcessing ? <CircularProgress style={{color: "white"}}size={24} color='secondary' disableShrink /> : <MyLocationIcon />}
+                {isProcessing ? <CircularProgress style={{color: "white"}} size={24} color='secondary' disableShrink /> : <MyLocationIcon />}
               </IconButton>
               <IconButton color="primary" onClick={() => handleEditPathMode(element, index)}>
                 {isProcessing ? <CircularProgress size={24} color='primary' disableShrink /> : <EditIcon />}
@@ -321,8 +392,8 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
               <IconButton color="secondary" onClick={() => handleDeletePath(element, index)}>
                 {isProcessing ? <CircularProgress size={24} color='secondary' disableShrink /> : <DeleteIcon />}
               </IconButton>
-              <Typography variant="h6">
-                {element.isAirPlane ? <AirplanemodeActiveIcon/> : <CommuteIcon/>} 
+              <Typography variant="h6" className={classes.pathTypography}>
+                {element.isAirPlane ? <AirplanemodeActiveIcon className={classes.iconText}/> : <CommuteIcon className={classes.iconText}/>} 
                 {element.path_name === null ? "Unnamed path" : element.path_name}
               </Typography>
             </Paper>
