@@ -241,7 +241,7 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
       {
         !isEdit && landmarks.map((element, index) => {
           return(
-            <Paper style={{marginTop: "10px", marginBottom: "10px", padding:"10px"}}  elevation={2}>
+            <Paper style={{marginTop: "10px", marginBottom: "10px", padding:"10px"}}  elevation={2} key={element.id}>
               <IconButton>
                 <MyLocationIcon/>
               </IconButton>

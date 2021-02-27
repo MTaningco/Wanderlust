@@ -365,7 +365,7 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
             {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
             {!isProcessing && 'Finish Edit'}
           </Button>
-          <Button variant="outlined" color="white" onClick={handleCancelEdit} className={classes.cancelButton}>
+          <Button variant="outlined" onClick={handleCancelEdit} className={classes.cancelButton}>
             {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
             {!isProcessing && 'Cancel Edit'}
           </Button>
@@ -382,7 +382,7 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
       {
         !isEdit && paths.map((element, index) => {
           return(
-            <Paper className={classes.nodeElement} elevation={2}>
+            <Paper className={classes.nodeElement} elevation={2} key={element.id}>
               <IconButton>
                 {isProcessing ? <CircularProgress style={{color: "white"}} size={24} color='secondary' disableShrink /> : <MyLocationIcon />}
               </IconButton>
