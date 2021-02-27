@@ -138,7 +138,7 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
       </FormControl>
       <br/>
       <TextField 
-        id="standard-basic" 
+        id="landmarkName" 
         label="Landmark Name" 
         placeholder="e.g. Vancouver, BC, Canada" 
         value={landmarkName}

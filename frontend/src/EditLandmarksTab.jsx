@@ -201,7 +201,7 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
         </FormControl>
         <br/>
         <TextField 
-            id="standard-basic" 
+            id="landmarkName" 
             label="Landmark Name" 
             placeholder="e.g. Vancouver, BC, Canada" 
             value={editName}
