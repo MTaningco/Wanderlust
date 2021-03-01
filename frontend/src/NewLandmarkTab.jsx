@@ -184,15 +184,15 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
         fullWidth
         className={classes.formFields}/>
       <Grid container justify="center">
-          <Button variant="contained" color="primary" onClick={handleAddLandmark} className={classes.finishEditButton}>
-            {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
-            {!isProcessing && 'Create Landmark'}
-          </Button>
-          <Button variant="outlined" onClick={handleReset} className={classes.cancelButton}>
-            {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
-            {!isProcessing && 'Reset Values'}
-          </Button>
-        </Grid>
+        <Button variant="contained" color="primary" onClick={handleAddLandmark} className={classes.finishEditButton}>
+          {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
+          {!isProcessing && 'Create Landmark'}
+        </Button>
+        <Button variant="outlined" onClick={handleReset} className={classes.cancelButton}>
+          {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
+          {!isProcessing && 'Reset Values'}
+        </Button>
+      </Grid>
     </form>
   );
 }
