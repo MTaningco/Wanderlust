@@ -10,9 +10,9 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import CommuteIcon from '@material-ui/icons/Commute';
-import CloseIcon from '@material-ui/icons/Close';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
+import CoordinateFormItem from "./CoordinateFormItem";
 
 /**
  * Styles used for the component.
@@ -315,43 +315,23 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
           }
           label="Travel Type"/>
         <TextField 
-          id="standard-basic" 
+          id="pathName" 
           label="Path Name" 
           placeholder="e.g. LAX - HKG or California Trip 1" 
           value={editName}
           onChange={handleNameChange}
-          fullWidth/>
+          fullWidth
+          style={{marginBottom: "10px"}}/>
         {
           coordinates.map((element, index) => {
-            var latId = `nodeLatitude1_${index}`;
-            var longitudeId = `nodeLongitude_${index}`;
             return (
-              <Paper className={classes.nodeElement}  elevation={2}>
-                <Typography>Node {index + 1}</Typography>
-                <FormControl fullWidth>
-                  <InputLabel htmlFor={latId}>Latitude</InputLabel>
-                  <Input 
-                    type="number" 
-                    id={latId}
-                    placeholder="Enter value between -90 to 90" 
-                    name="Latitude"
-                    value={element[1]}
-                    onChange={(event) => onElementLatitudeChange(event, index)} />
-                </FormControl>
-                <FormControl fullWidth>
-                  <InputLabel htmlFor={longitudeId}>Longitude</InputLabel>
-                  <Input 
-                    type="number" 
-                    id={longitudeId}
-                    placeholder="Enter value between -180 to 180" 
-                    name="Longitude"
-                    value={element[0]}
-                    onChange={(event) => onElementLongitudeChange(event, index)} />
-                </FormControl>
-                <IconButton color="secondary" className={classes.deleteButton} onClick={() => handleDeleteNode(index)}>
-                  <CloseIcon/>
-                </IconButton>
-              </Paper>
+              <CoordinateFormItem
+                latitude={element[1]}
+                longitude={element[0]}
+                onLatitudeChange={onElementLatitudeChange}
+                onLongitudeChange={onElementLongitudeChange}
+                onDelete={handleDeleteNode}
+                index={index}/>
             );
           })
         }
