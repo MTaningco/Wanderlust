@@ -1,12 +1,34 @@
 //Imports from libraries
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Input, Typography, CircularProgress } from '@material-ui/core';
+import { Input, Typography, CircularProgress, Grid } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+
+/**
+ * Styles used for the component.
+ * @param  {*} theme - the theme of the application
+ */
+const useStyles = makeStyles((theme) => ({
+  cancelButton: {
+    marginLeft: "10px", 
+  },
+  finishEditButton: {
+    marginRight: "10px", 
+  },
+  addNode: {
+    marginBottom: "40px"
+  },
+  formFields: {
+    marginBottom: "20px"
+  }
+}));
 
 function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNewLandmark}) {
+    
+  const classes = useStyles();
 
   //States
   const [landmarkName, setLandmarkName] = useState("");
@@ -110,56 +132,67 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
     }
   };
 
+  const handleReset = () => {
+    setLandmarkName("");
+    setLandmarkDescription("");
+    setLandmarkLongitude("");
+    setLandmarkLatitude("")
+  };
+
   return (
     <form hidden={value !== index} style={{margin: "20px"}}>
       <Typography variant="h5">
         Create a New Landmark
       </Typography>
       <FormControl fullWidth>
-      <InputLabel htmlFor="landmarkLatitude">Latitude</InputLabel>
-      <Input 
-        type="number" 
-        id="landmarkLatitude" 
-        placeholder="Enter value between -90 to 90" 
-        name="Latitude"
-        value={landmarkLatitude}
-        onChange={handleLatitudeChange}/>
+        <InputLabel htmlFor="landmarkLatitude">Latitude</InputLabel>
+        <Input 
+          type="number" 
+          id="landmarkLatitude" 
+          placeholder="Enter value between -90 to 90" 
+          name="Latitude"
+          value={landmarkLatitude}
+          onChange={handleLatitudeChange}/>
       </FormControl>
-      <br/>
-      <FormControl fullWidth>
-      <InputLabel htmlFor="landmarkLongitude">Longitude</InputLabel>
-      <Input 
-        type="number" 
-        id="landmarkLongitude" 
-        placeholder="Enter value between -180 to 180" 
-        name="Longitude"
-        value={landmarkLongitude}
-        onChange={handleLongitudeChange}/>
+      <FormControl fullWidth
+        className={classes.formFields}>
+        <InputLabel htmlFor="landmarkLongitude">Longitude</InputLabel>
+        <Input 
+          type="number" 
+          id="landmarkLongitude" 
+          placeholder="Enter value between -180 to 180" 
+          name="Longitude"
+          value={landmarkLongitude}
+          onChange={handleLongitudeChange}/>
       </FormControl>
-      <br/>
       <TextField 
         id="landmarkName" 
         label="Landmark Name" 
         placeholder="e.g. Vancouver, BC, Canada" 
         value={landmarkName}
         onChange={handleNameChange} 
-        fullWidth/>
-      <br/>
+        fullWidth
+        className={classes.formFields}/>
       <TextField
         id="standard-multiline-static"
         label="Description"
         placeholder="Enter a description about the landmark" 
         multiline
-        rows={4}
+        rows={12}
         value={landmarkDescription}
         onChange={handleDescriptionChange} 
-        fullWidth/>
-      <br/>
-      <br/>
-      <Button variant="contained" color="primary" onClick={handleAddLandmark}>
-        {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
-        {!isProcessing && 'Add Landmark'}
-      </Button>
+        fullWidth
+        className={classes.formFields}/>
+      <Grid container justify="center">
+          <Button variant="contained" color="primary" onClick={handleAddLandmark} className={classes.finishEditButton}>
+            {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
+            {!isProcessing && 'Create Landmark'}
+          </Button>
+          <Button variant="outlined" onClick={handleReset} className={classes.cancelButton}>
+            {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
+            {!isProcessing && 'Reset Values'}
+          </Button>
+        </Grid>
     </form>
   );
 }
