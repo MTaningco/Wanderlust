@@ -1,16 +1,37 @@
 //Imports from libraries
 import React, { useState } from "react";
 import Typography from '@material-ui/core/Typography';
-import { Input, CircularProgress, Paper, TextField } from '@material-ui/core';
+import { Input, CircularProgress, Paper, TextField, Grid } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import CommuteIcon from '@material-ui/icons/Commute';
+import CoordinateFormItem from "./CoordinateFormItem";
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import AddIcon from '@material-ui/icons/Add';
+
+/**
+ * Styles used for the component.
+ * @param  {*} theme - the theme of the application
+ */
+const useStyles = makeStyles((theme) => ({
+  cancelButton: {
+    marginLeft: "10px", 
+    marginBottom: "50vh",
+  },
+  finishEditButton: {
+    marginRight: "10px", 
+    marginBottom: "50vh"
+  },
+  addNode: {
+    marginBottom: "40px"
+  },
+}));
 
 function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
+    
+  const classes = useStyles();
 
   //NewPathTab states
   const [coordinates, setCoordinates] = useState([]);
@@ -170,22 +191,14 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
     updateTempPath(coordinates, event.target.checked);
   };
 
-  /**
-   * Gets the view for the finish button.
-   */
-  const getFinishButton = () => {
-    if(coordinates.length >= 2){
-      return(
-        <Button variant="contained" color="secondary" onClick={handleNewPath} fullWidth>
-          {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
-          {!isProcessing && 'Finish Path'}
-        </Button>
-      );
-    }
+  const handleReset = () => {
+    setName("");
+    setCoordinates([]);
+    updateTempPath([]);
   };
 
   return (
-    <form hidden={value !== index} style={{margin: "20px"}}>
+    <Paper hidden={value !== index} square style={{padding: "20px", maxHeight: "calc(100vh - 50px)", overflow: 'auto'}} elevation={0}>
       <Typography variant="h5">
         Create a New Path
       </Typography>
@@ -200,60 +213,41 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
         }
         label="Travel Type"/>
       <TextField 
-        id="standard-basic" 
+        id="pathName" 
         label="Path Name" 
         placeholder="e.g. LAX - HKG or California Trip 1" 
         value={name}
         onChange={handleNameChange}
-        fullWidth/>
-      <Paper style={{maxHeight: "50vh", overflow: 'auto'}}>
+        fullWidth
+        style={{marginBottom: "10px"}}/>
         {
           coordinates.map((element, index) => {
-            var latId = `nodeLatitude_${index}`;
-            var longitudeId = `nodeLongitude_${index}`;
-            var deleteBtnId = `deleteBtn_${index}`;
-
             return (
-              <form>
-                <br/>
-                <Typography>Node {index + 1}</Typography>
-                <FormControl fullWidth>
-                  <InputLabel htmlFor={latId}>Latitude</InputLabel>
-                  <Input 
-                    type="number" 
-                    id={latId}
-                    placeholder="Enter value between -90 to 90" 
-                    name="Latitude"
-                    value={element[1]}
-                    onChange={(event) => onElementLatitudeChange(event, index)} />
-                </FormControl>
-                <FormControl fullWidth>
-                <InputLabel htmlFor={longitudeId}>Longitude</InputLabel>
-                <Input 
-                  type="number" 
-                  id={longitudeId}
-                  placeholder="Enter value between -180 to 180" 
-                  name="Longitude"
-                  value={element[0]}
-                  onChange={(event) => onElementLongitudeChange(event, index)} />
-                </FormControl>
-                <Button variant="contained" color="secondary" onClick={() => handleDeleteNode(index)} fullWidth id={deleteBtnId}>
-                  Delete Node {index + 1}
-                </Button>
-              </form>
+              <CoordinateFormItem
+                latitude={element[1]}
+                longitude={element[0]}
+                onLatitudeChange={onElementLatitudeChange}
+                onLongitudeChange={onElementLongitudeChange}
+                onDelete={handleDeleteNode}
+                index={index}/>
             );
           })
         }
-      </Paper>
-      <br/>
-      <Button variant="contained" color="primary" onClick={handleNewNode} fullWidth> 
-        Add Node
-      </Button>
+      <Button variant="contained" color="primary" onClick={handleNewNode} fullWidth className={classes.addNode}> 
+          <AddIcon className={classes.iconText}/> Add Node
+        </Button>
       
-      {getFinishButton()}
-
-      <br/>
-    </form>
+        <Grid container justify="center">
+          <Button variant="contained" color="primary" onClick={handleNewPath} className={classes.finishEditButton}>
+            {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
+            {!isProcessing && 'Create Path'}
+          </Button>
+          <Button variant="outlined" onClick={handleReset} className={classes.cancelButton}>
+            {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
+            {!isProcessing && 'Reset Values'}
+          </Button>
+        </Grid>
+    </Paper>
   );
 }
  
