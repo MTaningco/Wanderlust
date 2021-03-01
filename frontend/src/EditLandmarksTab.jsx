@@ -1,14 +1,47 @@
 //Imports from libraries
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Input, Typography, CircularProgress, Paper, FormControl, InputLabel, TextField } from '@material-ui/core';
+import { Input, Typography, CircularProgress, Paper, FormControl, InputLabel, TextField, Grid } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import MyLocationIcon from '@material-ui/icons/MyLocation';
 import InfoIcon from '@material-ui/icons/Info';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+
+/**
+ * Styles used for the component.
+ * @param  {*} theme - the theme of the application
+ */
+const useStyles = makeStyles((theme) => ({
+  nodeElement: {
+    position: 'relative',
+    marginTop: "10px", 
+    marginBottom: "10px", 
+    paddingTop: "20px",
+    paddingBottom: "20px",
+    paddingLeft: "10px",
+    paddingRight:"10px",
+    backgroundColor: "#525252"
+  },
+  iconText: {
+    marginRight: "10px",
+    marginLeft: "10px"
+  },
+  cancelButton: {
+    marginLeft: "10px", 
+  },
+  finishEditButton: {
+    marginRight: "10px", 
+  },
+  formFields: {
+    marginBottom: "20px"
+  }
+}));
 
 function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteLandmark, landmarks, toInformationTab, updateEditLandmark}) {
+    
+  const classes = useStyles();
 
   //States
   const [isEdit, setIsEdit] = useState(false);
@@ -181,54 +214,53 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
         <FormControl fullWidth>
         <InputLabel htmlFor="landmarkLatitude">Latitude</InputLabel>
         <Input 
-            type="number" 
-            id="landmarkLatitude" 
-            placeholder="Enter value between -90 to 90" 
-            name="Latitude"
-            value={editLatitude}
-            onChange={handleLatitudeChange}/>
+          type="number" 
+          id="landmarkLatitude" 
+          placeholder="Enter value between -90 to 90" 
+          name="Latitude"
+          value={editLatitude}
+          onChange={handleLatitudeChange}/>
         </FormControl>
-        <br/>
-        <FormControl fullWidth>
-        <InputLabel htmlFor="landmarkLongitude">Longitude</InputLabel>
-        <Input 
-            type="number" 
-            id="landmarkLongitude" 
-            placeholder="Enter value between -180 to 180" 
-            name="Longitude"
-            value={editLongitude}
-            onChange={handleLongitudeChange}/>
+        <FormControl fullWidth
+          className={classes.formFields}>
+          <InputLabel htmlFor="landmarkLongitude">Longitude</InputLabel>
+          <Input 
+          type="number" 
+          id="landmarkLongitude" 
+          placeholder="Enter value between -180 to 180" 
+          name="Longitude"
+          value={editLongitude}
+          onChange={handleLongitudeChange}/>
         </FormControl>
-        <br/>
         <TextField 
-            id="landmarkName" 
-            label="Landmark Name" 
-            placeholder="e.g. Vancouver, BC, Canada" 
-            value={editName}
-            onChange={handleNameChange}
-            fullWidth/>
-        <br/>
+          id="landmarkName" 
+          label="Landmark Name" 
+          placeholder="e.g. Vancouver, BC, Canada" 
+          value={editName}
+          onChange={handleNameChange}
+          fullWidth
+          className={classes.formFields}/>
         <TextField
-            id="standard-multiline-static"
-            label="Description"
-            placeholder="Enter a description about the landmark" 
-            multiline
-            rows={12}
-            maxHeight="500px"
-            value={editDescription}
-            onChange={handleDescriptionChange}
-            fullWidth/>
-        <br/>
-        <br/>
-        <Button variant="contained" color="primary" onClick={handleEditLandmark}>
+          id="standard-multiline-static"
+          label="Description"
+          placeholder="Enter a description about the landmark" 
+          multiline
+          rows={12}
+          maxHeight="500px"
+          value={editDescription}
+          onChange={handleDescriptionChange}
+          fullWidth
+          className={classes.formFields}/>
+        <Grid container justify="center">
+          <Button variant="contained" color="primary" onClick={handleEditLandmark} className={classes.finishEditButton}>
             {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
             {!isProcessing && 'Finish Edit'}
-        </Button>
-        
-        <Button variant="contained" color="secondary" onClick={handleCancelEdit}>
+          </Button>
+          <Button variant="outlined" onClick={handleCancelEdit} className={classes.cancelButton}>
             {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
             {!isProcessing && 'Cancel Edit'}
-        </Button>
+          </Button>
+        </Grid>
     </form>
     );
   }
@@ -241,7 +273,7 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
       {
         !isEdit && landmarks.map((element, index) => {
           return(
-            <Paper style={{marginTop: "10px", marginBottom: "10px", padding:"10px"}}  elevation={2} key={element.id}>
+            <Paper className={classes.nodeElement} elevation={2} key={element.id}>
               <IconButton>
                 <MyLocationIcon/>
               </IconButton>
@@ -254,7 +286,7 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
               <IconButton color="secondary" onClick={() => handleDeleteLandmark(element, index)}>
                 <DeleteIcon />
               </IconButton>
-              <Typography variant="h6">
+              <Typography variant="h6" className={classes.iconText}>
                 {element.name}
               </Typography>
             </Paper>
