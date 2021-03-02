@@ -1,5 +1,5 @@
 //Imports from libraries
-import { Button, TextField, Typography, Toolbar, Grid, CircularProgress } from "@material-ui/core";
+import { Button, TextField, Typography, Toolbar, Grid, CircularProgress, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions } from "@material-ui/core";
 import React, { Component, useState, useRef, useEffect } from "react";
 import {  Redirect, Link } from "react-router-dom";
 import Image from './landing.png'; // Import using relative path
@@ -16,6 +16,12 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "17px", 
     fontWeight: "bold"
   },
+  banner: {
+    padding: 60, 
+    backgroundImage: `url(${Image})`, 
+    backgroundSize: 'cover', 
+    height: '100vh'
+  }
 }));
 
 function SignIn() {
@@ -25,6 +31,7 @@ function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   /**
    * Handles the change in username.
@@ -69,9 +76,16 @@ function SignIn() {
       setIsProcessing(false);
     })
     .catch((error) => {
-      alert("Invalid credentials!");
+      setIsDialogOpen(true);
       setIsProcessing(false);
     });
+  };
+
+  /**
+   * Handles closing the dialog.
+   */
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
   };
 
   //Use effect hook.
@@ -104,7 +118,7 @@ function SignIn() {
       return (
         <div>
           <Grid container spacing={0}>
-            <Grid item xs={8} style={{ padding: 60, backgroundImage: `url(${Image})`, backgroundSize: 'cover', height: '100vh' }}>
+            <Grid item xs={8} className={classes.banner}>
               <Typography component="h1" variant="h3">
                 Record Your Travels. Personalize Your Globe.
               </Typography>
@@ -157,6 +171,23 @@ function SignIn() {
               <Link to="/signUp" className={classes.link}>Don't have an account? Sign up</Link>
             </Grid>
           </Grid>
+          <Dialog
+            open={isDialogOpen}
+            onClose={handleDialogClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description">
+              <DialogTitle id="alert-dialog-title">{"Invalid Credentials"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Verify your username and password and try again.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleDialogClose}>
+                  OK
+                </Button>
+              </DialogActions>
+          </Dialog>
         </div>
       );
     }
