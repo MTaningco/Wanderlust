@@ -1,5 +1,5 @@
 //Imports from libraries
-import { Button, Container, Grid, TextField, Typography } from "@material-ui/core";
+import { Button, Container, Grid, TextField, Typography, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions } from "@material-ui/core";
 import React, { Component, useState, useRef, useEffect } from "react";
 import {  Redirect, Link } from "react-router-dom";
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -57,6 +57,9 @@ const useStyles = makeStyles((theme) => ({
   },
   strongStrength: {
     color: "green"
+  },
+  dialog: {
+    minWidth: '700px'
   }
 }));
 
@@ -68,6 +71,9 @@ function SignUp() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [isUsernameTaken, setIsUsernameTaken] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogContent, setDialogContent] = useState("");
 
   /**
    * Checks if a string has a number.
@@ -190,7 +196,10 @@ function SignUp() {
    */
   const handleSignUp = () => {
     if(email === "" || password === "" || username === ""){
-      alert("At least one field is empty!");
+      // alert("At least one field is empty!");
+      setDialogTitle("Sign Up Incomplete");
+      setDialogContent("At least one field is empty!");
+      setIsDialogOpen(true);
     }
     else{
       const body = {
@@ -214,10 +223,18 @@ function SignUp() {
         alert("A new user has been made!");
       })
       .catch((error) => {
-        // console.log(error);
-        alert("The username already exists! Please create an unowned username.");
+        setDialogTitle("Username Taken");
+        setDialogContent("The username already exists! Please create an unowned username.");
+        setIsDialogOpen(true);
       });
     }
+  };
+
+  /**
+   * Handles closing the dialog.
+   */
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
   };
 
   // useEffect(() => {
@@ -309,6 +326,25 @@ function SignUp() {
           </Grid>
         </Grid>
       </div>
+      <Dialog
+        open={isDialogOpen}
+        onClose={handleDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        className={classes.dialog}
+        fullWidth>
+          <DialogTitle id="alert-dialog-title">{dialogTitle}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {dialogContent}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose}>
+              OK
+            </Button>
+          </DialogActions>
+      </Dialog>
     </Container>
   );
 }
