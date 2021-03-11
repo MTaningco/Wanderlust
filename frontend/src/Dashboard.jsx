@@ -1,7 +1,7 @@
 import './App.css';
 import Globe from './Globe';
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Box, Button, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemText, Menu, MenuItem, Paper, Toolbar, Typography } from '@material-ui/core';
+import { Box, Button, Divider, Drawer, Grid, IconButton, List, ListItem, ListItemText, Menu, MenuItem, Paper, Toolbar, Typography, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions } from '@material-ui/core';
 import LandmarkInfo from './LandmarkInfo';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
@@ -58,6 +58,9 @@ function Dashboard() {
   const [tabValue, setTabValue] = useState(0);
 
   const [isAuth, setIsAuth] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // const [dialogTitle, setDialogTitle] = useState("");
+  // const [dialogContent, setDialogContent] = useState("");
   const [paths, setPaths] = useState([]);
   const [landmarks, setLandmarks] = useState([]);
   const [subSolarCoordinates, setSubSolarCoordinates] = useState([0, 0]);
@@ -287,8 +290,9 @@ function Dashboard() {
    */
   const onAccountMenuClicked = (index) => {
     if(index === 1){
-      console.log("user logged out themselves");
-      invalidateAuth();
+      // console.log("user logged out themselves");
+      setIsDialogOpen(true);
+      // invalidateAuth();
     }
   };
 
@@ -428,6 +432,13 @@ function Dashboard() {
       prevValCopy.isAirPlane = isAirPlane;
       return prevValCopy;
     });
+  };
+
+  /**
+   * Handles closing the dialog.
+   */
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
   };
 
  // Use effect hook.
@@ -572,6 +583,27 @@ function Dashboard() {
         </List>
       </Drawer>
       {getDashboardContent()}
+      <Dialog
+        open={isDialogOpen}
+        onClose={handleDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth>
+          <DialogTitle id="alert-dialog-title">Log Out</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to log out of Wanderlust?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={invalidateAuth}>
+              YES 
+            </Button>
+            <Button onClick={handleDialogClose}>
+              NO
+            </Button>
+          </DialogActions>
+      </Dialog>
     </div>
   );
 }
