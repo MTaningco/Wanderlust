@@ -1,10 +1,13 @@
 //TODO: create lat long preferences
 //TODO: create color preferences
+//TODO: update heroku database for access_hash and refresh_hash
 create table AppUsers (
   user_uid serial primary key,
   email varchar(255) not null,
   password varchar(100) not null,
-  username varchar(100) unique not null
+  username varchar(100) unique not null,
+  access_hash varchar(255),
+  refresh_hash varchar(255)
 );
 
 create table PathInfo (

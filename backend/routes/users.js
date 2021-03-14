@@ -8,8 +8,10 @@ router.get('/exists', users.exists);
 /* POST a new user */
 router.post('/create', users.createUser);
 /* POST login credientials */
-router.post('/login', users.login);
+router.post('/login', users.login, tokenHeader.generateTokens, users.rememberTokens);
 /* POST if a token is valid */
-router.post('/checkToken', tokenHeader.verifyToken, users.verify);
+router.post('/checkToken', tokenHeader.parseToken, tokenHeader.verifyRefreshToken, users.verifyDbRefreshToken, users.acceptRefreshToken);
+
+router.post('/refreshToken', tokenHeader.parseToken, tokenHeader.verifyRefreshToken, users.verifyDbRefreshToken, tokenHeader.generateTokens, users.rememberTokens);
 
 module.exports = router;

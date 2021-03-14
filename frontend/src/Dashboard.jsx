@@ -201,8 +201,41 @@ function Dashboard() {
       setIsLandmarksLoaded(true);
     })
     .catch((error) => {
-      console.log(error);
-      invalidateAuth();
+      //access token is invalid, try to refresh the access token and try again
+      // console.log("access token no longer valid, attempt to get new access token through refresh token");
+      fetch(`/users/refreshToken`, {
+        method: "POST",
+        headers: {
+          'authorization' : `Bearer ${localStorage.getItem('refreshToken')}` 
+        }
+      })
+      .then(res => res.json())
+      .then(res => {
+        localStorage.setItem('token', res.accessToken);
+        localStorage.setItem('refreshToken', res.refreshToken);
+        // console.log("access token renewed, retrying getting landmarks");
+        fetch(`/landmarks`, {
+          headers: {
+            'authorization' : `Bearer ${localStorage.getItem('token')}` 
+          }
+        })
+        .then(res => res.json())
+        .then(res => {
+          res.sort(sortLandmarks);
+          setLandmarks(res);
+          setIsLandmarksLoaded(true);
+        })
+        .catch((error) => {
+          // console.log("access token still invalid. Invalidating authorization");
+          // console.log(error);
+          invalidateAuth();
+        });
+      })
+      .catch((error) => {
+        // console.log("access token still invalid. Invalidating authorization");
+        // console.log(error);
+        invalidateAuth();
+      });
     });
   };
 
@@ -211,6 +244,7 @@ function Dashboard() {
    */
   const invalidateAuth = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     setIsAuth(false);
   };
 

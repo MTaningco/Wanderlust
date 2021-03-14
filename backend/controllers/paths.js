@@ -1,10 +1,4 @@
 var paths = require('../models/paths');
-var jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-
-dotenv.config();
-
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'default';
 
 /**
  * Gets all paths of a user.
@@ -13,16 +7,9 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'default';
  * @param {*} next - the next function to execute
  */
 exports.getAllPaths = function(req, res, next){
-  jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
-    if(err){
-      res.status(401).send('Unauthorized');
-    }
-    else{
-      paths.getAll(decoded.user_uid, (rows) => {
-        res.json(rows);
-      })
-    }
-  });
+  paths.getAll(req.decoded.user_uid, (rows) => {
+    res.json(rows);
+  })
 }; 
 
 /**
@@ -32,15 +19,8 @@ exports.getAllPaths = function(req, res, next){
  * @param {*} next - the next function to execute
  */
 exports.createPath = function(req, res, next){
-  jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
-    if(err){
-      res.status(401).send('Unauthorized');
-    }
-    else{
-      paths.create(decoded.user_uid, req.body.coordinates, req.body.isAirPlane, req.body.path_name, (rows) => {
-        res.json(rows);
-      });
-    }
+  paths.create(req.decoded.user_uid, req.body.coordinates, req.body.isAirPlane, req.body.path_name, (rows) => {
+    res.json(rows);
   });
 }
 
@@ -51,15 +31,8 @@ exports.createPath = function(req, res, next){
  * @param {*} next - the next function to execute
  */
 exports.deletePath = function(req, res, next){
-  jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
-    if(err){
-      res.status(401).send('Unauthorized');
-    }
-    else{
-      paths.delete(decoded.user_uid, req.body.path_uid, (rows) => {
-        res.json(rows);
-      });
-    }
+  paths.delete(req.decoded.user_uid, req.body.path_uid, (rows) => {
+    res.json(rows);
   });
 }
 
@@ -70,14 +43,7 @@ exports.deletePath = function(req, res, next){
  * @param {*} next - the next function to execute
  */
 exports.updatePath = function(req, res, next){
-  jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
-    if(err){
-      res.status(401).send('Unauthorized');
-    }
-    else{
-      paths.update(decoded.user_uid, req.body.path_uid, req.body.path_name, req.body.is_airplane, req.body.coordinates, (rows) => {
-        res.json(rows);
-      });
-    }
+  paths.update(req.decoded.user_uid, req.body.path_uid, req.body.path_name, req.body.is_airplane, req.body.coordinates, (rows) => {
+    res.json(rows);
   });
 }

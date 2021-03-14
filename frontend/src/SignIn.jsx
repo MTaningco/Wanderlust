@@ -71,7 +71,8 @@ function SignIn() {
     })
     .then(res => res.json())
     .then(res => {
-      localStorage.setItem('token', res.token);
+      localStorage.setItem('token', res.accessToken);
+      localStorage.setItem('refreshToken', res.refreshToken);
       setIsTokenValid(true);
       setIsProcessing(false);
     })
@@ -90,19 +91,21 @@ function SignIn() {
 
   //Use effect hook.
   useEffect(() => {
-    if(localStorage.getItem('token') !== null){
+    if(localStorage.getItem('refreshToken') !== null){
       fetch(`/users/checkToken`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          'authorization' : `Bearer ${localStorage.getItem('token')}`
+          'authorization' : `Bearer ${localStorage.getItem('refreshToken')}`
         },
       })
       .then(res => res.json())
       .then(res => {
-        if(res.isTokenValid){
-          setIsTokenValid(true);
-        }
+        setIsTokenValid(true);
+      })
+      .catch(error => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
       });
     }
   }, []);

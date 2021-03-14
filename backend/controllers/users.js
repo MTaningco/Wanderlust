@@ -1,10 +1,4 @@
 var users = require('../models/users');
-var jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-
-dotenv.config();
-
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'default';
 
 /**
  * Logs in a user with the correct credentials.
@@ -15,14 +9,8 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'default';
 exports.login = function(req, res, next){
   users.getUser(req.body.username, req.body.password, (result, data) => {
     if(result){
-      jwt.sign({ user_uid: data.user_uid, username: data.username }, JWT_SECRET_KEY, {expiresIn: "1h"}, function(err, token) {
-        if(err){
-          res.status(501).send("error at get user");
-        }
-        else{
-          res.json({token});
-        }
-      });
+      req.decoded = {user_uid : data.user_uid};
+      next();
     }
     else{
       res.status(401).send('Unauthorized');
@@ -60,20 +48,71 @@ exports.exists = function(req, res, next){
 }
 
 /**
- * Verifies if the token is still valid.
- * @param {*} req - the request body, containing the token
- * @param {*} res - the result body, containing the resulting validity of the token
+ * Accepts the refresh token.
+ * @param {*} req - the request body
+ * @param {*} res - the result body
  * @param {*} next - the next function to execute
  */
-exports.verify = function(req, res, next){
-  jwt.verify(req.token, JWT_SECRET_KEY, function(err, decoded) {
-    if(err){
-      console.log("error in the token");
-      res.json({isTokenValid: false});
+exports.acceptRefreshToken = function(req, res, next){
+  res.json({isTokenValid: true})
+}
+
+/**
+ * Hashes the tokens and puts it in the database.
+ * @param {*} req - the request body, contains the access and refresh tokens
+ * @param {*} res - the result body
+ * @param {*} next - the next function to execute
+ */
+exports.rememberTokens = function(req, res, next){
+  var accessToken = req.accessToken;
+  var refreshToken = req.refreshToken;
+  users.rememberTokens(req.decoded.user_uid, accessToken.substr(accessToken.length - 20), refreshToken.substr(refreshToken.length - 20),  (result) => {
+    if(result){
+      res.json({
+        accessToken: req.accessToken,
+        refreshToken: req.refreshToken
+      });
     }
     else{
-      console.log("good token");
-      res.json({isTokenValid: true});
+      res.status(501).send("error in updating refresh and access tokens")
     }
   });
+}
+
+/**
+ * Verifies the refresh token with the database.
+ * @param {*} req - the request body, contains the encoded token and its decoded contents
+ * @param {*} res - the result body
+ * @param {*} next - the next function to execute
+ */
+exports.verifyDbRefreshToken = function(req, res, next){
+  var token = req.token;
+  users.verifyRefreshToken(req.decoded.user_uid, token.substr(token.length - 20), (result) => {
+    if(result){
+      console.log("refresh token verified according to the db", result)
+      next();
+    }
+    else{
+      res.status(401).send('Unauthorized');
+    }
+  })
+}
+
+/**
+ * Verifies the access token with the database.
+ * @param {*} req - the request body, contains the encoded token and its decoded contents
+ * @param {*} res - the result body
+ * @param {*} next - the next function to execute
+ */
+exports.verifyDbAccessToken = function(req, res, next){
+  var token = req.token;
+  users.verifyAccessToken(req.decoded.user_uid, token.substr(token.length - 20), (result) => {
+    if(result){
+      console.log("access token verified according to the db", result)
+      next();
+    }
+    else{
+      res.status(401).send('Unauthorized');
+    }
+  })
 }

@@ -139,8 +139,52 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
         }, 500);
       })
       .catch((error) => {
-        console.log(error);
-        invalidateAuth();
+        //access token is invalid, try to refresh the access token and try again
+        // console.log("access token no longer valid, attempt to get new access token through refresh token");
+        fetch(`/users/refreshToken`, {
+          method: "POST",
+          headers: {
+            'authorization' : `Bearer ${localStorage.getItem('refreshToken')}` 
+          }
+        })
+        .then(res => res.json())
+        .then(res => {
+          localStorage.setItem('token', res.accessToken);
+          localStorage.setItem('refreshToken', res.refreshToken);
+          // console.log("access token renewed, retrying editing landmark");
+          fetch(`/landmarks`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              'authorization' : `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(body)
+          })
+          .then(res => res.json())
+          .then(res => {
+            setIsEdit(false);
+            setIsProcessing(false);
+            setTimeout(() => {
+              updateLandmark({
+                landmark_uid: editId,
+                name: editName,
+                description: editDescription,
+                coordinates: [editLongitude, editLatitude]
+              }, editIndex);
+              setEditIndex(-1);
+            }, 500);
+          })
+          .catch((error) => {
+            // console.log("access token still invalid. Invalidating authorization");
+            console.log(error);
+            invalidateAuth();
+          });
+        })
+        .catch((error) => {
+          // console.log("refresh token still invalid. Invalidating authorization");
+          // console.log(error);
+          invalidateAuth();
+        });
       });
     }
     else{
@@ -201,7 +245,48 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
           deleteLandmark(landmark.landmark_uid, index);
         }, 500);
       })
-      .catch(err => invalidateAuth());
+      .catch((error) => {
+        //access token is invalid, try to refresh the access token and try again
+        console.log("access token no longer valid, attempt to get new access token through refresh token");
+        fetch(`/users/refreshToken`, {
+          method: "POST",
+          headers: {
+            'authorization' : `Bearer ${localStorage.getItem('refreshToken')}` 
+          }
+        })
+        .then(res => res.json())
+        .then(res => {
+          localStorage.setItem('token', res.accessToken);
+          localStorage.setItem('refreshToken', res.refreshToken);
+          console.log("access token renewed, retrying deleting landmark");
+          fetch(`/landmarks`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              'authorization' : `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(body)
+          })
+          .then(res => res.json())
+          .then(res => {
+            setIsProcessing(false);
+            setIsEdit(false);
+            setTimeout(() => {
+              deleteLandmark(landmark.landmark_uid, index);
+            }, 500);
+          })
+          .catch((error) => {
+            console.log("access token still invalid. Invalidating authorization");
+            console.log(error);
+            invalidateAuth();
+          });
+        })
+        .catch((error) => {
+          console.log("access token still invalid. Invalidating authorization");
+          console.log(error);
+          invalidateAuth();
+        });
+      });
     }
   };
 
