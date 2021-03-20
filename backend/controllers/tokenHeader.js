@@ -7,23 +7,36 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'default';
 const REFRESH_JWT_SECRET_KEY = process.env.REFRESH_JWT_SECRET_KEY || 'default';
 
 /**
- * Parses the token.
- * @param {*} req - the request body, containing the authorization header
+ * Parses the access token.
+ * @param {*} req - the request body
  * @param {*} res - the result body
  * @param {*} next - the next function to execute
  */
-exports.parseToken = function(req, res, next){
-  const bearerHeader = req.headers['authorization'];
-  if(typeof bearerHeader !== undefined){
-    const bearer = bearerHeader.split(' ');
-    const bearerToken = bearer[1];
-    req.token = bearerToken;
+exports.parseAccessToken = function(req, res, next){
+  if(req.cookies.accessToken){
+    req.token = req.cookies.accessToken;
     next();
   }
   else{
     res.status(403).send('Forbidden');
   }
-}; 
+}
+
+/**
+ * Parses the refresh token.
+ * @param {*} req - the request body
+ * @param {*} res - the result body
+ * @param {*} next - the next function to execute
+ */
+exports.parseRefreshToken = function(req, res, next){
+  if(req.cookies.refreshToken){
+    req.token = req.cookies.refreshToken;
+    next();
+  }
+  else{
+    res.status(403).send('Forbidden');
+  }
+}
 
 /**
  * Verifies the refresh token.
@@ -82,9 +95,28 @@ exports.generateTokens = function(req, res, next){
         else{
           req.accessToken = accessToken;
           req.refreshToken = refreshToken;
+          
+          var currentDate = new Date()
+          var accessTokenExpiry = new Date(currentDate.getTime() + 1000*60*15)
+          var refreshTokenExpiry = new Date(currentDate.getTime() + 1000*60*60*24*7)
+          
+          res.cookie('accessToken', accessToken, {httpOnly: true, secure: true, expires: accessTokenExpiry})
+          res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true, expires: refreshTokenExpiry})
           next();
         }
       });
     }
   });
+}
+
+/**
+ * Invalidates the tokens in the cookies.
+ * @param {*} req - the request body
+ * @param {*} res - the result body
+ * @param {*} next - the next function to execute
+ */
+exports.invalidateTokens = function(req, res, next){
+  res.cookie('accessToken', "", {httpOnly: true, secure: true, expires: new Date(0)})
+  res.cookie('refreshToken', "", {httpOnly: true, secure: true, expires: new Date(0)})
+  res.status(200).send("good");
 }

@@ -10,8 +10,10 @@ router.post('/create', users.createUser);
 /* POST login credientials */
 router.post('/login', users.login, tokenHeader.generateTokens, users.rememberTokens);
 /* POST if a token is valid */
-router.post('/checkToken', tokenHeader.parseToken, tokenHeader.verifyRefreshToken, users.verifyDbRefreshToken, users.acceptRefreshToken);
+router.post('/checkToken', tokenHeader.parseRefreshToken, tokenHeader.verifyRefreshToken, users.verifyDbRefreshToken, users.acceptRefreshToken);
 
-router.post('/refreshToken', tokenHeader.parseToken, tokenHeader.verifyRefreshToken, users.verifyDbRefreshToken, tokenHeader.generateTokens, users.rememberTokens);
+router.post('/refreshToken', tokenHeader.parseRefreshToken, tokenHeader.verifyRefreshToken, users.verifyDbRefreshToken, tokenHeader.generateTokens, users.rememberTokens);
+
+router.post('/logout', tokenHeader.invalidateTokens);
 
 module.exports = router;

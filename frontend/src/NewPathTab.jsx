@@ -77,8 +77,7 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
       fetch(`/paths`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          'authorization' : `Bearer ${localStorage.getItem('token')}`
+          "Content-Type": "application/json"
         },
         body: JSON.stringify(body)
       })
@@ -102,21 +101,15 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
         //access token is invalid, try to refresh the access token and try again
         // console.log("access token no longer valid, attempt to get new access token through refresh token");
         fetch(`/users/refreshToken`, {
-          method: "POST",
-          headers: {
-            'authorization' : `Bearer ${localStorage.getItem('refreshToken')}` 
-          }
+          method: "POST"
         })
         .then(res => res.json())
         .then(res => {
-          localStorage.setItem('token', res.accessToken);
-          localStorage.setItem('refreshToken', res.refreshToken);
           // console.log("access token renewed, retrying creating path");
           fetch(`/paths`, {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
-              'authorization' : `Bearer ${localStorage.getItem('token')}`
+              "Content-Type": "application/json"
             },
             body: JSON.stringify(body)
           })
