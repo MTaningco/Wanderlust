@@ -153,18 +153,20 @@ function Dashboard() {
   /**
    * Gets the user's paths from the database.
    */
-  const getUserPaths = () => {
-    fetch(`/paths`)
-    .then(res => res.json())
-    .then(res => {
-      res.sort(sortPaths);
-      setPaths(res);
-      setIsPathsLoaded(true);
-    })
-    .catch((error) => {
-      console.log(error);
+  async function getUserPaths(){
+    try{
+      var pathsResponse = await fetch(`/paths`)
+      .then(res => res.json())
+      .then(res => {
+        res.sort(sortPaths);
+        setPaths(res);
+        setIsPathsLoaded(true);
+      });
+    }
+    catch(e){
+      console.log(e);
       invalidateAuth();
-    });
+    }
   };
 
   /**
@@ -184,49 +186,46 @@ function Dashboard() {
   /**
    * Gets the user's landmarks from the database.
    */
-  const getUserLandmarks = () => {
-    fetch(`/landmarks`)
-    .then(res => res.json())
-    .then(res => {
-      res.sort(sortLandmarks);
-      setLandmarks(res);
-      setIsLandmarksLoaded(true);
-    })
-    .catch((error) => {
-      //access token is invalid, try to refresh the access token and try again
-      // console.log("access token no longer valid, attempt to get new access token through refresh token");
-      fetch(`/users/refreshToken`, {
-        method: "POST"
-      })
+  async function getUserLandmarks(){
+    try{
+      var landmarksResponse = await fetch('/landmarks')
       .then(res => res.json())
       .then(res => {
-        // console.log("access token renewed, retrying getting landmarks");
-        fetch(`/landmarks`)
-        .then(res => res.json())
-        .then(res => {
-          res.sort(sortLandmarks);
-          setLandmarks(res);
-          setIsLandmarksLoaded(true);
-        })
-        .catch((error) => {
-          // console.log("access token still invalid. Invalidating authorization");
-          // console.log(error);
-          invalidateAuth();
-        });
-      })
-      .catch((error) => {
-        // console.log("access token still invalid. Invalidating authorization");
-        // console.log(error);
-        invalidateAuth();
+        res.sort(sortLandmarks);
+        setLandmarks(res);
+        setIsLandmarksLoaded(true);
       });
-    });
+    }
+    catch(e){
+      try{
+        var refreshTokenResponse = await fetch(`/users/refreshToken`, {
+          method: "POST"
+        })
+        .then(res => res.json());
+
+        try{
+          var landmarksResponse2 = await fetch('/landmarks')
+          .then(res => res.json())
+          .then(res => {
+            res.sort(sortLandmarks);
+            setLandmarks(res);
+            setIsLandmarksLoaded(true);
+          });
+        }
+        catch(e){
+          invalidateAuth();
+        }
+      }
+      catch(e){
+        invalidateAuth();
+      }
+    }
   };
 
   /**
    * Invalidates the authorization of the user.
    */
   const invalidateAuth = () => {
-    console.log("invalidated through dashboard");
     fetch(`/users/logout`, {
       method: "POST"
     })
@@ -463,8 +462,11 @@ function Dashboard() {
 
  // Use effect hook.
   useEffect(() => {
-    getUserLandmarks();
-    getUserPaths();
+    async function getUserData() {
+      await getUserLandmarks();
+      await getUserPaths();
+    }
+    getUserData();
     getSubsolarPoint();
     const interval = setInterval(() => {
       getSubsolarPoint();
