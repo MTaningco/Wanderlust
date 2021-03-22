@@ -1,6 +1,5 @@
 //TODO: create lat long preferences
 //TODO: create color preferences
-//TODO: update heroku database for access_hash and refresh_hash
 create table AppUsers (
   user_uid serial primary key,
   email varchar(255) not null,
