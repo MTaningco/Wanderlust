@@ -54,11 +54,14 @@ const useStyles = makeStyles((theme) => ({
 
 function Dashboard() {
   const classes = useStyles();
+  const timerRef = useRef(null);
+  const autoLogoutRef = useRef(null);
   //States
   const [tabValue, setTabValue] = useState(0);
 
   const [isAuth, setIsAuth] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isInactivityDialogOpen, setIsInactivityDialogOpen] = useState(false);
   // const [dialogTitle, setDialogTitle] = useState("");
   // const [dialogContent, setDialogContent] = useState("");
   const [paths, setPaths] = useState([]);
@@ -184,6 +187,20 @@ function Dashboard() {
   }
 
   /**
+   * Gets the expiry of a refresh token and sets a timer.
+   */
+  async function getRefeshTokenExpiry(){
+    try{
+      var response = await fetch("/users/refreshTokenExpiry").then(res => res.json());
+      setDialogTimer(response.refreshTokenExpiry);
+    }
+    catch(e){
+      console.log(e)
+      invalidateAuth();
+    }
+  }
+
+  /**
    * Gets the user's landmarks from the database.
    */
   async function getUserLandmarks(){
@@ -203,6 +220,7 @@ function Dashboard() {
         })
         .then(res => res.json());
 
+        setDialogTimer(refreshTokenResponse.refreshTokenExpiry);
         try{
           var landmarksResponse2 = await fetch('/landmarks')
           .then(res => res.json())
@@ -217,6 +235,7 @@ function Dashboard() {
         }
       }
       catch(e){
+        console.log(e)
         invalidateAuth();
       }
     }
@@ -229,7 +248,10 @@ function Dashboard() {
     fetch(`/users/logout`, {
       method: "POST"
     })
-    .then(setIsAuth(false))
+    .then(() => {
+      setIsAuth(false);
+      clearDialogTimer();
+    })
     .catch(err => console.log(err))
   };
 
@@ -460,9 +482,63 @@ function Dashboard() {
     setIsDialogOpen(false);
   };
 
+  /**
+   * Handles closing the inactivity dialog.
+   */
+  const handleInactivityDialogClose = () => {
+    setIsInactivityDialogOpen(false);
+    fetch(`/users/refreshToken`, {
+      method: "POST"
+    })
+    .then(res => res.json())
+    .then(res => {
+      setDialogTimer(res.refreshTokenExpiry);
+    })
+    .catch((error) => {
+      console.log(error);
+      invalidateAuth();
+    });
+  };
+
+  /**
+   * Sets the timer for the inactivity dialog.
+   * @param {*} time 
+   */
+  const setDialogTimer = (time) => {
+    var currentDate = new Date();
+    var refreshDate = new Date(time);
+    
+    if(timerRef.current) {
+      clearTimeout(timerRef.current);
+      clearTimeout(autoLogoutRef.current);
+    }
+
+    var msToDialog = refreshDate.getTime() - 1000*60*30 - currentDate.getTime();
+    var msToAutoLogout = refreshDate.getTime() - currentDate.getTime()
+
+    timerRef.current = setTimeout(() => {
+      setIsInactivityDialogOpen(true);
+    }, msToDialog);
+
+    autoLogoutRef.current = setTimeout(() => {
+      invalidateAuth();
+    }, msToAutoLogout);
+  }
+
+  /**
+   * Clears the timers for the inactivity dialog and the auto logout function.
+   */
+  const clearDialogTimer = () => {
+    if(timerRef.current) {
+      clearTimeout(timerRef.current);
+      clearTimeout(autoLogoutRef.current);
+    }
+  }
+
  // Use effect hook.
   useEffect(() => {
     async function getUserData() {
+      await getRefeshTokenExpiry();
       await getUserLandmarks();
       await getUserPaths();
     }
@@ -490,6 +566,7 @@ function Dashboard() {
     return () => {
       window.removeEventListener("resize", handleResize);
       clearInterval(interval);
+      clearDialogTimer();
     };
     // return () => clearInterval(interval);
   }, []);
@@ -544,7 +621,8 @@ function Dashboard() {
                 updateNewPath={updateNewPath}
                 createPath={createPath}
                 updatePath={updatePath}
-                updateEditPath={updateEditPath}/>
+                updateEditPath={updateEditPath}
+                setDialogTimer={setDialogTimer}/>
             </Paper>
           </Grid>
         </Grid>
@@ -622,6 +700,27 @@ function Dashboard() {
               YES 
             </Button>
             <Button onClick={handleDialogClose}>
+              NO
+            </Button>
+          </DialogActions>
+      </Dialog>
+      <Dialog
+        open={isInactivityDialogOpen}
+        onClose={handleInactivityDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth>
+          <DialogTitle id="alert-dialog-title">Long Period of Inactivity</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you still here?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleInactivityDialogClose}>
+              YES 
+            </Button>
+            <Button onClick={invalidateAuth}>
               NO
             </Button>
           </DialogActions>

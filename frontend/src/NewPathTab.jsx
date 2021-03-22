@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
+function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath, setDialogTimer}) {
     
   const classes = useStyles();
 
@@ -98,14 +98,12 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
         }, 500);
       })
       .catch((error) => {
-        //access token is invalid, try to refresh the access token and try again
-        // console.log("access token no longer valid, attempt to get new access token through refresh token");
         fetch(`/users/refreshToken`, {
           method: "POST"
         })
         .then(res => res.json())
         .then(res => {
-          // console.log("access token renewed, retrying creating path");
+          setDialogTimer(res.refreshTokenExpiry);
           fetch(`/paths`, {
             method: "POST",
             headers: {
@@ -130,14 +128,12 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath}) {
             }, 500);
           })
           .catch((error) => {
-            // console.log("access token still invalid. Invalidating authorization");
-            // console.log(error);
+            console.log(error);
             invalidateAuth();
           });
         })
         .catch((error) => {
-          // console.log("access token still invalid. Invalidating authorization");
-          // console.log(error);
+          console.log(error);
           invalidateAuth();
         });
       });

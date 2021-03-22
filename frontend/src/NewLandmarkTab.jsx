@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNewLandmark}) {
+function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNewLandmark, setDialogTimer}) {
     
   const classes = useStyles();
 
@@ -125,14 +125,12 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
         }, 500);
       })
       .catch((error) => {
-        //access token is invalid, try to refresh the access token and try again
-        // console.log("access token no longer valid, attempt to get new access token through refresh token");
         fetch(`/users/refreshToken`, {
           method: "POST"
         })
         .then(res => res.json())
         .then(res => {
-          // console.log("access token renewed, retrying deleting path");
+          setDialogTimer(res.refreshTokenExpiry);
           fetch(`/landmarks`, {
             method: "POST",
             headers: {
@@ -158,14 +156,12 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
             }, 500);
           })
           .catch((error) => {
-            // console.log("access token still invalid. Invalidating authorization");
-            // console.log(error);
+            console.log(error);
             invalidateAuth();
           });
         })
         .catch((error) => {
-          // console.log("access token not renewed. Invalidating authorization")
-          // console.log(error);
+          console.log(error);
           invalidateAuth();
         });
       });//TODO: check if processing needs to be set to false here

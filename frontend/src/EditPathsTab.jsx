@@ -80,7 +80,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePath, updateEditPath}) {
+function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePath, updateEditPath, setDialogTimer}) {
     
   const classes = useStyles();
 
@@ -208,14 +208,12 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
         }, 500);
       })
       .catch((error) => {
-        //access token is invalid, try to refresh the access token and try again
-        // console.log("access token no longer valid, attempt to get new access token through refresh token");
         fetch(`/users/refreshToken`, {
           method: "POST"
         })
         .then(res => res.json())
         .then(res => {
-          // console.log("access token renewed, retrying editing path");
+          setDialogTimer(res.refreshTokenExpiry);
           fetch(`/paths`, {
             method: "PUT",
             headers: {
@@ -239,14 +237,12 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
             }, 500);
           })
           .catch((error) => {
-            // console.log("access token still invalid. Invalidating authorization");
-            // console.log(error);
+            console.log(error);
             invalidateAuth();
           });
         })
         .catch((error) => {
-          // console.log("access token still invalid. Invalidating authorization");
-          // console.log(error);
+          console.log(error);
           invalidateAuth();
         });
       });
@@ -327,14 +323,12 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
         }, 500);
       })
       .catch((error) => {
-        //access token is invalid, try to refresh the access token and try again
-        // console.log("access token no longer valid, attempt to get new access token through refresh token");
         fetch(`/users/refreshToken`, {
           method: "POST"
         })
         .then(res => res.json())
         .then(res => {
-          // console.log("access token renewed, retrying deleting path");
+          setDialogTimer(res.refreshTokenExpiry);
           fetch(`/paths`, {
             method: "DELETE",
             headers: {
@@ -352,14 +346,12 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
             }, 500);
           })
           .catch((error) => {
-            // console.log("access token still invalid. Invalidating authorization");
-            // console.log(error);
+            console.log(error);
             invalidateAuth();
           });
         })
         .catch((error) => {
-          // console.log("access token not renewed. Invalidating authorization")
-          // console.log(error);
+          console.log(error);
           invalidateAuth();
         });
       });

@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteLandmark, landmarks, toInformationTab, updateEditLandmark}) {
+function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteLandmark, landmarks, toInformationTab, updateEditLandmark, setDialogTimer}) {
     
   const classes = useStyles();
 
@@ -138,14 +138,12 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
         }, 500);
       })
       .catch((error) => {
-        //access token is invalid, try to refresh the access token and try again
-        // console.log("access token no longer valid, attempt to get new access token through refresh token");
         fetch(`/users/refreshToken`, {
           method: "POST"
         })
         .then(res => res.json())
         .then(res => {
-          // console.log("access token renewed, retrying editing landmark");
+          setDialogTimer(res.refreshTokenExpiry);
           fetch(`/landmarks`, {
             method: "PUT",
             headers: {
@@ -168,14 +166,12 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
             }, 500);
           })
           .catch((error) => {
-            // console.log("access token still invalid. Invalidating authorization");
             console.log(error);
             invalidateAuth();
           });
         })
         .catch((error) => {
-          // console.log("refresh token still invalid. Invalidating authorization");
-          // console.log(error);
+          console.log(error);
           invalidateAuth();
         });
       });
@@ -239,13 +235,12 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
       })
       .catch((error) => {
         //access token is invalid, try to refresh the access token and try again
-        console.log("access token no longer valid, attempt to get new access token through refresh token");
         fetch(`/users/refreshToken`, {
           method: "POST"
         })
         .then(res => res.json())
         .then(res => {
-          console.log("access token renewed, retrying deleting landmark");
+          setDialogTimer(res.refreshTokenExpiry);
           fetch(`/landmarks`, {
             method: "DELETE",
             headers: {
@@ -262,13 +257,11 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
             }, 500);
           })
           .catch((error) => {
-            console.log("access token still invalid. Invalidating authorization");
             console.log(error);
             invalidateAuth();
           });
         })
         .catch((error) => {
-          console.log("access token still invalid. Invalidating authorization");
           console.log(error);
           invalidateAuth();
         });
