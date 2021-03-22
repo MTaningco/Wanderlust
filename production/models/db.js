@@ -19,7 +19,7 @@ const devConfig = {
 
 //Heroku Configuration
 const prodConfig = {
-  connectionString : process.env.DATABASE_URL || 'default'
+  connectionString : (process.env.DATABASE_URL + '?sslmode=require') || 'default'
 }
 
 const pool = new Pool(process.env.NODE_ENV === "production" ? prodConfig : devConfig);
