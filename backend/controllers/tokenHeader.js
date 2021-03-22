@@ -58,6 +58,18 @@ exports.verifyRefreshToken = function(req, res, next){
 }
 
 /**
+ * Gets the expiry date of the token in milliseconds.
+ * @param {*} req - the request body, containing the decoded token
+ * @param {*} res - the result body
+ * @param {*} next - the next function to execute
+ */
+exports.getRefreshTokenExpiry = function(req, res, next){
+  res.json({
+    refreshTokenExpiry: req.decoded.exp * 1000
+  })
+}
+
+/**
  * Verifies the access token.
  * @param {*} req - the request body, containing the access token
  * @param {*} res - the result body
@@ -95,11 +107,11 @@ exports.generateTokens = function(req, res, next){
         else{
           req.accessToken = accessToken;
           req.refreshToken = refreshToken;
-          
+
           var currentDate = new Date()
           var accessTokenExpiry = new Date(currentDate.getTime() + 1000*60*15)
           var refreshTokenExpiry = new Date(currentDate.getTime() + 1000*60*60*24*7)
-          
+          req.refreshTokenExpiry = refreshTokenExpiry;
           res.cookie('accessToken', accessToken, {httpOnly: true, secure: true, expires: accessTokenExpiry})
           res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true, expires: refreshTokenExpiry})
           next();

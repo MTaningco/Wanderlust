@@ -69,8 +69,7 @@ exports.rememberTokens = function(req, res, next){
   users.rememberTokens(req.decoded.user_uid, accessToken.substr(accessToken.length - 20), refreshToken.substr(refreshToken.length - 20),  (result) => {
     if(result){
       res.json({
-        accessToken: req.accessToken,
-        refreshToken: req.refreshToken
+        refreshTokenExpiry: req.refreshTokenExpiry
       });
     }
     else{
