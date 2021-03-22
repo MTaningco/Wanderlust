@@ -61,6 +61,7 @@ var Users = {
    */
   exists : async function(username, callback){
     // console.log(username);
+    console.log("attempting if username exists, model")
     const dbPassword = await pool.query(`
       select case when count(*) = 1 then 'true' else 'false' end as isExist 
       from AppUsers 
