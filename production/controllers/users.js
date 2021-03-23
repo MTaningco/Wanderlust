@@ -42,7 +42,6 @@ exports.createUser = function(req, res, next){
  * @param {*} next - the next function to execute
  */
 exports.exists = function(req, res, next){
-  console.log('attempting to see if the username exists, controller')
   users.exists(req.query.username, (rows) => {
     res.json(rows[0]);
   });
