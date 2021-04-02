@@ -1,6 +1,6 @@
 //Imports from libraries
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Input, Typography, CircularProgress, Paper, FormControl, InputLabel, TextField, Grid } from '@material-ui/core';
+import { Input, Typography, CircularProgress, Paper, FormControl, InputLabel, TextField, Grid, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -92,6 +92,9 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
   const [editIndex, setEditIndex] = useState(-1);
   const [coordinates, setCoordinates] = useState([]);
   const [isAirPlane, setIsAirPlane] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogContent, setDialogContent] = useState("");
 
   /**
    * Handles a latitude field being changed.
@@ -225,6 +228,11 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
           .then(res => {
             setIsEdit(false);
             setIsProcessing(false);
+            
+            setDialogTitle("Path Update Successful");
+            setDialogContent("Your path has been updated successfully.");
+            setIsDialogOpen(true);
+            
             setTimeout(() => {
               setEditName("");
               setEditId(-1);
@@ -248,7 +256,9 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
       });
     }
     else{
-      alert('A field is missing! Cannot update landmark.')
+      setDialogTitle("Unable to Update Path");
+      setDialogContent("At least a longitude or latitude is missing from your nodes. Delete the problem node or properly fill in the latitude and longitude.");
+      setIsDialogOpen(true);
     }
   };
 
@@ -268,6 +278,13 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
   const handleNewNode = () => {
     setCoordinates(prevVal => [...prevVal, ["", ""]]);
   }
+
+  /**
+   * Handles closing the dialog.
+   */
+   const handleDialogClose = () => {
+    setIsDialogOpen(false);
+  };
 
   /**
    * Handles changing the mode to edit.
@@ -445,6 +462,24 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
       {
         isEdit && getEditPathContent()
       }
+      <Dialog
+        open={isDialogOpen}
+        onClose={handleDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth>
+          <DialogTitle id="alert-dialog-title">{dialogTitle}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {dialogContent}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose}>
+              OK 
+            </Button>
+          </DialogActions>
+      </Dialog>
     </Paper>
   );
 }
