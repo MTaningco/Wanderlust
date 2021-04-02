@@ -1,6 +1,6 @@
 //Imports from libraries
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Input, Typography, CircularProgress, Grid } from '@material-ui/core';
+import { Input, Typography, CircularProgress, Grid, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -36,6 +36,9 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
   const [landmarkLongitude, setLandmarkLongitude] = useState("");
   const [landmarkDescription, setLandmarkDescription] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogContent, setDialogContent] = useState("");
 
   /**
    * Handles the description change
@@ -113,6 +116,11 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
         setLandmarkLatitude("");
         setLandmarkLongitude("");
         setLandmarkDescription("");
+            
+        setDialogTitle("New Landmark Added");
+        setDialogContent("Your landmark has been added successfully.");
+        setIsDialogOpen(true);
+
         setTimeout(() => {
           setIsProcessing(false);
           createLandmark({
@@ -144,6 +152,11 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
             setLandmarkLatitude("");
             setLandmarkLongitude("");
             setLandmarkDescription("");
+            
+            setDialogTitle("New Landmark Added");
+            setDialogContent("Your landmark has been added successfully.");
+            setIsDialogOpen(true);
+
             setTimeout(() => {
               setIsProcessing(false);
               createLandmark({
@@ -166,6 +179,18 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
         });
       });//TODO: check if processing needs to be set to false here
     }
+    else{
+      setDialogTitle("Unable to Add Landmark");
+      setDialogContent("Ensure that the landmark name, longitude, and latitude are populated and valid.");
+      setIsDialogOpen(true);
+    }
+  };
+
+  /**
+   * Handles closing the dialog.
+   */
+   const handleDialogClose = () => {
+    setIsDialogOpen(false);
   };
 
   const handleReset = () => {
@@ -229,6 +254,24 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
           {!isProcessing && 'Reset Values'}
         </Button>
       </Grid>
+      <Dialog
+        open={isDialogOpen}
+        onClose={handleDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth>
+          <DialogTitle id="alert-dialog-title">{dialogTitle}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {dialogContent}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose}>
+              OK 
+            </Button>
+          </DialogActions>
+      </Dialog>
     </form>
   );
 }
