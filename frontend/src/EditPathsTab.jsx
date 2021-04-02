@@ -199,6 +199,11 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
       .then(res => {
         setIsEdit(false);
         setIsProcessing(false);
+            
+        setDialogTitle("Path Edit Successful");
+        setDialogContent("Your path has been edited successfully.");
+        setIsDialogOpen(true);
+
         setTimeout(() => {
           setEditName("");
           setEditId(-1);
@@ -229,10 +234,10 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
             setIsEdit(false);
             setIsProcessing(false);
             
-            setDialogTitle("Path Update Successful");
-            setDialogContent("Your path has been updated successfully.");
+            setDialogTitle("Path Edit Successful");
+            setDialogContent("Your path has been edited successfully.");
             setIsDialogOpen(true);
-            
+
             setTimeout(() => {
               setEditName("");
               setEditId(-1);
@@ -256,7 +261,7 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
       });
     }
     else{
-      setDialogTitle("Unable to Update Path");
+      setDialogTitle("Unable to Edit Path");
       setDialogContent("At least a longitude or latitude is missing from your nodes. Delete the problem node or properly fill in the latitude and longitude.");
       setIsDialogOpen(true);
     }
