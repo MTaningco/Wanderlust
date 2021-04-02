@@ -1,6 +1,6 @@
 //Imports from libraries
 import React, { Component, useState, useRef, useEffect } from "react";
-import { Input, Typography, CircularProgress, Paper, FormControl, InputLabel, TextField, Grid } from '@material-ui/core';
+import { Input, Typography, CircularProgress, Paper, FormControl, InputLabel, TextField, Grid, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -52,6 +52,9 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
   const [editLongitude, setEditLongitude] = useState("");
   const [editLatitude, setEditLatitude] = useState("");
   const [editIndex, setEditIndex] = useState(-1);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogContent, setDialogContent] = useState("");
 
   /**
    * Handles the latitude change of the edited landmark.
@@ -127,6 +130,11 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
       .then(res => {
         setIsEdit(false);
         setIsProcessing(false);
+            
+        setDialogTitle("Landmark Edit Successful");
+        setDialogContent("Your landmark has been edited successfully.");
+        setIsDialogOpen(true);
+
         setTimeout(() => {
           updateLandmark({
             landmark_uid: editId,
@@ -155,6 +163,11 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
           .then(res => {
             setIsEdit(false);
             setIsProcessing(false);
+            
+            setDialogTitle("Landmark Edit Successful");
+            setDialogContent("Your landmark has been edited successfully.");
+            setIsDialogOpen(true);
+
             setTimeout(() => {
               updateLandmark({
                 landmark_uid: editId,
@@ -177,7 +190,9 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
       });
     }
     else{
-      alert('A field is missing! Cannot update landmark.')
+      setDialogTitle("Unable to Edit Landmark");
+      setDialogContent("Ensure that the landmark name, longitude, and latitude are populated and valid.");
+      setIsDialogOpen(true);
     }
   };
 
@@ -267,6 +282,13 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
         });
       });
     }
+  };
+
+  /**
+   * Handles closing the dialog.
+   */
+   const handleDialogClose = () => {
+    setIsDialogOpen(false);
   };
 
   /**
@@ -360,6 +382,24 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
       {
         isEdit && getEditLandmarkContent()
       }
+      <Dialog
+        open={isDialogOpen}
+        onClose={handleDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth>
+          <DialogTitle id="alert-dialog-title">{dialogTitle}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {dialogContent}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose}>
+              OK 
+            </Button>
+          </DialogActions>
+      </Dialog>
     </Paper>
   );
 }
