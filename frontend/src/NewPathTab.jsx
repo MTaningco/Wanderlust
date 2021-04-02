@@ -1,7 +1,7 @@
 //Imports from libraries
 import React, { useState } from "react";
 import Typography from '@material-ui/core/Typography';
-import { Input, CircularProgress, Paper, TextField, Grid } from '@material-ui/core';
+import { Input, CircularProgress, Paper, TextField, Grid, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -38,6 +38,9 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath, se
   const [isAirplane, setIsAirplane] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [name, setName] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogContent, setDialogContent] = useState("");
 
   /**
    * Handles the name change of the edited landmark.
@@ -85,6 +88,11 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath, se
       .then(res => {
         setCoordinates([]);
         setName("");
+            
+        setDialogTitle("New Path Added");
+        setDialogContent("Your path has been added successfully.");
+        setIsDialogOpen(true);
+
         setTimeout(() => {
           setIsProcessing(false);
           createPath({
@@ -115,6 +123,11 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath, se
           .then(res => {
             setCoordinates([]);
             setName("");
+            
+            setDialogTitle("New Path Added");
+            setDialogContent("Your path has been added successfully.");
+            setIsDialogOpen(true);
+
             setTimeout(() => {
               setIsProcessing(false);
               createPath({
@@ -137,6 +150,11 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath, se
           invalidateAuth();
         });
       });
+    }
+    else{
+      setDialogTitle("Unable to Add Path");
+      setDialogContent("At least a longitude or latitude is missing from your nodes. Delete the problem node or properly fill in the latitude and longitude.");
+      setIsDialogOpen(true);
     }
   };
 
@@ -229,6 +247,13 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath, se
     updateTempPath(coordinates, event.target.checked);
   };
 
+  /**
+   * Handles closing the dialog.
+   */
+   const handleDialogClose = () => {
+    setIsDialogOpen(false);
+  };
+
   const handleReset = () => {
     setName("");
     setCoordinates([]);
@@ -272,19 +297,37 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath, se
           })
         }
       <Button variant="contained" color="primary" onClick={handleNewNode} fullWidth className={classes.addNode}> 
-          <AddIcon className={classes.iconText}/> Add Node
+        <AddIcon className={classes.iconText}/> Add Node
+      </Button>
+    
+      <Grid container justify="center">
+        <Button variant="contained" color="primary" onClick={handleNewPath} className={classes.finishEditButton}>
+          {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
+          {!isProcessing && 'Create Path'}
         </Button>
-      
-        <Grid container justify="center">
-          <Button variant="contained" color="primary" onClick={handleNewPath} className={classes.finishEditButton}>
-            {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}
-            {!isProcessing && 'Create Path'}
-          </Button>
-          <Button variant="outlined" onClick={handleReset} className={classes.cancelButton}>
-            {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
-            {!isProcessing && 'Reset Values'}
-          </Button>
-        </Grid>
+        <Button variant="outlined" onClick={handleReset} className={classes.cancelButton}>
+          {isProcessing && <CircularProgress size={24} color='primary' disableShrink />}
+          {!isProcessing && 'Reset Values'}
+        </Button>
+      </Grid>
+      <Dialog
+        open={isDialogOpen}
+        onClose={handleDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth>
+          <DialogTitle id="alert-dialog-title">{dialogTitle}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {dialogContent}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose}>
+              OK 
+            </Button>
+          </DialogActions>
+      </Dialog>
     </Paper>
   );
 }
