@@ -90,6 +90,62 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
     }
   }
 
+  const onLandmarkSuccessful = (res) => {
+    setLandmarkName("");
+    setLandmarkLatitude("");
+    setLandmarkLongitude("");
+    setLandmarkDescription("");
+        
+    setDialogTitle("New Landmark Added");
+    setDialogContent("Your landmark has been added successfully.");
+    setIsDialogOpen(true);
+
+    setTimeout(() => {
+      setIsProcessing(false);
+      createLandmark({
+        id: `landmark_${res.landmark_uid}`,
+        path_uid: res.landmark_uid,
+        name: landmarkName,
+        description: landmarkDescription,
+        coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
+      });
+    }, 500);
+  };
+
+  const recursiveFetch = (body, iteration) => {
+    fetch(`/landmarks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    })
+    .then(res => res.json())
+    .then(res => {
+      onLandmarkSuccessful(res);
+    })
+    .catch((error) => {
+      if(iteration === 0){
+        console.log(error);
+        invalidateAuth();
+      }
+      else{
+        fetch(`/users/refreshToken`, {
+          method: "POST"
+        })
+        .then(res => res.json())
+        .then(res => {
+          setDialogTimer(res.refreshTokenExpiry);
+          recursiveFetch(body, iteration - 1);
+        })
+        .catch((error) => {
+          console.log(error);
+          invalidateAuth();
+        });
+      }
+    });
+  };
+
   /**
    * Handles the add landmark event.
    */
@@ -102,82 +158,8 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
         latitude: parseFloat(landmarkLatitude),
         longitude: parseFloat(landmarkLongitude)
       }
-  
-      fetch(`/landmarks`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      })
-      .then(res => res.json())
-      .then(res => {
-        setLandmarkName("");
-        setLandmarkLatitude("");
-        setLandmarkLongitude("");
-        setLandmarkDescription("");
-            
-        setDialogTitle("New Landmark Added");
-        setDialogContent("Your landmark has been added successfully.");
-        setIsDialogOpen(true);
 
-        setTimeout(() => {
-          setIsProcessing(false);
-          createLandmark({
-            id: `landmark_${res.landmark_uid}`,
-            path_uid: res.landmark_uid,
-            name: landmarkName,
-            description: landmarkDescription,
-            coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
-          });
-        }, 500);
-      })
-      .catch((error) => {
-        fetch(`/users/refreshToken`, {
-          method: "POST"
-        })
-        .then(res => res.json())
-        .then(res => {
-          setDialogTimer(res.refreshTokenExpiry);
-          fetch(`/landmarks`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body)
-          })
-          .then(res => res.json())
-          .then(res => {
-            setLandmarkName("");
-            setLandmarkLatitude("");
-            setLandmarkLongitude("");
-            setLandmarkDescription("");
-            
-            setDialogTitle("New Landmark Added");
-            setDialogContent("Your landmark has been added successfully.");
-            setIsDialogOpen(true);
-
-            setTimeout(() => {
-              setIsProcessing(false);
-              createLandmark({
-                id: `landmark_${res.landmark_uid}`,
-                path_uid: res.landmark_uid,
-                name: landmarkName,
-                description: landmarkDescription,
-                coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
-              });
-            }, 500);
-          })
-          .catch((error) => {
-            console.log(error);
-            invalidateAuth();
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          invalidateAuth();
-        });
-      });//TODO: check if processing needs to be set to false here
+      recursiveFetch(body, 1);
     }
     else{
       setDialogTitle("Unable to Add Landmark");
