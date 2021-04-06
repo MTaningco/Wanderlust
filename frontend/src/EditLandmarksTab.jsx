@@ -107,6 +107,30 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
   }
 
   /**
+   * Handles the method upon successful landmark edit.
+   * @param {*} res - the response of the http request
+   * @param {number} index - the index of the landmark to update on the client side
+   */
+  const onEditLandmarkSuccessful = (res, index) => {
+    setIsEdit(false);
+    setIsProcessing(false);
+        
+    setDialogTitle("Landmark Edit Successful");
+    setDialogContent("Your landmark has been edited successfully.");
+    setIsDialogOpen(true);
+
+    setTimeout(() => {
+      updateLandmark({
+        landmark_uid: editId,
+        name: editName,
+        description: editDescription,
+        coordinates: [editLongitude, editLatitude]
+      }, index);
+      setEditIndex(-1);
+    }, 500);
+  }
+
+  /**
    * Handles editing the landmark.
    */
   const handleEditLandmark = () => {
@@ -119,75 +143,7 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
         coordinates: [editLongitude, editLatitude]
       };
 
-      fetch(`/landmarks`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      })
-      .then(res => res.json())
-      .then(res => {
-        setIsEdit(false);
-        setIsProcessing(false);
-            
-        setDialogTitle("Landmark Edit Successful");
-        setDialogContent("Your landmark has been edited successfully.");
-        setIsDialogOpen(true);
-
-        setTimeout(() => {
-          updateLandmark({
-            landmark_uid: editId,
-            name: editName,
-            description: editDescription,
-            coordinates: [editLongitude, editLatitude]
-          }, editIndex);
-          setEditIndex(-1);
-        }, 500);
-      })
-      .catch((error) => {
-        fetch(`/users/refreshToken`, {
-          method: "POST"
-        })
-        .then(res => res.json())
-        .then(res => {
-          setDialogTimer(res.refreshTokenExpiry);
-          fetch(`/landmarks`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body)
-          })
-          .then(res => res.json())
-          .then(res => {
-            setIsEdit(false);
-            setIsProcessing(false);
-            
-            setDialogTitle("Landmark Edit Successful");
-            setDialogContent("Your landmark has been edited successfully.");
-            setIsDialogOpen(true);
-
-            setTimeout(() => {
-              updateLandmark({
-                landmark_uid: editId,
-                name: editName,
-                description: editDescription,
-                coordinates: [editLongitude, editLatitude]
-              }, editIndex);
-              setEditIndex(-1);
-            }, 500);
-          })
-          .catch((error) => {
-            console.log(error);
-            invalidateAuth();
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          invalidateAuth();
-        });
-      });
+      recursiveFetch(body, 1, editIndex, "PUT", onEditLandmarkSuccessful);
     }
     else{
       setDialogTitle("Unable to Edit Landmark");
@@ -222,6 +178,65 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
   };
 
   /**
+   * Handles the operations for a successful landmark deletion.
+   * @param {*} res - the response of the http request
+   * @param {number} index - the index of the landmark to delete on the client side
+   */
+  const onDeleteLandmarkSuccessful = (res, index) => {
+    setIsProcessing(false);
+    setIsEdit(false);
+        
+    setDialogTitle("Landmark Delete Successful");
+    setDialogContent("Your landmark has been deleted successfully.");
+    setIsDialogOpen(true);
+    setTimeout(() => {
+      deleteLandmark(res.landmark_uid, index);
+    }, 500);
+  }
+
+  /**
+   * Fetches for the delete request recursively.
+   * @param {*} body - the body to send via http request
+   * @param {number} iteration - the iteration number to the base case
+   * @param {number} index - the index of the landmark to delete on the client side
+   * @param {string} method - the string representing the http request method
+   * @param {number} onMethodSuccess - the function to run upon successful http request
+   */
+  const recursiveFetch = (body, iteration, index, method, onMethodSuccess) => {
+    fetch(`/landmarks`, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    })
+    .then(res => res.json())
+    .then(res => {
+      onMethodSuccess(res, index);
+    })
+    .catch((error) => {
+      if(iteration === 0){
+        console.log(error);
+        invalidateAuth();
+      }
+      else{
+        fetch(`/users/refreshToken`, {
+          method: "POST"
+        })
+        .then(res => res.json())
+        .then(res => {
+          setDialogTimer(res.refreshTokenExpiry);
+          recursiveFetch(body, iteration - 1, index, method, onMethodSuccess);
+        })
+        .catch((error) => {
+          console.log(error);
+          invalidateAuth();
+        });
+      }
+    });
+  };
+
+  /**
    * Handles deleting the landmark.
    * @param {*} landmark - the landmark to delete
    * @param {number} index - the index of the landmark
@@ -233,54 +248,8 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
       const body = {
         landmark_uid: landmark.landmark_uid
       };
-      fetch(`/landmarks`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      })
-      .then(res => res.json())
-      .then(res => {
-        setIsProcessing(false);
-        setIsEdit(false);
-        setTimeout(() => {
-          deleteLandmark(landmark.landmark_uid, index);
-        }, 500);
-      })
-      .catch((error) => {
-        //access token is invalid, try to refresh the access token and try again
-        fetch(`/users/refreshToken`, {
-          method: "POST"
-        })
-        .then(res => res.json())
-        .then(res => {
-          setDialogTimer(res.refreshTokenExpiry);
-          fetch(`/landmarks`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body)
-          })
-          .then(res => res.json())
-          .then(res => {
-            setIsProcessing(false);
-            setIsEdit(false);
-            setTimeout(() => {
-              deleteLandmark(landmark.landmark_uid, index);
-            }, 500);
-          })
-          .catch((error) => {
-            console.log(error);
-            invalidateAuth();
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          invalidateAuth();
-        });
-      });
+
+      recursiveFetch(body, 1, index, "DELETE", onDeleteLandmarkSuccessful);
     }
   };
 
