@@ -187,78 +187,8 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
         coordinates: coordinates,
         is_airplane: isAirPlane
       };
-      
-      fetch(`/paths`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      })
-      .then(res => res.json())
-      .then(res => {
-        setIsEdit(false);
-        setIsProcessing(false);
-            
-        setDialogTitle("Path Edit Successful");
-        setDialogContent("Your path has been edited successfully.");
-        setIsDialogOpen(true);
 
-        setTimeout(() => {
-          setEditName("");
-          setEditId(-1);
-          setEditIndex(-1);
-          updatePath({
-            coordinates: coordinates,
-            isAirPlane: isAirPlane,
-            path_name: editName
-          }, editIndex);
-        }, 500);
-      })
-      .catch((error) => {
-        fetch(`/users/refreshToken`, {
-          method: "POST"
-        })
-        .then(res => res.json())
-        .then(res => {
-          setDialogTimer(res.refreshTokenExpiry);
-          fetch(`/paths`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body)
-          })
-          .then(res => res.json())
-          .then(res => {
-            setIsEdit(false);
-            setIsProcessing(false);
-            
-            setDialogTitle("Path Edit Successful");
-            setDialogContent("Your path has been edited successfully.");
-            setIsDialogOpen(true);
-
-            setTimeout(() => {
-              setEditName("");
-              setEditId(-1);
-              setEditIndex(-1);
-              updatePath({
-                coordinates: coordinates,
-                isAirPlane: isAirPlane,
-                path_name: editName
-              }, editIndex);
-            }, 500);
-          })
-          .catch((error) => {
-            console.log(error);
-            invalidateAuth();
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          invalidateAuth();
-        });
-      });
+      recursiveFetch(body, 1, editIndex, "PUT", onEditPathSuccessful);
     }
     else{
       setDialogTitle("Unable to Edit Path");
@@ -266,6 +196,73 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
       setIsDialogOpen(true);
     }
   };
+
+  /**
+   * Fetches for the delete request recursively.
+   * @param {*} body - the body to send via http request
+   * @param {number} iteration - the iteration number to the base case
+   * @param {number} index - the index of the landmark to delete on the client side
+   * @param {string} method - the string representing the http request method
+   * @param {void} onMethodSuccess - the function to run upon successful http request
+   */
+   const recursiveFetch = (body, iteration, index, method, onMethodSuccess) => {
+    fetch(`/paths`, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    })
+    .then(res => res.json())
+    .then(res => {
+      onMethodSuccess(res, index);
+    })
+    .catch((error) => {
+      if(iteration === 0){
+        console.log(error);
+        invalidateAuth();
+      }
+      else{
+        fetch(`/users/refreshToken`, {
+          method: "POST"
+        })
+        .then(res => res.json())
+        .then(res => {
+          setDialogTimer(res.refreshTokenExpiry);
+          recursiveFetch(body, iteration - 1, index, method, onMethodSuccess);
+        })
+        .catch((error) => {
+          console.log(error);
+          invalidateAuth();
+        });
+      }
+    });
+  };
+
+  /**
+   * Handles the method upon successful path edit.
+   * @param {*} res - the response of the http request
+   * @param {number} index - the index of the path to update on the client side
+   */
+  const onEditPathSuccessful = (res, index) => {
+    setIsEdit(false);
+    setIsProcessing(false);
+    
+    setDialogTitle("Path Edit Successful");
+    setDialogContent("Your path has been edited successfully.");
+    setIsDialogOpen(true);
+
+    setTimeout(() => {
+      setEditName("");
+      setEditId(-1);
+      setEditIndex(-1);
+      updatePath({
+        coordinates: coordinates,
+        isAirPlane: isAirPlane,
+        path_name: editName
+      }, index);
+    }, 500);
+  }
 
   /**
    * Handles canceling out of the edit mode.
@@ -328,57 +325,24 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
       const body = {
         path_uid: path.path_uid
       };
-      fetch(`/paths`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      })
-      .then(res => res.json())
-      .then(res => {
-        console.log(res);
-        setIsProcessing(false);
-        setIsEdit(false);
-        setTimeout(() => {
-          deletePath(index);
-        }, 500);
-      })
-      .catch((error) => {
-        fetch(`/users/refreshToken`, {
-          method: "POST"
-        })
-        .then(res => res.json())
-        .then(res => {
-          setDialogTimer(res.refreshTokenExpiry);
-          fetch(`/paths`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body)
-          })
-          .then(res => res.json())
-          .then(res => {
-            console.log(res);
-            setIsProcessing(false);
-            setIsEdit(false);
-            setTimeout(() => {
-              deletePath(index);
-            }, 500);
-          })
-          .catch((error) => {
-            console.log(error);
-            invalidateAuth();
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          invalidateAuth();
-        });
-      });
+
+      recursiveFetch(body, 1, index, "DELETE", onDeletePathSuccessful);
     }
   };
+
+  /**
+   * Handles the operations for a successful path deletion. 
+   * @param {*} res - the response of the http request
+   * @param {number} index - the index of the path to delete on the client side
+   */
+  const onDeletePathSuccessful = (res, index) => {
+    console.log(res);
+    setIsProcessing(false);
+    setIsEdit(false);
+    setTimeout(() => {
+      deletePath(index);
+    }, 500);
+  }
 
   /**
    * Gets the edit path content.
