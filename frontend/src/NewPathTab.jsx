@@ -76,86 +76,78 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath, se
         isAirPlane: isAirplane,
         path_name: name
       }
-  
-      fetch(`/paths`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      })
-      .then(res => res.json())
-      .then(res => {
-        setCoordinates([]);
-        setName("");
-            
-        setDialogTitle("New Path Added");
-        setDialogContent("Your path has been added successfully.");
-        setIsDialogOpen(true);
 
-        setTimeout(() => {
-          setIsProcessing(false);
-          createPath({
-            type: "LineString", 
-            coordinates: [...coordinates], 
-            id:`path_${res.path_uid}`,
-            path_uid: res.path_uid,
-            isAirPlane: isAirplane,
-            path_name: name
-          });
-        }, 500);
-      })
-      .catch((error) => {
-        fetch(`/users/refreshToken`, {
-          method: "POST"
-        })
-        .then(res => res.json())
-        .then(res => {
-          setDialogTimer(res.refreshTokenExpiry);
-          fetch(`/paths`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body)
-          })
-          .then(res => res.json())
-          .then(res => {
-            setCoordinates([]);
-            setName("");
-            
-            setDialogTitle("New Path Added");
-            setDialogContent("Your path has been added successfully.");
-            setIsDialogOpen(true);
-
-            setTimeout(() => {
-              setIsProcessing(false);
-              createPath({
-                type: "LineString", 
-                coordinates: [...coordinates], 
-                id:`path_${res.path_uid}`,
-                path_uid: res.path_uid,
-                isAirPlane: isAirplane,
-                path_name: name
-              });
-            }, 500);
-          })
-          .catch((error) => {
-            console.log(error);
-            invalidateAuth();
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-          invalidateAuth();
-        });
-      });
+      recursiveFetch(body, 1);
     }
     else{
       setDialogTitle("Unable to Add Path");
       setDialogContent("At least a longitude or latitude is missing from your nodes. Delete the problem node or properly fill in the latitude and longitude.");
       setIsDialogOpen(true);
     }
+  };
+
+  /**
+   * Fetches for the new path recursively.
+   * @param {*} body - the body to send via http request
+   * @param {number} iteration - the iteration number to the base case
+   */
+  const recursiveFetch = (body, iteration) => {
+    fetch(`/paths`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    })
+    .then(res => res.json())
+    .then(res => {
+      onPathSuccessful(res);
+    })
+    .catch((error) => {
+      if(iteration === 0){
+        console.log(error);
+        invalidateAuth();
+      }
+      else{
+        fetch(`/users/refreshToken`, {
+          method: "POST"
+        })
+        .then(res => res.json())
+        .then(res => {
+          setDialogTimer(res.refreshTokenExpiry);
+          recursiveFetch(body, iteration - 1);
+        })
+        .catch((error) => {
+          console.log(error);
+          invalidateAuth();
+        });
+      }
+    });
+  };
+
+  /**
+   * Handles the method upon successful path addition
+   * @param {*} res - the response of the http request
+   */
+  const onPathSuccessful = (res) => {
+    setCoordinates([]);
+    setName("");
+        
+    setDialogTitle("New Path Added");
+    setDialogContent("Your path has been added successfully.");
+    setIsDialogOpen(true);
+
+    setTimeout(() => {
+      setIsProcessing(false);
+      createPath({
+        type: "LineString", 
+        coordinates: [...coordinates], 
+        id:`path_${res.path_uid}`,
+        path_uid: res.path_uid,
+        isAirPlane: isAirplane,
+        path_name: name
+      });
+    }, 500);
   };
 
   /**
