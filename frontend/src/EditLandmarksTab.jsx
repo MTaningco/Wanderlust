@@ -55,6 +55,11 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("");
   const [dialogContent, setDialogContent] = useState("");
+  const [isDialogDeleteOpen, setIsDialogDeleteOpen] = useState(false);
+  // const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogDeleteContent, setDialogDeleteContent] = useState([]);
+  const [landmarkUIDToDelete, setLandmarkUIDToDelete] = useState(-1);
+  const [indexToDelete, setIndexToDelete] = useState(-1);
 
   /**
    * Handles the latitude change of the edited landmark.
@@ -186,6 +191,7 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
     setIsProcessing(false);
     setIsEdit(false);
         
+    setIsDialogDeleteOpen(false);
     setDialogTitle("Landmark Delete Successful");
     setDialogContent("Your landmark has been deleted successfully.");
     setIsDialogOpen(true);
@@ -241,16 +247,22 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
    * @param {*} landmark - the landmark to delete
    * @param {number} index - the index of the landmark
    */
-  const handleDeleteLandmark = (landmark, index) => {
-    let isConfirmed = window.confirm(`Are you sure you want to delete this landmark?\n\n${landmark.name}\nlongitude:${landmark.coordinates[0]}\nlatitude:${landmark.coordinates[1]}\n\n${landmark.description}`);
-    if(isConfirmed){
-      setIsProcessing(true);
-      const body = {
-        landmark_uid: landmark.landmark_uid
-      };
+  const handleDeleteButtonPressed = (landmark, index) => {
+    
+    setDialogDeleteContent([`${landmark.name} (${landmark.coordinates[1]}, ${landmark.coordinates[0]})`,`${landmark.description}`]);
+    setIsDialogDeleteOpen(true);
+    setLandmarkUIDToDelete(landmark.landmark_uid);
+    setIndexToDelete(index);
+  };
 
-      recursiveFetch(body, 1, index, "DELETE", onDeleteLandmarkSuccessful);
-    }
+  const handleDeleteLandmark = () => {
+    setIsProcessing(true);
+    console.log("the landmark uid to delete is", landmarkUIDToDelete);
+    const body = {
+      landmark_uid: landmarkUIDToDelete
+    };
+
+    recursiveFetch(body, 1, indexToDelete, "DELETE", onDeleteLandmarkSuccessful);
   };
 
   /**
@@ -258,6 +270,10 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
    */
    const handleDialogClose = () => {
     setIsDialogOpen(false);
+  };
+
+  const handleDialogDeleteClose = () => {
+    setIsDialogDeleteOpen(false);
   };
 
   /**
@@ -338,7 +354,7 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
               <IconButton color="primary" onClick={() => handleEditLandmarkMode(element, index)}>
                 <EditIcon/>
               </IconButton>
-              <IconButton color="secondary" onClick={() => handleDeleteLandmark(element, index)}>
+              <IconButton color="secondary" onClick={() => handleDeleteButtonPressed(element, index)}>
                 <DeleteIcon />
               </IconButton>
               <Typography variant="h6" className={classes.iconText}>
@@ -366,6 +382,35 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
           <DialogActions>
             <Button onClick={handleDialogClose}>
               OK 
+            </Button>
+          </DialogActions>
+      </Dialog>
+      <Dialog
+        open={isDialogDeleteOpen}
+        onClose={handleDialogDeleteClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth>
+          <DialogTitle id="alert-dialog-title">Delete Landmark?</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {
+                dialogDeleteContent.map(element => {
+                  return (
+                    <Typography>
+                      {element}
+                    </Typography>
+                  );
+                })
+              }
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDeleteLandmark}>
+              DELETE LANDMARK 
+            </Button>
+            <Button onClick={handleDialogDeleteClose}>
+              CANCEL 
             </Button>
           </DialogActions>
       </Dialog>

@@ -104,7 +104,7 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
       setIsProcessing(false);
       createLandmark({
         id: `landmark_${res.landmark_uid}`,
-        path_uid: res.landmark_uid,
+        landmark_uid: res.landmark_uid,
         name: landmarkName,
         description: landmarkDescription,
         coordinates: [parseFloat(landmarkLongitude), parseFloat(landmarkLatitude)]
