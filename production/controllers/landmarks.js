@@ -32,7 +32,7 @@ exports.updateLandmark = function(req, res, next){
  */
 exports.deleteLandmark = function(req, res, next){
   landmarks.delete(req.decoded.user_uid, req.body.landmark_uid, (rows) => {
-    console.log(rows);
+    console.log("delete landmark query result", rows);
     res.json(rows);
   });
 }
@@ -45,6 +45,7 @@ exports.deleteLandmark = function(req, res, next){
  */
 exports.createLandmark = function(req, res, next){
   landmarks.create(req.decoded.user_uid, req.body.landmarkName, req.body.landmarkDescription, req.body.latitude, req.body.longitude, (rows) => {
+    console.log("create landmark query result", rows);
     res.json(rows);
   });
 }
