@@ -273,7 +273,8 @@ function SignUp() {
             autoFocus
             value={email}
             onChange={handleEmailChange}
-            className={classes.textField}/>
+            className={classes.textField}
+            inputProps={{maxLength: 255}}/>
           <br/>
           <br/>
           <TextField
@@ -286,7 +287,8 @@ function SignUp() {
             autoComplete="username"
             value={username}
             onChange={handleUsernameChange}
-            className={classes.textField}/>
+            className={classes.textField}
+            inputProps={{maxLength: 100}}/>
           <br/>
           <Typography className={classes.hint}>
             Username Status: {isUsernameTaken ? "Taken" : "Available"}

@@ -215,7 +215,8 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
         value={landmarkName}
         onChange={handleNameChange} 
         fullWidth
-        className={classes.formFields}/>
+        className={classes.formFields}
+        inputProps={{maxLength: 255}}/>
       <TextField
         id="standard-multiline-static"
         label="Description"
@@ -225,7 +226,8 @@ function NewLandmarkTab({value, index, invalidateAuth, createLandmark, updateNew
         value={landmarkDescription}
         onChange={handleDescriptionChange} 
         fullWidth
-        className={classes.formFields}/>
+        className={classes.formFields}
+        inputProps={{maxLength: 500}}/>
       <Grid container justify="center">
         <Button variant="contained" color="primary" onClick={handleAddLandmark} className={classes.finishEditButton}>
           {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}

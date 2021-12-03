@@ -310,7 +310,8 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
           value={editName}
           onChange={handleNameChange}
           fullWidth
-          className={classes.formFields}/>
+          className={classes.formFields}
+          inputProps={{maxLength: 255}}/>
         <TextField
           id="standard-multiline-static"
           label="Description"
@@ -321,7 +322,8 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
           value={editDescription}
           onChange={handleDescriptionChange}
           fullWidth
-          className={classes.formFields}/>
+          className={classes.formFields}
+          inputProps={{maxLength: 500}}/>
         <Grid container justify="center">
           <Button variant="contained" color="primary" onClick={handleEditLandmark} className={classes.finishEditButton}>
             {isProcessing && <CircularProgress size={24} color='secondary' disableShrink />}

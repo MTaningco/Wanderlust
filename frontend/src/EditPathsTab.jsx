@@ -369,7 +369,8 @@ function EditPathsTab({value, index, invalidateAuth, paths, deletePath, updatePa
           value={editName}
           onChange={handleNameChange}
           fullWidth
-          style={{marginBottom: "10px"}}/>
+          style={{marginBottom: "10px"}}
+          inputProps={{maxLength: 255}}/>
         {
           coordinates.map((element, index) => {
             return (

@@ -274,7 +274,8 @@ function NewPathTab({value, index, invalidateAuth, updateNewPath, createPath, se
         value={name}
         onChange={handleNameChange}
         fullWidth
-        style={{marginBottom: "10px"}}/>
+        style={{marginBottom: "10px"}}
+        inputProps={{maxLength: 255}}/>
         {
           coordinates.map((element, index) => {
             return (
