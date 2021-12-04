@@ -400,11 +400,13 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    * @param {*} svg - the svg used to draw city lights
    * @param {boolean} isCoarse - the parameter for fine detail or coarse detail
    */
-  const drawLights = (svg, isCoarse) => {
+  const drawLights = (svg, isCoarse, rotateParams) => {
+    var nightLongitude = subSolarCoordinates[0] + 180;
+    var nightLatitude = -subSolarCoordinates[1];
     if(isCoarse){
       svg
       .selectAll(".lights")
-      .data(lightsCoarse)
+      .data(lightsCoarse.filter((d) => isCoarseLightsInView(d, [nightLongitude, nightLatitude], rotateParams)))
       .join("path")
       .attr("class", "lights")
       .style("fill", "#ff8")
@@ -414,7 +416,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     }else{
       svg
         .selectAll(".lights")
-        .data(lightsFine)
+        .data(lightsFine.filter((d) => isFineLightsInView(d, [nightLongitude, nightLatitude], rotateParams)))
         .join("path")
         .attr("class", "lights")
         .style("fill", "#ff8")
@@ -425,11 +427,37 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   };
 
   /**
+   * Checks if the landmark for coarse city lights is in view for the user
+   * @param {*} landmark - the landmark object
+   * @param {*} nightCoordinates - the night coordinates in [long, lat]
+   * @param {*} rotateParams - the rotate parameters in [long, lat]
+   * @returns - a boolean
+   */
+  const isCoarseLightsInView = (landmark, nightCoordinates, rotateParams) => {
+    const gdistance = d3.geoDistance([parseFloat(landmark[3]), parseFloat(landmark[2])], nightCoordinates);
+    const gdistance1 = d3.geoDistance([parseFloat(landmark[3]), parseFloat(landmark[2])], [-rotateParams[0], -rotateParams[1]]);
+    return gdistance < 1.396 && gdistance1 < 1.396;
+  }
+
+  /**
+   * Checks if the landmark for fine city lights is in view for the user
+   * @param {*} landmark - the landmark object
+   * @param {*} nightCoordinates - the night coordinates in [long, lat]
+   * @param {*} rotateParams - the rotate parameters in [long, lat]
+   * @returns - a boolean 
+   */
+  const isFineLightsInView = (landmark, nightCoordinates, rotateParams) => {
+    const gdistance = d3.geoDistance(landmark.geometry.coordinates, nightCoordinates);
+    const gdistance1 = d3.geoDistance(landmark.geometry.coordinates, [-rotateParams[0], -rotateParams[1]]);
+    return gdistance < 1.396 && gdistance1 < 1.396;
+  }
+
+  /**
    * Draws the landmarks.
    * @param {*} svg - the svg used to draw the landmarks
    * @param {boolean} isDaylight - the parameter used for night time styles
    */
-  const drawLandmarks = (svg, isDaylight) => {
+  const drawLandmarks = (svg, isDaylight, rotateParams) => {
     // Format of one element of data
     //   {
     //     id: "landmark_1",
@@ -438,9 +466,10 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     //     description: "First Hometown. Revisited 2011, 2013, 2017, 2018, and 2019.",
     //     coordinates: [120.9842, 14.5995]
     //   }
+    // console.log(landmarks);
     svg
     .selectAll(".landmarks")
-    .data(landmarks)
+    .data(landmarks.filter((d) => isLandmarksInView(d, rotateParams)))
     .join("path")
     .attr("class", "landmarks")
     .attr("id", landmark => `${landmark.id}`)
@@ -464,6 +493,17 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()))
     .raise();
   };
+
+  /**
+   * Checks if the landmark is in view for the user
+   * @param {*} landmark - the landmark object
+   * @param {*} rotateParams - the rotate parameters in [long, lat]
+   * @returns - a boolean
+   */
+  const isLandmarksInView = (landmark, rotateParams) => {
+    const gdistance = d3.geoDistance(landmark.coordinates, [-rotateParams[0], -rotateParams[1]]);
+    return gdistance < 1.57;
+  }
 
   /**
    * Draws the current selected landmark.
@@ -729,7 +769,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     drawLakesOutline(svg, isCoarse, isDaylight);
 
     if(!isDaylight){
-      // drawLights(svg, false);
+      // drawLights(svg, true, rotateParams);
     }
     
     drawGraticule(svg, isDaylight);    
@@ -740,7 +780,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     drawTempLandmark(svg, isDaylight);
     drawEditPath(svg, isDaylight);
     drawEditLandmark(svg, isDaylight);
-    drawLandmarks(svg, isDaylight);
+    drawLandmarks(svg, isDaylight, rotateParams);
 
     drawScale(svg);
   };
