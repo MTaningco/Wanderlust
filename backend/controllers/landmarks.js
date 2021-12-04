@@ -8,7 +8,12 @@ var landmarks = require('../models/landmarks');
  */
 exports.getAllLandmarks = function(req, res, next){
   landmarks.getAll(req.decoded.user_uid, (rows) => {
-    res.json(rows);
+    if(rows){
+      console.log(`get landmarks query results for user ${req.decoded.user_uid} has ${rows.length} rows`);
+      res.json(rows);
+    } else {
+      res.status(500).send('Internal Server Error');
+    }
   })
 }; 
 
@@ -20,7 +25,12 @@ exports.getAllLandmarks = function(req, res, next){
  */
 exports.updateLandmark = function(req, res, next){
   landmarks.update(req.decoded.user_uid, req.body.landmark_uid, req.body.name, req.body.description, req.body.coordinates[1], req.body.coordinates[0], (rows) => {
-    res.json(rows);
+    if(rows){
+      console.log(`update landmark query results for user ${req.decoded.user_uid}`, rows);
+      res.json(rows);
+    } else {
+      res.status(500).send('Internal Server Error');
+    }
   });
 }
 
@@ -32,8 +42,12 @@ exports.updateLandmark = function(req, res, next){
  */
 exports.deleteLandmark = function(req, res, next){
   landmarks.delete(req.decoded.user_uid, req.body.landmark_uid, (rows) => {
-    console.log("delete landmark query result", rows);
-    res.json(rows);
+    if(rows){
+      console.log(`delete landmark query results for user ${req.decoded.user_uid}`, rows);
+      res.json(rows);
+    } else {
+      res.status(500).send('Internal Server Error');
+    }
   });
 }
 
@@ -45,7 +59,11 @@ exports.deleteLandmark = function(req, res, next){
  */
 exports.createLandmark = function(req, res, next){
   landmarks.create(req.decoded.user_uid, req.body.landmarkName, req.body.landmarkDescription, req.body.latitude, req.body.longitude, (rows) => {
-    console.log("create landmark query result", rows);
-    res.json(rows);
+    if(rows){
+      console.log(`create landmark query results for user ${req.decoded.user_uid}`, rows);
+      res.json(rows);
+    } else {
+      res.status(500).send('Internal Server Error');
+    }
   });
 }
