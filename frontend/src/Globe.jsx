@@ -73,8 +73,8 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   const [mouseCoordinates, setMouseCoordinates] = useState(null);         //state for initially pressing down the mouse button's position
   const [oldCoordinates, setOldCoordinates] = useState([180, -25]);   //state for the position of the globe during inactivity (units in -longitude, -latitude)
   const [newCoordinates, setNewCoordinates] = useState(null);             //state for updating the old coordinates
-  const [isMove, setIsMove] = useState(false);
-  const [isDrag, setIsDrag] = useState(false);
+  const [isMove, setIsMove] = useState(false);                        //state for when a user has queued up the fact that the globe has been changed somehow that lowered the resolution and will be rendered back to full resolution
+  const [isDrag, setIsDrag] = useState(false);                        //state for whether or not the user is dragging the globe (moving the mouse while mouse is down)
   const [isLoading, setIsLoading] = useState(false);
   const [renderText, setRenderText] = useState("");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -118,29 +118,21 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    * @param {*} event - the event during idle.
    */
   const handleOnIdle = event => {
-    //TODO: fix fine rendering issue
-    // if(event !== null && event.type !== "mousedown"){
-      // console.log("event for idle", event);
-      // console.log("redrawing globe");
-      // console.log("isMove=", isMove);
-      console.log("ismove", isMove);
-      console.log("!isDrag", !isDrag);
-    if(isMove && !isDrag){
-      // console.log("redrawing globe");
-      // drawGlobe(oldCoordinates, scale, false);
+    if(isMove && !isDrag) {
+      //the globe is not being dragged which means that the globe should be rendered fully
       setIsMove(false);
-      
       setIsLoading(true);
-      setRenderText("Rendering full resolution...");
-      // console.log("redrawing globe for idle, this is the current landmark", currentLandmark);
+      setRenderText(`Rendering full resolution...`);
       setTimeout(() => {
-        // console.log("timeout done for redrawing globe for idle, this is the current landmark", currentLandmark);
         drawGlobe(oldCoordinates, false);
         setIsLoading(false);
       }, 400);
+    } else if (isMove && isDrag) {
+      //the globe is still being dragged
+      reset();
+    } else {
+      console.log("do nothing when idle because the globe wasn't moved in the first place");
     }
-    // }
-    // console.log(event);
   }
     
   /**
@@ -148,18 +140,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    * @param {*} event - the event during active
    */
   const handleOnActive = event => {
-    //TODO: fix fine rendering issue
-    setIsDrag(false);
-    console.log("mouse up done");
-    // console.log(event.path[1].tagName === "svg");
-    // if(event.path[1].tagName === "svg"){
-    //     if(newCoordinates){
-    //         setMouseCoordinates(null);
-    //         setOldCoordinates(newCoordinates);
-    //         setNewCoordinates(null);
-    //     }
-    //     setMouseCoordinates(null);
-    // }
+
   }
     
   /**
@@ -169,8 +150,8 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   const handleOnAction = (event) => {}
      
   //Idle timer and parameters
-  const { getRemainingTime, getLastActiveTime, resume } = useIdleTimer({
-    timeout: 1000 * 1.5,
+  const { getRemainingTime, getLastActiveTime, resume, pause, reset } = useIdleTimer({
+    timeout: 1000 * 2,
     onIdle: handleOnIdle,
     onActive: handleOnActive,
     onAction: handleOnAction,
@@ -185,19 +166,15 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   const onMouseMoveHandler = (event) => {
     //TODO: fix fine rendering issue
     if(mouseCoordinates){
-      // console.log("mouse move", e);
-      // console.log("drawing the globe coarse");
       var currentMouseCoordinates = [event.screenX, event.screenY];
       var scalingFactor = 3.0 * getRealScale()/200.0;
       var movedCoordinates = [oldCoordinates[0] + (currentMouseCoordinates[0] - mouseCoordinates[0])/scalingFactor, oldCoordinates[1] - (currentMouseCoordinates[1] - mouseCoordinates[1])/scalingFactor];
       movedCoordinates[1] = movedCoordinates[1] < -90 ? -90 :
         movedCoordinates[1] > 90 ?  90 : movedCoordinates[1];
-      // projection.rotate(movedCoordinates);
       setNewCoordinates(movedCoordinates);
       setIsMove(true);
       setIsDrag(true);
       drawGlobe(movedCoordinates, true);
-      // console.log("mouse moved while dragged");
     }
   };
 
@@ -206,16 +183,12 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    * @param {*} event - the event of when the mouse click is now up
    */
   const onMouseUpHandler = (event) => {
-    //TODO: fix fine rendering issue
-    // console.log("mouseuphandler activated");
     if(newCoordinates){
-      // setMouseCoordinates(null);
       setOldCoordinates(newCoordinates);
       setNewCoordinates(null);
     }
     setIsDrag(false);
     setMouseCoordinates(null);
-    console.log("mouse up done");
   };
 
   /**
@@ -838,7 +811,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   }, [scale])
 
   useEffect(() => {
-    if(!isInitialLoad){
+    if(!isInitialLoad && !isDrag && !isMove){
       // console.log("subsolar");
       renderExternalUpdate("Updating earth shadow...", isDrag);
     }
