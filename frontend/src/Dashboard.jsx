@@ -264,6 +264,9 @@ function Dashboard() {
     .then(res => {
       setSubSolarCoordinates([res.longitude, res.latitude]);
       setIsSubsolarLoaded(true);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
     });
   };
 
