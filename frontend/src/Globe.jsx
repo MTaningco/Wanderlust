@@ -440,14 +440,17 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     //     coordinates: [120.9842, 14.5995]
     //   }
     // console.log(landmarks);
+
+    var nightLongitude = subSolarCoordinates[0] + 180;
+    var nightLatitude = -subSolarCoordinates[1];
     svg
     .selectAll(".landmarks")
     .data(landmarks.filter((d) => isLandmarksInView(d, rotateParams)))
     .join("path")
     .attr("class", "landmarks")
     .attr("id", landmark => `${landmark.id}`)
-    .style("fill", "black")
-    .style("stroke", "white")
+    .style("fill", landmark => isInTwilight(landmark, [nightLongitude, nightLatitude]) ? "white" : "black")
+    .style("stroke", landmark => isInTwilight(landmark, [nightLongitude, nightLatitude]) ? "white" : "black")
     .attr("stroke-width", 0.2)
     .attr("fill-opacity","0.3")
     .on("mouseover", (mouseEvent, item) => {
@@ -457,7 +460,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     } )
     .on("mouseout", (mouseEvent, item) => {
       d3.select(`#${item.id}`)
-      .style("fill", isDaylight ? "black" : "black")
+      .style("fill", landmark => isInTwilight(landmark, [nightLongitude, nightLatitude]) ? "white" : "black")
       .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
     } )
     .on("click", (mouseEvent, item) => {
@@ -475,6 +478,11 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    */
   const isLandmarksInView = (landmark, rotateParams) => {
     const gdistance = d3.geoDistance(landmark.coordinates, [-rotateParams[0], -rotateParams[1]]);
+    return gdistance < 1.57;
+  }
+
+  const isInTwilight = (landmark, nightCoordinates) => {
+    const gdistance = d3.geoDistance(landmark.coordinates, nightCoordinates);
     return gdistance < 1.57;
   }
 
