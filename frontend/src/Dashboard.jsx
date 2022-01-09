@@ -67,6 +67,7 @@ function Dashboard() {
   const [paths, setPaths] = useState([]);
   const [landmarks, setLandmarks] = useState([]);
   const [subSolarCoordinates, setSubSolarCoordinates] = useState([0, 0]);
+  const [locateLandmarkCoordinates, setLocateLandmarkCoordinates] = useState(null);
   // const [anchorEl, setAnchorEl] = React.useState(null);
   // const open = Boolean(anchorEl);
   const [isPathsLoaded, setIsPathsLoaded] = useState(false);
@@ -593,7 +594,9 @@ function Dashboard() {
               currentLandmark={currentLandmark}
               editLandmark={editLandmark}
               subSolarCoordinates={subSolarCoordinates}
-              editPath={editPath}/> : 
+              editPath={editPath}
+              locateLandmarkCoordinates={locateLandmarkCoordinates}
+              setLocateLandmarkCoordinates={setLocateLandmarkCoordinates}/> : 
               <Skeleton variant="circle" width={"98vh"} height={"98vh"}/>
             }
           </Grid>
@@ -625,7 +628,8 @@ function Dashboard() {
                 createPath={createPath}
                 updatePath={updatePath}
                 updateEditPath={updateEditPath}
-                setDialogTimer={setDialogTimer}/>
+                setDialogTimer={setDialogTimer}
+                setLocateLandmarkCoordinates={setLocateLandmarkCoordinates}/>
             </Paper>
           </Grid>
         </Grid>

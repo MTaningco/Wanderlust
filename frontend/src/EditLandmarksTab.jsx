@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteLandmark, landmarks, toInformationTab, updateEditLandmark, setDialogTimer}) {
+function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteLandmark, landmarks, toInformationTab, updateEditLandmark, setDialogTimer, setLocateLandmarkCoordinates}) {
     
   const classes = useStyles();
 
@@ -276,6 +276,10 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
     setIsDialogDeleteOpen(false);
   };
 
+  const handleLocateLandmark = (landmark) => {
+    setLocateLandmarkCoordinates(landmark.coordinates);
+  };
+
   /**
    * Gets the landmark content.
    */
@@ -347,7 +351,7 @@ function EditLandmarksTab({value, index, invalidateAuth, updateLandmark, deleteL
         !isEdit && landmarks.map((element, index) => {
           return(
             <Paper className={classes.nodeElement} elevation={2} key={element.id}>
-              <IconButton>
+              <IconButton onClick={() => handleLocateLandmark(element)}>
                 <MyLocationIcon/>
               </IconButton>
               <IconButton onClick={() => toInformationTab(element)}>

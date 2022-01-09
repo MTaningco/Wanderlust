@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
 
 const QUARTER_DIAMETER = 12742/4.0;
 
-function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, currentLandmark, editLandmark, subSolarCoordinates, editPath}) {
+function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, currentLandmark, editLandmark, subSolarCoordinates, editPath, locateLandmarkCoordinates, setLocateLandmarkCoordinates}) {
     
   const classes = useStyles();
   
@@ -184,7 +184,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    */
   const onMouseUpHandler = (event) => {
     if(newCoordinates){
-      setOldCoordinates(newCoordinates);
+      setOldCoordinates([modulo(newCoordinates[0] - 180, 360) - 180, newCoordinates[1]]);
       setNewCoordinates(null);
     }
     setIsDrag(false);
@@ -812,6 +812,10 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     }, isCoarse ? 100 : 800);
   }
 
+  const modulo = (a, n) => {
+    return ((a % n ) + n ) % n;
+  };
+
   //Use effect hook.
   useEffect(() => {
     drawGlobe(oldCoordinates, true);
@@ -880,6 +884,47 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
       renderExternalUpdate("Updating landmarks...", false);
     }
   }, [landmarks])
+
+  useEffect(() => {
+    if(locateLandmarkCoordinates) {
+        setIsLoading(true);
+        setRenderText(`Locating landmark...`);
+        d3.transition()
+        .duration(3000)
+        .tween("rotate", function() {
+          const longArray = [
+            -locateLandmarkCoordinates[0] + 360 - oldCoordinates[0], 
+            -locateLandmarkCoordinates[0] - oldCoordinates[0], 
+            -locateLandmarkCoordinates[0] - 360 - oldCoordinates[0]];
+          let amount = Number.MAX_VALUE;
+          let isPositive = true;
+          for(let i = 0; i < longArray.length; i++){
+            if(amount > Math.abs(longArray[i])){
+              amount = Math.abs(longArray[i]);
+              isPositive = longArray[i] > 0;
+            }
+          }
+          const r = d3.interpolate(oldCoordinates, [oldCoordinates[0] + (isPositive ? 1 : -1) * amount, -locateLandmarkCoordinates[1]]);
+          return function(t) {
+            if(t === 1){
+              setRenderText(`Rendering full resolution...`);
+              setLocateLandmarkCoordinates(null);
+              setTimeout(() => {
+                drawGlobe(r(t), false);
+                setIsLoading(false);
+              }, 100);
+            }
+            else{
+              drawGlobe(r(t), true);
+            }
+            
+            const coordinatesToUse = [modulo(r(t)[0] - 180, 360) - 180, r(t)[1]];
+            setOldCoordinates(coordinatesToUse);
+          }
+        })
+    }
+    
+  }, [locateLandmarkCoordinates])
 
   useEffect(() => {
     console.log("paths");
