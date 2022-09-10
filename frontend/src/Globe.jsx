@@ -1,5 +1,5 @@
 //Imports from libraries
-import React, { Component, useState, useRef, useEffect } from "react";
+import React, { Component, useState, useRef, useEffect, useLayoutEffect } from "react";
 import * as d3 from 'd3';
 import * as topojson from "topojson";
 import { useIdleTimer } from 'react-idle-timer';
@@ -13,8 +13,9 @@ import lakesCoarse from "./jsonData/ne_110m_lakes.json";
 //https://s3-us-west-2.amazonaws.com/s.cdpn.io/215059/cities-200000.json
 //https://public.opendatasoft.com/api/records/1.0/search/?dataset=geonames-all-cities-with-a-population-1000&q=&rows=10000&sort=population&pretty_print=true&format=json&fields=population,coordinates,name
 import lightsFine from "./jsonData/geonames-all-cities-with-a-population-1000.json";
+import lightsFine1 from "./jsonData/geonames-all-cities-with-a-population-1000-5000-records.json";
 import lightsCoarse from "./jsonData/cities-200000.json";//TODO: use if performance is fixed
-import { Button, CircularProgress, IconButton, LinearProgress, Typography } from "@material-ui/core";
+import { Button, CircularProgress, FormHelperText, IconButton, LinearProgress, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
@@ -28,7 +29,9 @@ const useStyles = makeStyles((theme) => ({
     justifyContent:'center',
     alignItems:'center',
     textAlign: "center",
-    position: 'relative'
+    position: 'relative',
+    width: "100%",
+    height: "100%"
   },
   zoomInButton: {
     display: "block",
@@ -40,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
       boxShadow: 'none',
     },
     position: 'absolute',
-    left: "83%",
+    right: "90px",
     bottom: "150px",
   },
   zoomOutButton: {
@@ -53,13 +56,17 @@ const useStyles = makeStyles((theme) => ({
       boxShadow: 'none',
     },
     position: 'absolute',
-    left: "83%",
+    right: "90px",
     bottom: "90px",
   },
   renderText: {
     position: 'absolute',
-    left: "15%",
+    left: "30px",
     bottom: '30px',
+  },
+  svgStyle: {
+    width: "100%",
+    height: "100%"
   }
 }));
 
@@ -80,11 +87,18 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [scale, setScale] = useState(1);
 
+  const [width, setWidth] = useState(100);
+  const [height, setHeight] = useState(100);
+  const [isRefReady, setIsRefReady] = useState(false);
+
   //Constants
   const svgRef = useRef();
   const circle = d3.geoCircle();
+  const twilightRadians = 1.396;
+  const halfGlobeRadians = 1.57;
   const projection = d3.geoOrthographic()
-    .fitSize([size, size], {type: "Sphere"})
+    .fitSize([width, height], {type: "Sphere"})
+    .clipAngle(90)
     .precision(0.1);
   const pathGenerator = d3.geoPath().projection(projection);
 
@@ -101,14 +115,14 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    * @param {number} population - the population of the city
    */
   const getCityRadius = (population) => {
-    if (population < 5000)
-      return 0.02
-    else if (population < 10000)
-      return 0.05
-    else if (population < 50000)
-      return 0.07
-    else if (population < 100000)
+    if (population < 100000)
+      return 0.08
+    else if (population < 200000)
       return 0.1
+    else if (population < 300000)
+      return 0.12
+    else if (population < 500000)
+      return 0.14
     else
       return 0.2
   };
@@ -389,7 +403,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     }else{
       svg
         .selectAll(".lights")
-        .data(lightsFine.filter((d) => isFineLightsInView(d, [nightLongitude, nightLatitude], rotateParams)))
+        .data(lightsFine1.records.filter((d) => isFineLightsInView(d, [nightLongitude, nightLatitude], rotateParams)))
         .join("path")
         .attr("class", "lights")
         .style("fill", "#ff8")
@@ -408,8 +422,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    */
   const isCoarseLightsInView = (landmark, nightCoordinates, rotateParams) => {
     const gdistance = d3.geoDistance([parseFloat(landmark[3]), parseFloat(landmark[2])], nightCoordinates);
-    const gdistance1 = d3.geoDistance([parseFloat(landmark[3]), parseFloat(landmark[2])], [-rotateParams[0], -rotateParams[1]]);
-    return gdistance < 1.396 && gdistance1 < 1.396;
+    return gdistance < twilightRadians;
   }
 
   /**
@@ -421,8 +434,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    */
   const isFineLightsInView = (landmark, nightCoordinates, rotateParams) => {
     const gdistance = d3.geoDistance(landmark.geometry.coordinates, nightCoordinates);
-    const gdistance1 = d3.geoDistance(landmark.geometry.coordinates, [-rotateParams[0], -rotateParams[1]]);
-    return gdistance < 1.396 && gdistance1 < 1.396;
+    return gdistance < twilightRadians;
   }
 
   /**
@@ -445,7 +457,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     var nightLatitude = -subSolarCoordinates[1];
     svg
     .selectAll(".landmarks")
-    .data(landmarks.filter((d) => isLandmarksInView(d, rotateParams)))
+    .data(landmarks)
     .join("path")
     .attr("class", "landmarks")
     .attr("id", landmark => `${landmark.id}`)
@@ -470,20 +482,9 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     .raise();
   };
 
-  /**
-   * Checks if the landmark is in view for the user
-   * @param {*} landmark - the landmark object
-   * @param {*} rotateParams - the rotate parameters in [long, lat]
-   * @returns - a boolean
-   */
-  const isLandmarksInView = (landmark, rotateParams) => {
-    const gdistance = d3.geoDistance(landmark.coordinates, [-rotateParams[0], -rotateParams[1]]);
-    return gdistance < 1.57;
-  }
-
   const isInTwilight = (landmark, nightCoordinates) => {
     const gdistance = d3.geoDistance(landmark.coordinates, nightCoordinates);
-    return gdistance < 1.57;
+    return gdistance < halfGlobeRadians;
   }
 
   /**
@@ -703,6 +704,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   const drawScale = (svg) => {
 
     var lineGenerator = d3.line();
+    var minDimension = Math.min(width, height);
     svg
     .selectAll(".scale")
     .data([1])
@@ -713,7 +715,12 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     .style("stroke-width", 1)
     .style("fill-opacity", 0)
     .style("stroke-opacity", 1)
-    .attr("d", lineGenerator([[size * 0.73, size * 0.98], [size * 0.73, size * 0.98 + 10], [size * 0.73 + size/4.0, size * 0.98 + 10], [size * 0.73 + size/4.0, size * 0.98]]))
+    .attr("d", lineGenerator([
+      [width * 0.73, height - 30], 
+      [width * 0.73, height - 30 + 10], 
+      [width * 0.73 + minDimension/4.0, height - 30 + 10], 
+      [width * 0.73 + minDimension/4.0, height - 30]
+    ]))
     .raise();
     
     svg
@@ -721,8 +728,8 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     .data([1])
     .join("text")
     .attr("class", "textScale")
-    .attr("dx", size * 0.73 + size/8.0)
-    .attr("dy", size * 0.98)
+    .attr("dx", width * 0.73 + minDimension/8.0)
+    .attr("dy", height - 30)
     .style("text-anchor", "middle")
     .style("fill", "white")
     .text(`${Math.ceil(QUARTER_DIAMETER/scale * 100)/100} km`)
@@ -750,7 +757,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     drawLakesOutline(svg, isCoarse, isDaylight);
 
     if(!isDaylight){
-      // drawLights(svg, true, rotateParams);
+      drawLights(svg, isCoarse, rotateParams);
     }
     
     drawGraticule(svg, isDaylight);    
@@ -767,7 +774,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   };
 
   const getRealScale = () => {
-    return scale * size/2.0;
+    return scale * Math.min(width, height)/2.0;
   }
 
   /**
@@ -818,8 +825,10 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
 
   //Use effect hook.
   useEffect(() => {
-    drawGlobe(oldCoordinates, true);
-    setIsMove(true);
+    if(!isInitialLoad){
+      drawGlobe(oldCoordinates, true);
+      setIsMove(true);
+    }
   }, [scale])
 
   useEffect(() => {
@@ -838,7 +847,8 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
 
   useEffect(() => {
     if(!isInitialLoad){
-      // console.log("else");
+      setWidth(svgRef.current.clientWidth);
+      setHeight(svgRef.current.clientHeight);
       renderExternalUpdate("Rendering for resized window...", false);
     }
   }, [size])
@@ -926,20 +936,27 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     
   }, [locateLandmarkCoordinates])
 
+  useLayoutEffect(() => {
+    setWidth(svgRef.current.clientWidth);
+    setHeight(svgRef.current.clientHeight);
+    setIsRefReady(true);
+  }, []);
+
   useEffect(() => {
-    console.log("paths");
-    setIsLoading(true);
-    setRenderText("Rendering globe...");
-    setTimeout(() => {
-      drawGlobe(oldCoordinates, scale, false);
-      setIsLoading(false);
-      setIsInitialLoad(false);
-    }, 800);
-  }, [])
+    if(isRefReady) {
+      setIsLoading(true);
+      setRenderText("Rendering globe...");
+      setTimeout(() => {
+        drawGlobe(oldCoordinates, false);
+        setIsLoading(false);
+        setIsInitialLoad(false);
+      }, 800);
+    }
+  }, [width, height, isRefReady])
 
   return (
     <div className={classes.root}>
-      <svg width={size} height={size} ref={svgRef}
+      <svg className={classes.svgStyle} ref={svgRef}
         onMouseDown={onMouseDownHandler} 
         onMouseMove={onMouseMoveHandler} 
         onMouseUp={onMouseUpHandler}
