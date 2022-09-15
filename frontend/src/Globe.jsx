@@ -13,7 +13,6 @@ import lakesCoarse from "./jsonData/ne_110m_lakes.json";
 //https://s3-us-west-2.amazonaws.com/s.cdpn.io/215059/cities-200000.json
 //https://public.opendatasoft.com/api/records/1.0/search/?dataset=geonames-all-cities-with-a-population-1000&q=&rows=10000&sort=population&pretty_print=true&format=json&fields=population,coordinates,name
 import lightsFine from "./jsonData/geonames-all-cities-with-a-population-1000.json";
-import lightsFine1 from "./jsonData/geonames-all-cities-with-a-population-1000-5000-records.json";
 import lightsCoarse from "./jsonData/cities-200000.json";//TODO: use if performance is fixed
 import { Button, CircularProgress, FormHelperText, IconButton, LinearProgress, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -393,7 +392,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     if(isCoarse){
       svg
       .selectAll(".lights")
-      .data(lightsCoarse.filter((d) => isCoarseLightsInView(d, [nightLongitude, nightLatitude], rotateParams)))
+      .data(lightsCoarse.filter((d) => isCoarseLightsInView(d, [nightLongitude, nightLatitude], rotateParams) && d[0] > 500000))
       .join("path")
       .attr("class", "lights")
       .style("fill", "#ff8")
@@ -403,7 +402,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     }else{
       svg
         .selectAll(".lights")
-        .data(lightsFine1.records.filter((d) => isFineLightsInView(d, [nightLongitude, nightLatitude], rotateParams)))
+        .data(lightsFine.filter((d) => isFineLightsInView(d, [nightLongitude, nightLatitude], rotateParams) && d.fields.population > 10000))
         .join("path")
         .attr("class", "lights")
         .style("fill", "#ff8")
