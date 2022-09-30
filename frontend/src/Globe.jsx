@@ -93,7 +93,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   //Constants
   const svgRef = useRef();
   const circle = d3.geoCircle();
-  const twilightRadians = 1.396;
+  const twilightRadians = 1.57;
   const halfGlobeRadians = 1.57;
   const projection = d3.geoOrthographic()
     .fitSize([width, height], {type: "Sphere"})
@@ -114,16 +114,22 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    * @param {number} population - the population of the city
    */
   const getCityRadius = (population) => {
-    if (population < 100000)
-      return 0.08
-    else if (population < 200000)
-      return 0.1
-    else if (population < 300000)
-      return 0.12
+    if (population < 10000)
+      return 0.05
+    else if (population < 50000)
+      return 0.05735
+    else if (population < 90000)
+      return 0.06469
+    else if (population < 140000)
+      return 0.07388
+    else if (population < 210000)
+      return 0.08673
+    else if (population < 320000)
+      return 0.10694
     else if (population < 500000)
       return 0.14
     else
-      return 0.2
+      return 0.17
   };
 
   /**
@@ -263,7 +269,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     .data(land)
     .join("path")
     .attr("class", "country")
-    .attr("fill", isDaylight ? "#edd" : "#f5c684")
+    .attr("fill", isDaylight ? "#ebd1d1" : "#f5c684")
     .attr("stroke", isDaylight ? "#faa" : "#b89463")
     .attr("stroke-width", 0.5)
     .attr("d", feature => pathGenerator(feature))
@@ -305,33 +311,6 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   };
 
   /**
-   * Draws the land outline.
-   * @param {*} svg - the svg used to draw the land outline
-   * @param {boolean} isCoarse - the parameter for fine detail or coarse detail
-   * @param {boolean} isDaylight - the parameter for night time styles
-   */
-  const drawLandOutline = (svg, isCoarse, isDaylight) => {
-    //Using local json data that is of type Topology
-    const land = isCoarse ? landCoarse.features : landFine.features;
-    svg
-    .selectAll(".countryOutline")
-    .data(land)
-    .join("path")
-    .attr("class", "countryOutline")
-    .attr("fill-opacity", "0")
-    .attr("stroke", "#b89463")
-    .attr("stroke-width", 0.3)
-    // .attr("stroke-opacity", "0.8")
-    .attr("d", feature => pathGenerator(feature))
-    .on("click", (mouseEvent, item) => {
-      if(currentLandmark.isVisible){
-        landmarkHandler(false, null);
-      }
-    })
-    .raise();
-  };
-
-  /**
    * Draws the lakes.
    * @param {*} svg - the svg used to draw the land
    * @param {boolean} isCoarse - the parameter for fine detail or coarse detail
@@ -344,34 +323,9 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     .data(lakes)
     .join("path")
     .attr("class", "lakes")
-    .attr("fill", isDaylight ? "#edd" : "#1c458c")
+    .attr("fill", isDaylight ? "#dde" : "#1c458c")
     .attr("stroke", isDaylight ? "#faa" : "#b89463")
     .attr("stroke-width", 0.5)
-    .attr("d", feature => pathGenerator(feature))
-    .raise()
-    .on("click", (mouseEvent, item) => {
-      if(currentLandmark.isVisible){
-        landmarkHandler(false, null);
-      }
-    });
-  };
-
-  /**
-   * Draws the lake outline.
-   * @param {*} svg - the svg used to draw the lake outline
-   * @param {boolean} isCoarse - the parameter for fine detail or coarse detail
-   * @param {boolean} isDaylight - the parameter for night time styles
-   */
-  const drawLakesOutline = (svg, isCoarse, isDaylight) => {
-    const lakes = isCoarse ? lakesCoarse.features :lakesFine.features;
-    svg
-    .selectAll(".lakesOutline")
-    .data(lakes)
-    .join("path")
-    .attr("class", "lakesOutline")
-    .attr("fill-opacity", "0")
-    .attr("stroke", isDaylight ? "#faa" : "#b89463")
-    .attr("stroke-width", 0.3)
     .attr("d", feature => pathGenerator(feature))
     .raise()
     .on("click", (mouseEvent, item) => {
@@ -396,17 +350,17 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
       .join("path")
       .attr("class", "lights")
       .style("fill", "#ff8")
-      .attr("fill-opacity","0.4")
+      .attr("fill-opacity","0.35")
       .attr("d", cityElement => pathGenerator(circle.center([parseFloat(cityElement[3]), parseFloat(cityElement[2])]).radius(getCityRadius(cityElement[0]))()))
       .raise();
     }else{
       svg
         .selectAll(".lights")
-        .data(lightsFine.filter((d) => isFineLightsInView(d, [nightLongitude, nightLatitude], rotateParams) && d.fields.population > 10000))
+        .data(lightsFine.filter((d) => isFineLightsInView(d, [nightLongitude, nightLatitude], rotateParams) && d.fields.population > 9000))
         .join("path")
         .attr("class", "lights")
         .style("fill", "#ff8")
-        .attr("fill-opacity","0.4")
+        .attr("fill-opacity","0.35")
         .attr("d", cityElement => pathGenerator(circle.center(cityElement.geometry.coordinates).radius(getCityRadius(cityElement.fields.population))()))
         .raise();
     }
@@ -460,10 +414,10 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     .join("path")
     .attr("class", "landmarks")
     .attr("id", landmark => `${landmark.id}`)
-    .style("fill", landmark => isInTwilight(landmark, [nightLongitude, nightLatitude]) ? "white" : "black")
-    .style("stroke", landmark => isInTwilight(landmark, [nightLongitude, nightLatitude]) ? "white" : "black")
-    .attr("stroke-width", 0.2)
-    .attr("fill-opacity","0.3")
+    .style("fill", "red")
+    .style("stroke", "black")
+    .attr("stroke-width", 0.25)
+    .attr("fill-opacity","0.5")
     .on("mouseover", (mouseEvent, item) => {
       d3.select(`#${item.id}`)
       .style("fill", "red")
@@ -471,7 +425,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     } )
     .on("mouseout", (mouseEvent, item) => {
       d3.select(`#${item.id}`)
-      .style("fill", landmark => isInTwilight(landmark, [nightLongitude, nightLatitude]) ? "white" : "black")
+      .style("fill", landmark => isInTwilight(landmark, [nightLongitude, nightLatitude]) ? "red" : "red")
       .attr("d", landmark => pathGenerator(circle.center([landmark.coordinates[0], landmark.coordinates[1]]).radius(0.1)()));
     } )
     .on("click", (mouseEvent, item) => {
@@ -519,7 +473,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   const drawCurrentShadow = (svg, isDaylight) => {
     var nightLongitude = subSolarCoordinates[0] + 180;
     var nightLatitude = -subSolarCoordinates[1];
-    var opacity = "0.3";
+    var opacity = "0.35";
     svg
     .selectAll(".shadow")
     .data([90, 90-6, 90-12, 90-18])
@@ -601,24 +555,6 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     //   path_uid: x, 
     //   isAirPlane: true
     // }
-    svg
-    .selectAll(".arcOutline")
-    .data(paths)
-    .join("path")
-    .attr("class", "arcOutline")
-    // .transition()
-    .attr("fill-opacity", "0")
-    .attr("stroke-opacity", feature => feature.isAirPlane ? 0.5 : 1)
-    .attr("stroke", feature => isDayTime ? "black" : "white")
-    .attr("stroke-width", feature => feature.isAirPlane ? 0.8 : 0.2)
-    .attr("d", feature =>pathGenerator(feature))
-    .raise()
-    .on("click", (mouseEvent, item) => {
-      if(currentLandmark.isVisible){
-        landmarkHandler(false, null);
-      }
-    })
-    .raise();
       
     svg
     .selectAll(".arc")
@@ -627,9 +563,9 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     .attr("class", "arc")
     // .transition()
     .attr("fill-opacity", "0")
-    .attr("stroke-opacity", feature => feature.isAirPlane ? 0.5 : 1)
-    .attr("stroke", feature => isDayTime ? "black" : "black")
-    .attr("stroke-width", feature => feature.isAirPlane ? 1 : 0.5)
+    .attr("stroke-opacity", 1)
+    .attr("stroke", "#7d7d7d")
+    .attr("stroke-width", 1)
     .style("stroke-dasharray", feature => feature.isAirPlane ? ("15, 3") : ("3", "3"))
     .attr("d", feature =>pathGenerator(feature))
     .raise()
@@ -662,11 +598,11 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     .attr("class", "newPath")
     // .transition()
     .attr("fill-opacity","0")
-    .attr("stroke", feature => feature.isAirPlane ? "red" : "red")
+    .attr("stroke", "red")
     .style("stroke-dasharray", feature => feature.isAirPlane ? ("15, 3") : ("3", "3"))
-    .attr("stroke-opacity", feature => 1)
-    .attr("stroke-width", feature => 1)
-    .attr("d", feature =>pathGenerator(feature))
+    .attr("stroke-opacity", 1)
+    .attr("stroke-width", 1)
+    .attr("d", feature => pathGenerator(feature))
     .raise();
   };
 
@@ -688,11 +624,11 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     .join("path")
     .attr("class", "editPath")
     .attr("fill-opacity","0")
-    .attr("stroke", feature => feature.isAirPlane ? "#73ff00" : "#73ff00")
+    .attr("stroke", "#73ff00")
     .style("stroke-dasharray", feature => feature.isAirPlane ? ("15, 3") : ("3", "3"))
-    .attr("stroke-opacity", feature => 1)
-    .attr("stroke-width", feature => 1)
-    .attr("d", feature =>pathGenerator(feature))
+    .attr("stroke-opacity", 1)
+    .attr("stroke-width", 1)
+    .attr("d", feature => pathGenerator(feature))
     .raise();
   };
 
@@ -745,17 +681,14 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     const svg = d3.select(svgRef.current);
     projection.rotate(rotateParams).scale(getRealScale());
 
-    var isDaylight = false;
+    var isDaylight = false;// this is set to false since we plan to change this to a variable in preferences
     
     drawSphere(svg, isDaylight);
     drawLand(svg, isCoarse, isDaylight);
     drawLakes(svg, isCoarse, isDaylight);
-    drawCurrentShadow(svg, isDaylight);
-
-    drawLandOutline(svg, isCoarse, isDaylight);
-    drawLakesOutline(svg, isCoarse, isDaylight);
 
     if(!isDaylight){
+      drawCurrentShadow(svg, isDaylight);
       drawLights(svg, isCoarse, rotateParams);
     }
     
