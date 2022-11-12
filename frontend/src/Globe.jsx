@@ -115,7 +115,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    */
   const getCityRadius = (population) => {
     if (population < 10000)
-      return 0.05
+      return 0.025
     else if (population < 50000)
       return 0.05735
     else if (population < 90000)
@@ -131,6 +131,17 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     else
       return 0.17
   };
+
+  const getCityOpacity = (population) => {
+    if (population < 20000)
+      return "0.35"
+    else if (population < 30000)
+      return "0.4"
+    else if (population < 500000)
+      return "0.45"
+    else
+      return "0.8"
+  }
 
   /**
    * Handles when the user has become idle.
@@ -350,7 +361,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
       .join("path")
       .attr("class", "lights")
       .style("fill", "#ff8")
-      .attr("fill-opacity","0.35")
+      .attr("fill-opacity", cityElement => getCityOpacity(cityElement[0]))
       .attr("d", cityElement => pathGenerator(circle.center([parseFloat(cityElement[3]), parseFloat(cityElement[2])]).radius(getCityRadius(cityElement[0]))()))
       .raise();
     }else{
@@ -360,7 +371,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
         .join("path")
         .attr("class", "lights")
         .style("fill", "#ff8")
-        .attr("fill-opacity","0.35")
+        .attr("fill-opacity", cityElement => getCityOpacity(cityElement.fields.population))
         .attr("d", cityElement => pathGenerator(circle.center(cityElement.geometry.coordinates).radius(getCityRadius(cityElement.fields.population))()))
         .raise();
     }
@@ -476,7 +487,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     var opacity = "0.35";
     svg
     .selectAll(".shadow")
-    .data([90, 90-6, 90-12, 90-18])
+    .data([90, 90-1, 90-2, 90-3, 90-6, 90-12, 90-18])
     .join("path")
     .attr("class", "shadow")
     .attr("id", `shadow`)
