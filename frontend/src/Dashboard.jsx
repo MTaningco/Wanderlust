@@ -66,13 +66,11 @@ function Dashboard() {
   // const [dialogContent, setDialogContent] = useState("");
   const [paths, setPaths] = useState([]);
   const [landmarks, setLandmarks] = useState([]);
-  const [subSolarCoordinates, setSubSolarCoordinates] = useState([0, 0]);
   const [locateLandmarkCoordinates, setLocateLandmarkCoordinates] = useState(null);
   // const [anchorEl, setAnchorEl] = React.useState(null);
   // const open = Boolean(anchorEl);
   const [isPathsLoaded, setIsPathsLoaded] = useState(false);
   const [isLandmarksLoaded, setIsLandmarksLoaded] = useState(false);
-  const [isSubSolarLoaded, setIsSubsolarLoaded] = useState(false);
   const [windowSize, setWindowSize] = useState({
     width: undefined,
     height: undefined,
@@ -257,21 +255,6 @@ function Dashboard() {
   };
 
   /**
-   * Gets the subsolar point from the backend.
-   */
-  const getSubsolarPoint = () => {
-    fetch(`/sun`)
-    .then(res => res.json())
-    .then(res => {
-      setSubSolarCoordinates([res.longitude, res.latitude]);
-      setIsSubsolarLoaded(true);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-  };
-
-  /**
    * Updates the front end landmark.
    * @param {*} landmark - the landmark to be updated
    */
@@ -286,7 +269,7 @@ function Dashboard() {
 
     items[index] = itemToUpdate;
 
-    if(landmark.landmark_uid == currentLandmark.landmark_uid){
+    if(landmark.landmark_uid === currentLandmark.landmark_uid){
       setCurrentLandmark({...landmark, isVisible: true});
     }
     setEditLandmark(prevVal => {
@@ -304,7 +287,7 @@ function Dashboard() {
   const deleteLandmark = (landmark_uid, index) => {
     let items = [...landmarks];
     items.splice(index, 1);
-    if(currentLandmark.landmark_uid == landmark_uid){
+    if(currentLandmark.landmark_uid === landmark_uid){
       setCurrentLandmark(prevVal => {
         const prevValCopy = {...prevVal};
         prevValCopy.isVisible = false;
@@ -547,10 +530,6 @@ function Dashboard() {
       await getUserPaths();
     }
     getUserData();
-    getSubsolarPoint();
-    const interval = setInterval(() => {
-      getSubsolarPoint();
-    }, 2 * 60000);
 
     function handleResize() {
       // Set window width/height to state
@@ -569,7 +548,6 @@ function Dashboard() {
     // Remove event listener on cleanup
     return () => {
       window.removeEventListener("resize", handleResize);
-      clearInterval(interval);
       clearDialogTimer();
     };
     // return () => clearInterval(interval);
@@ -583,7 +561,7 @@ function Dashboard() {
       return (
         <Grid container spacing={0} style={{width: `calc(100% - ${drawerWidth}px)`, marginLeft: drawerWidth}}>
           <Grid item align='center' style={{ padding: "1vh", height:"100vh", flexGrow: 1}}>
-            {isLandmarksLoaded && isPathsLoaded && isSubSolarLoaded ? 
+            {isLandmarksLoaded && isPathsLoaded ? 
               <Globe
               paths={paths} 
               landmarks={landmarks} 
@@ -593,7 +571,6 @@ function Dashboard() {
               newLandmark={newLandmark}
               currentLandmark={currentLandmark}
               editLandmark={editLandmark}
-              subSolarCoordinates={subSolarCoordinates}
               editPath={editPath}
               locateLandmarkCoordinates={locateLandmarkCoordinates}
               setLocateLandmarkCoordinates={setLocateLandmarkCoordinates}/> : 

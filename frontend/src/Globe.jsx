@@ -18,6 +18,7 @@ import { Button, CircularProgress, FormHelperText, IconButton, LinearProgress, T
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
+import suncalc from "suncalc";
 
 /**
  * Styles used for the component.
@@ -71,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
 
 const QUARTER_DIAMETER = 12742/4.0;
 
-function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, currentLandmark, editLandmark, subSolarCoordinates, editPath, locateLandmarkCoordinates, setLocateLandmarkCoordinates}) {
+function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, currentLandmark, editLandmark, editPath, locateLandmarkCoordinates, setLocateLandmarkCoordinates}) {
     
   const classes = useStyles();
   
@@ -79,6 +80,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   const [mouseCoordinates, setMouseCoordinates] = useState(null);         //state for initially pressing down the mouse button's position
   const [oldCoordinates, setOldCoordinates] = useState([180, -25]);   //state for the position of the globe during inactivity (units in -longitude, -latitude)
   const [newCoordinates, setNewCoordinates] = useState(null);             //state for updating the old coordinates
+  const [subSolarCoordinates, setSubSolarCoordinates] = useState([0,0]);  //state for the coordinates of the position of the sun
   const [isMove, setIsMove] = useState(false);                        //state for when a user has queued up the fact that the globe has been changed somehow that lowered the resolution and will be rendered back to full resolution
   const [isDrag, setIsDrag] = useState(false);                        //state for whether or not the user is dragging the globe (moving the mouse while mouse is down)
   const [isLoading, setIsLoading] = useState(false);
@@ -108,6 +110,17 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   const onMouseDownHandler = (event) => {
     setMouseCoordinates([event.screenX, event.screenY]);
   };
+
+  /**
+   * Finds the sub solar coordinates. The algorithm for retrieving the coordinates is by calculating the position
+   * of the sun at the North Pole (lat: 90, long: 0). Using the position at the pole, the sub solar coordinates
+   * can be deduced.
+   */
+  const findSubSolarCoordinates = () => {
+    var positionAtPole = suncalc.getPosition(new Date(), 90, 0);
+
+    setSubSolarCoordinates([-positionAtPole.azimuth*180.0/Math.PI, positionAtPole.altitude*180.0/Math.PI]);
+  }
 
   /**
    * Gets the Radius of the city.
@@ -883,6 +896,13 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     setWidth(svgRef.current.clientWidth);
     setHeight(svgRef.current.clientHeight);
     setIsRefReady(true);
+    findSubSolarCoordinates();
+    const interval = setInterval(() => {
+      findSubSolarCoordinates();
+    }, 2 * 30000);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   useEffect(() => {
