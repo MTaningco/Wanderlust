@@ -10,10 +10,8 @@ import landFine from "./jsonData/ne_10m_land.json";
 import landCoarse from "./jsonData/ne_110m_land.json";
 import lakesFine from "./jsonData/ne_10m_lakes.json";
 import lakesCoarse from "./jsonData/ne_110m_lakes.json";
-//https://s3-us-west-2.amazonaws.com/s.cdpn.io/215059/cities-200000.json
-//https://public.opendatasoft.com/api/records/1.0/search/?dataset=geonames-all-cities-with-a-population-1000&q=&rows=10000&sort=population&pretty_print=true&format=json&fields=population,coordinates,name
-import lightsFine from "./jsonData/geonames-all-cities-with-a-population-1000.json";
-import lightsCoarse from "./jsonData/cities-200000.json";//TODO: use if performance is fixed
+import lightsFine from "./jsonData/cityLocationsGreaterThan9000.json";
+import lightsCoarse from "./jsonData/cityLocationsGreaterThan500000.json";
 import { Button, CircularProgress, FormHelperText, IconButton, LinearProgress, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
@@ -95,7 +93,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   //Constants
   const svgRef = useRef();
   const circle = d3.geoCircle();
-  const twilightRadians = 1.57;
+  const twilightRadians = 90.0 * Math.PI/180.0;
   const halfGlobeRadians = 1.57;
   const projection = d3.geoOrthographic()
     .fitSize([width, height], {type: "Sphere"})
@@ -364,43 +362,20 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    * @param {*} svg - the svg used to draw city lights
    * @param {boolean} isCoarse - the parameter for fine detail or coarse detail
    */
-  const drawLights = (svg, isCoarse, rotateParams) => {
+  const drawLights = (svg, isCoarse, rotateParams, isDaylight) => {
     var nightLongitude = subSolarCoordinates[0] + 180;
     var nightLatitude = -subSolarCoordinates[1];
-    if(isCoarse){
-      svg
+    var lightsFineToShow = isDaylight ? [] : (isCoarse ? lightsCoarse : lightsFine);
+    svg
       .selectAll(".lights")
-      .data(lightsCoarse.filter((d) => isCoarseLightsInView(d, [nightLongitude, nightLatitude], rotateParams) && d[0] > 500000))
+      .data(lightsFineToShow.filter((d) => isFineLightsInView(d, [nightLongitude, nightLatitude])))
       .join("path")
       .attr("class", "lights")
       .style("fill", "#ff8")
-      .attr("fill-opacity", cityElement => getCityOpacity(cityElement[0]))
-      .attr("d", cityElement => pathGenerator(circle.center([parseFloat(cityElement[3]), parseFloat(cityElement[2])]).radius(getCityRadius(cityElement[0]))()))
+      .attr("fill-opacity", cityElement => getCityOpacity(cityElement.p))
+      .attr("d", cityElement => pathGenerator(circle.center(cityElement.c).radius(getCityRadius(cityElement.p))()))
       .raise();
-    }else{
-      svg
-        .selectAll(".lights")
-        .data(lightsFine.filter((d) => isFineLightsInView(d, [nightLongitude, nightLatitude], rotateParams) && d.fields.population > 9000))
-        .join("path")
-        .attr("class", "lights")
-        .style("fill", "#ff8")
-        .attr("fill-opacity", cityElement => getCityOpacity(cityElement.fields.population))
-        .attr("d", cityElement => pathGenerator(circle.center(cityElement.geometry.coordinates).radius(getCityRadius(cityElement.fields.population))()))
-        .raise();
-    }
   };
-
-  /**
-   * Checks if the landmark for coarse city lights is in view for the user
-   * @param {*} landmark - the landmark object
-   * @param {*} nightCoordinates - the night coordinates in [long, lat]
-   * @param {*} rotateParams - the rotate parameters in [long, lat]
-   * @returns - a boolean
-   */
-  const isCoarseLightsInView = (landmark, nightCoordinates, rotateParams) => {
-    const gdistance = d3.geoDistance([parseFloat(landmark[3]), parseFloat(landmark[2])], nightCoordinates);
-    return gdistance < twilightRadians;
-  }
 
   /**
    * Checks if the landmark for fine city lights is in view for the user
@@ -409,8 +384,8 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
    * @param {*} rotateParams - the rotate parameters in [long, lat]
    * @returns - a boolean 
    */
-  const isFineLightsInView = (landmark, nightCoordinates, rotateParams) => {
-    const gdistance = d3.geoDistance(landmark.geometry.coordinates, nightCoordinates);
+  const isFineLightsInView = (landmark, nightCoordinates) => {
+    const gdistance = d3.geoDistance(landmark.c, nightCoordinates);
     return gdistance < twilightRadians;
   }
 
@@ -498,9 +473,10 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     var nightLongitude = subSolarCoordinates[0] + 180;
     var nightLatitude = -subSolarCoordinates[1];
     var opacity = "0.35";
+    var shadowArray = isDaylight ? [] : [90, 90-1, 90-2, 90-3, 90-6, 90-12, 90-18];
     svg
     .selectAll(".shadow")
-    .data([90, 90-1, 90-2, 90-3, 90-6, 90-12, 90-18])
+    .data(shadowArray)
     .join("path")
     .attr("class", "shadow")
     .attr("id", `shadow`)
@@ -704,6 +680,7 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
   const drawGlobe = (rotateParams, isCoarse) => {
     const svg = d3.select(svgRef.current);
     projection.rotate(rotateParams).scale(getRealScale());
+    const isLightsVisible = editLandmark.isVisible || newLandmark.isVisible || editPath.coordinates.length > 0 || newPath.coordinates.length > 0;
 
     var isDaylight = false;// this is set to false since we plan to change this to a variable in preferences
     
@@ -712,8 +689,8 @@ function Globe({size, paths, landmarks, landmarkHandler, newPath, newLandmark, c
     drawLakes(svg, isCoarse, isDaylight);
 
     if(!isDaylight){
-      drawCurrentShadow(svg, isDaylight);
-      drawLights(svg, isCoarse, rotateParams);
+      drawCurrentShadow(svg, isLightsVisible);
+      drawLights(svg, isCoarse, rotateParams, isLightsVisible);
     }
     
     drawGraticule(svg, isDaylight);    
